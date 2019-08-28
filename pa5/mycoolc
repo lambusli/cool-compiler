@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+BIN_DIR="$(dirname ${BASH_SOURCE[0]})/../bin"
+
+# Change these paths (or use the command line options) to substitute your implementations
+LEXER="${BIN_DIR}/lexer"
+PARSER="${BIN_DIR}/parser"
+SEMANT="${BIN_DIR}/semant"
+CGEN="./cgen"
+
+usage() {
+  cat << EOF
+usage: $(basename "$0") [options] -- [options to coolc] FILE [FILE...]
+
+Run coolc as individual phases
+
+Options:
+  -h         Print this message
+  -L [FILE]  Path to lexer, default=$LEXER
+  -P [FILE]  Path to parser, default=$PARSER
+  -S [FILE]  Path to semant, default=$SEMANT
+  -C [FILE]  Path to cgen, default=$CGEN
+EOF
+}
+
+while getopts "L:P:S:C:h" Option
+do
+    case $Option in
+        L)
+            LEXER=$OPTARG
+            ;;
+        P)
+            PARSER=$OPTARG
+            ;;
+        S)
+            SEMANT=$OPTARG
+            ;;
+        C)
+            CGEN=$OPTARG
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        ?)
+            usage
+            exit 85
+            ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+"$LEXER" "$@" | "$PARSER" "$@" | "$SEMANT" "$@" | "$CGEN" "$@"

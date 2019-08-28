@@ -1,0 +1,2 @@
+./undefined_class.test:1: Class Class1 inherits from an undefined class Class3.
+Compilation halted due to static semantic errors.

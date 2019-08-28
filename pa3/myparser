@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+BIN_DIR="$(dirname ${BASH_SOURCE[0]})/../bin"
+
+LEXER="${BIN_DIR}/lexer"
+PARSER="./parser"
+
+usage() {
+  cat << EOF
+usage: $(basename "$0") [options] -- [options to coolc] FILE [FILE...]
+
+Run lexer and parser
+
+Options:
+  -h         Print this message
+  -L [FILE]  Path to lexer, default=$LEXER
+  -P [FILE]  Path to parser, default=$PARSER
+EOF
+}
+
+while getopts "L:P:h" Option
+do
+    case $Option in
+        L)
+            LEXER=$OPTARG
+            ;;
+        P)
+            PARSER=$OPTARG
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        ?)
+            usage
+            exit 85
+            ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+"$LEXER" $* | "$PARSER" $*

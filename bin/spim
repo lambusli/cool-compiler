@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+BIN_DIR="$(dirname ${BASH_SOURCE[0]})"
+
+SPIM="${BIN_DIR}/cool-spim"
+TRAP_HANDLER="${BIN_DIR}/trap.handler"
+
+usage() {
+  cat << EOF
+usage: $(basename "$0") [options] -- [Arguments to SPIM]
+
+Run cool-spim with trap handler set
+
+Options:
+  -h        Print this message
+  -M [FILE] Set cool-spim executable
+  -H [FILE] Set trap handler file
+EOF
+}
+
+while getopts "M:H:" Option
+do
+    case $Option in
+        M)
+            SPIM=$OPTARG
+            ;;
+        H)
+            TRAP_HANDLER=$OPTARG
+            ;;
+        ?)
+            usage
+            exit 85
+    esac
+done
+
+shift $((OPTIND-1))
+
+exec "$SPIM" -exception_file "$TRAP_HANDLER" $*

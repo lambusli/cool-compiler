@@ -1,0 +1,352 @@
+#name "test.test"
+#7 CLASS
+#7 TYPEID CellularAutomaton
+#7 INHERITS
+#7 TYPEID IO
+#7 '{'
+#8 OBJECTID population_map
+#8 ':'
+#8 TYPEID String
+#8 ';'
+#10 OBJECTID init
+#10 '('
+#10 OBJECTID map
+#10 ':'
+#10 TYPEID String
+#10 ')'
+#10 ':'
+#10 TYPEID SELF_TYPE
+#10 '{'
+#10 '{'
+#11 OBJECTID population_map
+#11 ASSIGN
+#11 OBJECTID map
+#11 ';'
+#12 OBJECTID self
+#12 ';'
+#13 '}'
+#13 '}'
+#13 ';'
+#15 OBJECTID print
+#15 '('
+#15 ')'
+#15 ':'
+#15 TYPEID SELF_TYPE
+#15 '{'
+#15 '{'
+#16 OBJECTID out_string
+#16 '('
+#16 OBJECTID population_map
+#16 '.'
+#16 OBJECTID concat
+#16 '('
+#16 STR_CONST "\n"
+#16 ')'
+#16 ')'
+#16 ';'
+#17 OBJECTID self
+#17 ';'
+#18 '}'
+#18 '}'
+#18 ';'
+#20 OBJECTID num_cells
+#20 '('
+#20 ')'
+#20 ':'
+#20 TYPEID Int
+#20 '{'
+#21 OBJECTID population_map
+#21 '.'
+#21 OBJECTID length
+#21 '('
+#21 ')'
+#22 '}'
+#22 ';'
+#24 OBJECTID cell
+#24 '('
+#24 OBJECTID position
+#24 ':'
+#24 TYPEID Int
+#24 ')'
+#24 ':'
+#24 TYPEID String
+#24 '{'
+#25 OBJECTID population_map
+#25 '.'
+#25 OBJECTID substr
+#25 '('
+#25 OBJECTID position
+#25 ','
+#25 INT_CONST 1
+#25 ')'
+#26 '}'
+#26 ';'
+#28 OBJECTID cell_left_neighbor
+#28 '('
+#28 OBJECTID position
+#28 ':'
+#28 TYPEID Int
+#28 ')'
+#28 ':'
+#28 TYPEID String
+#28 '{'
+#29 IF
+#29 OBJECTID position
+#29 '='
+#29 INT_CONST 0
+#29 THEN
+#30 OBJECTID cell
+#30 '('
+#30 OBJECTID num_cells
+#30 '('
+#30 ')'
+#30 '-'
+#30 INT_CONST 1
+#30 ')'
+#31 ELSE
+#32 OBJECTID cell
+#32 '('
+#32 OBJECTID position
+#32 '-'
+#32 INT_CONST 1
+#32 ')'
+#33 FI
+#34 '}'
+#34 ';'
+#36 OBJECTID cell_right_neighbor
+#36 '('
+#36 OBJECTID position
+#36 ':'
+#36 TYPEID Int
+#36 ')'
+#36 ':'
+#36 TYPEID String
+#36 '{'
+#37 IF
+#37 OBJECTID position
+#37 '='
+#37 OBJECTID num_cells
+#37 '('
+#37 ')'
+#37 '-'
+#37 INT_CONST 1
+#37 THEN
+#38 OBJECTID cell
+#38 '('
+#38 INT_CONST 0
+#38 ')'
+#39 ELSE
+#40 OBJECTID cell
+#40 '('
+#40 OBJECTID position
+#40 '+'
+#40 INT_CONST 1
+#40 ')'
+#41 FI
+#42 '}'
+#42 ';'
+#45 OBJECTID cell_at_next_evolution
+#45 '('
+#45 OBJECTID position
+#45 ':'
+#45 TYPEID Int
+#45 ')'
+#45 ':'
+#45 TYPEID String
+#45 '{'
+#46 IF
+#46 '('
+#46 '('
+#47 '('
+#47 IF
+#47 OBJECTID cell
+#47 '('
+#47 OBJECTID position
+#47 ')'
+#47 '='
+#47 STR_CONST "X"
+#47 THEN
+#47 INT_CONST 1
+#47 ELSE
+#47 INT_CONST 0
+#47 FI
+#47 ')'
+#47 '+'
+#48 '('
+#48 IF
+#48 OBJECTID cell_left_neighbor
+#48 '('
+#48 OBJECTID position
+#48 ')'
+#48 '='
+#48 STR_CONST "X"
+#48 THEN
+#48 INT_CONST 1
+#48 ELSE
+#48 INT_CONST 0
+#48 FI
+#48 ')'
+#48 '+'
+#49 '('
+#49 IF
+#49 OBJECTID cell_right_neighbor
+#49 '('
+#49 OBJECTID position
+#49 ')'
+#49 '='
+#49 STR_CONST "X"
+#49 THEN
+#49 INT_CONST 1
+#49 ELSE
+#49 INT_CONST 0
+#49 FI
+#49 ')'
+#50 ')'
+#50 '='
+#50 INT_CONST 1
+#50 ')'
+#51 THEN
+#52 STR_CONST "X"
+#53 ELSE
+#54 STR_CONST "."
+#55 FI
+#56 '}'
+#56 ';'
+#58 OBJECTID evolve
+#58 '('
+#58 ')'
+#58 ':'
+#58 TYPEID SELF_TYPE
+#58 '{'
+#59 '('
+#59 LET
+#59 OBJECTID position
+#59 ':'
+#59 TYPEID Int
+#59 IN
+#60 '('
+#60 LET
+#60 OBJECTID num
+#60 ':'
+#60 TYPEID Int
+#60 ASSIGN
+#60 OBJECTID num_cells
+#60 ERROR "["
+#60 ERROR "]"
+#60 IN
+#61 '('
+#61 LET
+#61 OBJECTID temp
+#61 ':'
+#61 TYPEID String
+#61 IN
+#61 '{'
+#62 WHILE
+#62 OBJECTID position
+#62 '<'
+#62 OBJECTID num
+#62 LOOP
+#62 '{'
+#63 OBJECTID temp
+#63 ASSIGN
+#63 OBJECTID temp
+#63 '.'
+#63 OBJECTID concat
+#63 '('
+#63 OBJECTID cell_at_next_evolution
+#63 '('
+#63 OBJECTID position
+#63 ')'
+#63 ')'
+#63 ';'
+#64 OBJECTID position
+#64 ASSIGN
+#64 OBJECTID position
+#64 '+'
+#64 INT_CONST 1
+#64 ';'
+#65 '}'
+#65 POOL
+#65 ';'
+#66 OBJECTID population_map
+#66 ASSIGN
+#66 OBJECTID temp
+#66 ';'
+#67 OBJECTID self
+#67 ';'
+#68 '}'
+#69 ')'
+#69 ')'
+#69 ')'
+#70 '}'
+#70 ';'
+#71 '}'
+#71 ';'
+#73 CLASS
+#73 TYPEID Main
+#73 '{'
+#74 OBJECTID cells
+#74 ':'
+#74 TYPEID CellularAutomaton
+#74 ';'
+#76 OBJECTID main
+#76 '('
+#76 ')'
+#76 ':'
+#76 TYPEID SELF_TYPE
+#76 '{'
+#76 '{'
+#77 OBJECTID cells
+#77 ASSIGN
+#77 '('
+#77 NEW
+#77 TYPEID CellularAutomaton
+#77 ')'
+#77 '.'
+#77 OBJECTID init
+#77 '('
+#77 STR_CONST "         X         "
+#77 ')'
+#77 ';'
+#78 OBJECTID cells
+#78 '.'
+#78 OBJECTID print
+#78 '('
+#78 ')'
+#78 ';'
+#79 '('
+#79 LET
+#79 OBJECTID countdown
+#79 ':'
+#79 TYPEID Int
+#79 ASSIGN
+#79 INT_CONST 20
+#79 IN
+#80 WHILE
+#80 OBJECTID countdown
+#80 ERROR ">"
+#80 INT_CONST 0
+#80 LOOP
+#81 '{'
+#82 OBJECTID cells
+#82 '.'
+#82 OBJECTID evolve
+#82 '('
+#82 ')'
+#82 ';'
+#83 OBJECTID cells
+#83 '.'
+#83 OBJECTID print
+#83 '('
+#83 ')'
+#83 ';'
+#84 OBJECTID countdown
+#84 ASSIGN
+#84 OBJECTID countdown
+#84 '-'
+#84 INT_CONST 1
+#84 ';'
+#86 POOL
+#87 ')'
+#87 ';'
+#91 ERROR "EOF in comment"
