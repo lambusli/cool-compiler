@@ -88,7 +88,7 @@ class A2I {
         "-".concat(i2a_aux(i * ~1))
     fi fi
   };
-	
+
     (*
       i2a_aux is an example using recursion.
     *)
