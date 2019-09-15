@@ -17,14 +17,20 @@ class Stack {
     top() : String {"You are on the stack bottom. "};
 
     pop() : Stack {
-        -- If we are at the stack bottom, there is nothing to be popped. Thus, return self.
+        -- If the stack is empty, there is nothing to be popped. Thus, return self.
         self
     };
 
     push(s : String) : Stack {   -- Why SELF_TYPE wouldn't work?
         (new Cons).init(s, size() + 1, self)
     };
+
+    eval() : Stack {
+        (new Cons_plus).pop_then_plus(self)
+    };
 };
+
+
 
 class Cons inherits Stack {
     top : String;
@@ -46,8 +52,18 @@ class Cons inherits Stack {
         next <- rest;
         self;
     }};
+
 };
 
+
+
+class Cons_plus inherits Cons {
+    pop_then_plus(curr : Stack) : Stack {{
+        curr <- curr.pop();
+        curr <- curr.push("succeed");
+        curr;
+    }};
+};
 
 
 class Main inherits IO {
@@ -55,15 +71,8 @@ class Main inherits IO {
 
     main() : Object {{
         myStack <- (new Stack).push("a").push("b");
-        out_string(myStack.top()).out_string("\n");
-        out_int(myStack.size()).out_string("\n");
-        myStack <- myStack.pop();
-        out_string(myStack.top()).out_string("\n");
-        out_int(myStack.size()).out_string("\n");
-        myStack <- myStack.pop();
-        out_string(myStack.top()).out_string("\n");
-        out_int(myStack.size()).out_string("\n");
-        myStack <- myStack.pop();
+        myStack <- myStack.push("+");
+        myStack <- myStack.eval();
         out_string(myStack.top()).out_string("\n");
         out_int(myStack.size()).out_string("\n");
     }};
