@@ -151,7 +151,7 @@ class Stack {
     };
 
     eval() : Stack {
-        (new Cons_plus).pop_then_plus(self)
+        (new Cons_swap).pop_then_swap(self)
     };
 };
 
@@ -196,7 +196,7 @@ class Cons_plus inherits Cons {
         curr <- curr.pop();         -- pop the "+" sign on the top.
 
         -- If less than 2 elements are left, then the operation is illegal.
-        -- Whatever code I try to write for this, there is a bug
+
         if not curr.size() < 2 then {
             x1 <- (new A2I_adv).a2i(curr.top()); curr <- curr.pop();
             x2 <- (new A2I_adv).a2i(curr.top()); curr <- curr.pop();
@@ -210,13 +210,41 @@ class Cons_plus inherits Cons {
 };
 
 
+
+(*
+    * Subclass 2: Cons_swap
+    * Take care of the "s" command in PA1: pop the top "s" sign and swap the top two numbers
+*)
+class Cons_swap inherits Cons {
+    s1 : String;
+    s2 : String;
+
+    pop_then_swap(curr : Stack) : Stack {{
+        curr <- curr.pop();      -- Pop the top "s"
+
+        -- If less than 2 elements are left, then the operation is illegal.
+
+        if not curr.size() < 2 then {
+            s1 <- curr.top(); curr <- curr.pop();
+            s2 <- curr.top(); curr <- curr.pop();
+            curr <- curr.push(s1).push(s2);
+        } else abort() fi;
+
+        curr;
+    }};
+};
+
+
 class Main inherits IO {
     myStack : Stack;
 
     main() : Object {{
         myStack <- (new Stack).push("35").push("46");
-        myStack <- myStack.push("+");
+        myStack <- myStack.push("s");
         myStack <- myStack.eval();
+        out_string(myStack.top()).out_string("\n");
+        out_int(myStack.size()).out_string("\n");
+        myStack <- myStack.pop();
         out_string(myStack.top()).out_string("\n");
         out_int(myStack.size()).out_string("\n");
     }};
