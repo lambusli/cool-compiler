@@ -106,8 +106,10 @@ class A2I {
 *)
 class A2I_adv inherits A2I {
 
-   -- Check the first character and tell whether it is a digit.
-   check_1st_char(s : String) : Bool {
+    flag : Int <- 0;
+
+    -- Check the a character and tell whether it is a digit.
+    chr_is_num(s : String) : Bool {
        if s.substr(0, 1) = "0" then true else
        if s.substr(0, 1) = "1" then true else
        if s.substr(0, 1) = "2" then true else
@@ -119,8 +121,27 @@ class A2I_adv inherits A2I {
        if s.substr(0, 1) = "8" then true else
        if s.substr(0, 1) = "9" then true else false
        fi fi fi fi fi fi fi fi fi fi
-   };
+    };
+
+    -- Check whether a string is a number
+    str_is_num(s : String) : Bool {{
+        flag <- 0;
+
+        (let j : Int <- s.length() in
+            (let i : Int <- 0 in
+                while i < j loop {
+                    if chr_is_num(s.substr(i, 1)) = false then flag <- flag + 1
+                    else flag <- flag fi;
+                    i <- i + 1;
+                } pool
+            )
+        );
+
+        if flag = 0 then true else false fi;
+    }};
 };
+
+
 
 (*
     * The class Stack keeps track of all the integers or symbols that have been pushed.
@@ -212,7 +233,7 @@ class Cons_plus inherits Cons {
 
 
 (*
-    * Subclass 2: Cons_swap
+    * Subclass 3: Cons_swap
     * Take care of the "s" command in PA1: pop the top "s" sign and swap the top two numbers
 *)
 class Cons_swap inherits Cons {
@@ -247,5 +268,9 @@ class Main inherits IO {
         myStack <- myStack.pop();
         out_string(myStack.top()).out_string("\n");
         out_int(myStack.size()).out_string("\n");
+
+        if (new A2I_adv).str_is_num("00382") = true then
+            out_string("is number\n")
+        else out_string("not number\n") fi;
     }};
 };
