@@ -88,8 +88,9 @@ class Stack inherits IO {
         if top() = "+" then (new Cons_plus).pop_then_plus(self)
         else if top() = "s" then (new Cons_swap).pop_then_swap(self)
         else if (new A2I_adv).str_is_num(top()) = true then self
+        else if size() = 0 then self
         else {abort(); self;}
-        fi fi fi;
+        fi fi fi fi;
     }};
 
     display() : Object {
