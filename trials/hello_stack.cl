@@ -171,9 +171,13 @@ class Stack {
         (new Cons).init(s, size() + 1, self)
     };
 
-    eval() : Stack {
-        (new Cons_swap).pop_then_swap(self)
-    };
+    eval() : Stack {{
+        if top() = "+" then (new Cons_plus).pop_then_plus(self)
+        else if top() = "s" then (new Cons_swap).pop_then_swap(self)
+        else if (new A2I_adv).str_is_num(top()) = true then self
+        else {abort(); self;}
+        fi fi fi;
+    }};
 };
 
 
@@ -261,7 +265,7 @@ class Main inherits IO {
 
     main() : Object {{
         myStack <- (new Stack).push("35").push("46");
-        myStack <- myStack.push("s");
+        myStack <- myStack.push("surprise");
         myStack <- myStack.eval();
         out_string(myStack.top()).out_string("\n");
         out_int(myStack.size()).out_string("\n");
@@ -269,8 +273,5 @@ class Main inherits IO {
         out_string(myStack.top()).out_string("\n");
         out_int(myStack.size()).out_string("\n");
 
-        if (new A2I_adv).str_is_num("00382") = true then
-            out_string("is number\n")
-        else out_string("not number\n") fi;
     }};
 };
