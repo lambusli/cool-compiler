@@ -104,7 +104,24 @@ extern YYSTYPE cool_yylval;
 %option nodefault
 
 %%
+    /* New line */
+"\n" {gCurrLineNo++; }
 
+    /* White space */
+[ \t\f\v\r]+ {/* Do nothing */}
+
+    /* Integer */ 
+[0-9]+ {
+    try {
+        int num = std::stoi(std::string(yytext, yytext + yyleng));
+        yylval.expression = cool::IntLiteral::Create(num, gCurrLineNo);
+        return (INT_CONST);
+    } catch(std::out_of_range& e) {
+        yylval.error_msg = "Integer literal is out of range";
+        return (ERROR);
+    }
+    printf("%s\n", yytext);
+    }
 
     /*
      *  Nested comments

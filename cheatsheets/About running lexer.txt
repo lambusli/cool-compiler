@@ -1,0 +1,9 @@
+At `cool-compiler` directory, compile a lexer
+$ cmake .   // using the package `cmake` to generate Makefiles.
+$ make lexer    // compile lexer according to the generated Makefiles
+$ cd pa2
+$ ./lexer <(echo "1 2 40 03 2147483647 2147483648 if else")
+
+
+Test the ultimate lexer at the `cool-compiler` directory
+$ ./bin/lexer <(echo "1 2 40 03 2147483647 2147483648 if else")

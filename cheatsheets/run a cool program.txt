@@ -1,0 +1,3 @@
+# Under examples directory
+$ ../bin/coolc hello_world.cl
+$ ../bin/spim -- -file hello_world.s
