@@ -118,8 +118,10 @@ extern YYSTYPE cool_yylval;
     /* New line */
 "\n" {gCurrLineNo++; }
 
+
     /* White space */
 [ \t\f\v\r]+ {/* Do nothing */}
+
 
     /* Integer */
 [0-9]+ {
@@ -131,44 +133,46 @@ extern YYSTYPE cool_yylval;
         yylval.error_msg = "Integer literal is out of range";
         return (ERROR);
     }
+}
 
-    }
 
     /*
      *  Nested comments
      */
+
+
     /*
      *  The multiple-character operators.
      */
-
 "=>" { return (DARROW); }
+
 
     /*
     * Keywords are case-insensitive except for the values true and false,
     * which must begin with a lower-case letter.
     */
-class {return (CLASS);}
-else {return (ELSE);}
-false {
+(?i:class) {return (CLASS);}
+(?i:else) {return (ELSE);}
+f(?i:alse) {
     yylval.expression = cool::BoolLiteral::Create(false, gCurrLineNo);
     return (BOOL_CONST);
 }
-fi {return (FI);}
-if {return (IF);}
-in {return (IN);}
-inherits {return (INHERITS);}
-isvoid {return (ISVOID);}
-let {return (LET);}
-loop {return (LOOP);}
-pool {return (POOL);}
-then {return (THEN);}
-while {return (WHILE);}
-case {return (CASE);}
-esac {return (ESAC);}
-new {return (NEW);}
-of {return (OF);}
-not {return (NOT);}
-true {
+(?i:fi) {return (FI);}
+(?i:if) {return (IF);}
+(?i:in) {return (IN);}
+(?i:inherits) {return (INHERITS);}
+(?i:isvoid) {return (ISVOID);}
+(?i:let) {return (LET);}
+(?i:loop) {return (LOOP);}
+(?i:pool) {return (POOL);}
+(?i:then) {return (THEN);}
+(?i:while) {return (WHILE);}
+(?i:case) {return (CASE);}
+(?i:esac) {return (ESAC);}
+(?i:new) {return (NEW);}
+(?i:of) {return (OF);}
+(?i:not) {return (NOT);}
+t(?i:rue) {
     yylval.expression = cool::BoolLiteral::Create(true, gCurrLineNo);
     return (BOOL_CONST);
 }
