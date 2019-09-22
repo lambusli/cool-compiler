@@ -91,6 +91,11 @@ extern YYSTYPE cool_yylval;
  */
 
 %}
+
+
+
+
+
     /* In this section, anything not Flex must be indented */
 
     /*
@@ -98,10 +103,16 @@ extern YYSTYPE cool_yylval;
      */
 
 
+
     /* Define additional start conditions in addition to INITIAL (all rules without an explicit start condition) */
 
     /* Automatically report coverage holes */
 %option nodefault
+
+
+
+
+
 
 %%
     /* New line */
@@ -110,7 +121,7 @@ extern YYSTYPE cool_yylval;
     /* White space */
 [ \t\f\v\r]+ {/* Do nothing */}
 
-    /* Integer */ 
+    /* Integer */
 [0-9]+ {
     try {
         int num = std::stoi(std::string(yytext, yytext + yyleng));
@@ -120,7 +131,7 @@ extern YYSTYPE cool_yylval;
         yylval.error_msg = "Integer literal is out of range";
         return (ERROR);
     }
-    printf("%s\n", yytext);
+
     }
 
     /*
@@ -131,11 +142,36 @@ extern YYSTYPE cool_yylval;
      */
 
 "=>" { return (DARROW); }
+
     /*
     * Keywords are case-insensitive except for the values true and false,
     * which must begin with a lower-case letter.
     */
-
+class {return (CLASS);}
+else {return (ELSE);}
+false {
+    yylval.expression = cool::BoolLiteral::Create(false, gCurrLineNo);
+    return (BOOL_CONST);
+}
+fi {return (FI);}
+if {return (IF);}
+in {return (IN);}
+inherits {return (INHERITS);}
+isvoid {return (ISVOID);}
+let {return (LET);}
+loop {return (LOOP);}
+pool {return (POOL);}
+then {return (THEN);}
+while {return (WHILE);}
+case {return (CASE);}
+esac {return (ESAC);}
+new {return (NEW);}
+of {return (OF);}
+not {return (NOT);}
+true {
+    yylval.expression = cool::BoolLiteral::Create(true, gCurrLineNo);
+    return (BOOL_CONST);
+}
     /*
     *  String constants (C syntax, taken from lexdoc(1) )
     *  Escape sequence \c is accepted for all characters c. Except for
