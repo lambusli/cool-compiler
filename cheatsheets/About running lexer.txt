@@ -1,9 +1,24 @@
-At `cool-compiler` directory, compile a lexer
+### At `cool-compiler` directory, compile a lexer ###
 $ cmake .   // using the package `cmake` to generate Makefiles.
 $ make lexer    // compile lexer according to the generated Makefiles
 $ cd pa2
 $ ./lexer <(echo "1 2 40 03 2147483647 2147483648 if else")
 
 
-Test the ultimate lexer at the `cool-compiler` directory
+
+### Test the ultimate lexer at the `cool-compiler` directory ###
 $ ./bin/lexer <(echo "1 2 40 03 2147483647 2147483648 if else")
+
+
+### Compare large test file ###
+$ ./lexer <(echo "0 1 23 01 000 2147483648 2147483647") > result
+$ ../bin/lexer <(echo "0 1 23 01 000 2147483648 2147483647") > expected
+$ diff expected result
+// If no difference are shown, then the two files contain the same content.
+
+
+### Automated testing ###
+In test/integration/lexer/int.test create a test case.
+From top level (`cool-compiler` directory)
+$ make lexer_test_ref
+$ CTEST_OUTPUT_ON_FAILURE=TRUE ctest -R lexer
