@@ -89,7 +89,7 @@ extern YYSTYPE cool_yylval;
 /*
  * Add your own definitions here
  */
-
+int comment_depth = 0;
 %}
 
 
@@ -101,10 +101,13 @@ extern YYSTYPE cool_yylval;
     /*
      * Define names for regular expressions here.
      */
-
+typeID [A-Z][a-zA-Z0-9_]*
+objectID [a-z][a-zA-Z0-9_]*
 
 
     /* Define additional start conditions in addition to INITIAL (all rules without an explicit start condition) */
+%x COMMENT
+
 
     /* Automatically report coverage holes */
 %option nodefault
@@ -115,38 +118,6 @@ extern YYSTYPE cool_yylval;
 
 
 %%
-    /* New line */
-"\n" {gCurrLineNo++; }
-
-
-    /* White space */
-[ \t\f\v\r]+ {/* Do nothing */}
-
-
-    /* Integer */
-[0-9]+ {
-    try {
-        int num = std::stoi(std::string(yytext, yytext + yyleng));
-        yylval.expression = cool::IntLiteral::Create(num, gCurrLineNo);
-        return (INT_CONST);
-    } catch(std::out_of_range& e) {
-        yylval.error_msg = "Integer literal is out of range";
-        return (ERROR);
-    }
-}
-
-
-    /*
-     *  Nested comments
-     */
-
-
-    /*
-     *  The multiple-character operators.
-     */
-"=>" { return (DARROW); }
-
-
     /*
     * Keywords are case-insensitive except for the values true and false,
     * which must begin with a lower-case letter.
@@ -176,10 +147,85 @@ t(?i:rue) {
     yylval.expression = cool::BoolLiteral::Create(true, gCurrLineNo);
     return (BOOL_CONST);
 }
+
+
+    /* Identifiers */
+{typeID} {
+    yylval.symbol = cool::gIdentTable.emplace(yytext, yyleng);
+    return (TYPEID);
+}
+
+{objectID} {
+    yylval.symbol = cool::gIdentTable.emplace(yytext, yyleng);
+    return (OBJECTID);
+}
+
+
+    /* New line */
+"\n" {gCurrLineNo++; }
+
+
+    /* White space */
+[ \t\f\v\r]+ {/* Do nothing */}
+
+
+    /* Integer */
+[0-9]+ {
+    try {
+        int num = std::stoi(std::string(yytext, yytext + yyleng));
+        yylval.expression = cool::IntLiteral::Create(num, gCurrLineNo);
+        return (INT_CONST);
+    } catch(std::out_of_range& e) {
+        yylval.error_msg = "Integer literal is out of range";
+        return (ERROR);
+    }
+}
+
+
+    /*
+     *  Nested comments
+     */
+<INITIAL>{
+    "(*" {
+        comment_depth ++;
+        BEGIN(COMMENT);
+    }
+}
+
+<COMMENT>{
+    "(*" {comment_depth++;}
+    "*)" {
+        comment_depth--;
+        if (comment_depth == 0) {BEGIN(INITIAL);}
+    }
+    [^(*\n]+ {}
+    "*" {}
+    "(" {}
+    "\n" {gCurrLineNo++;}
+    <<EOF>> {
+        BEGIN(INITIAL);
+        yylval.error_msg = "EOF in string constant";
+        return (ERROR);
+    }
+    // Get jamming problem with `*(`
+}
+
+
+
+
+
+    /*
+     *  The multiple-character operators.
+     */
+"=>" { return (DARROW); }
+
+
+
     /*
     *  String constants (C syntax, taken from lexdoc(1) )
     *  Escape sequence \c is accepted for all characters c. Except for
     *  \n \t \b \f, the result is c. (but note that 'c' can't be the NUL character)
     */
 
+<<EOF>> {yyterminate();}
 %%
