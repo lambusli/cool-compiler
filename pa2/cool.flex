@@ -108,6 +108,7 @@ objectID [a-z][a-zA-Z0-9_]*
     /* Define additional start conditions in addition to INITIAL (all rules without an explicit start condition) */
 %x NESTEDCOMMENT
 %x LINECOMMENT
+%x STRING
 
 
     /* Automatically report coverage holes */
@@ -240,6 +241,25 @@ t(?i:rue) {
     *  Escape sequence \c is accepted for all characters c. Except for
     *  \n \t \b \f, the result is c. (but note that 'c' can't be the NUL character)
     */
+<INITIAL>"\"" {BEGIN(STRING); }
+
+<STRING>{
+    "\"" {BEGIN(INITIAL);}
+    "\n" {
+        yylval.error_msg = "Unescaped newline in a string";
+        BEGIN(INITIAL);
+        return (ERROR);
+    }
+    <<EOF>> {
+        /* Cannot be tested because Atom saves with an automatic newline */ 
+        yylval.error_msg = "EOF in string constant";
+        return (ERROR);
+    }
+    [^"\n] {}
+}
+
+
+
 
 <<EOF>> {yyterminate();}
 %%
