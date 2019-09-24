@@ -207,7 +207,7 @@ t(?i:rue) {
         yylval.error_msg = "EOF in string constant";
         return (ERROR);
     }
-    // Get jamming problem with `*(`
+    
 }
 
 
