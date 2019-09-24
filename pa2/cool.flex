@@ -106,7 +106,8 @@ objectID [a-z][a-zA-Z0-9_]*
 
 
     /* Define additional start conditions in addition to INITIAL (all rules without an explicit start condition) */
-%x COMMENT
+%x NESTEDCOMMENT
+%x LINECOMMENT
 
 
     /* Automatically report coverage holes */
@@ -188,11 +189,15 @@ t(?i:rue) {
 <INITIAL>{
     "(*" {
         comment_depth ++;
-        BEGIN(COMMENT);
+        BEGIN(NESTEDCOMMENT);
+    }
+    "*)" {
+        yylval.error_msg = "Unmatched *)";
+        return (ERROR);
     }
 }
 
-<COMMENT>{
+<NESTEDCOMMENT>{
     "(*" {comment_depth++;}
     "*)" {
         comment_depth--;
@@ -204,12 +209,21 @@ t(?i:rue) {
     "\n" {gCurrLineNo++;}
     <<EOF>> {
         BEGIN(INITIAL);
-        yylval.error_msg = "EOF in string constant";
+        yylval.error_msg = "EOF in comment";
         return (ERROR);
     }
-    
 }
 
+
+    /* Line comments */
+<INITIAL>"--" {
+    BEGIN(LINECOMMENT);
+}
+
+<LINECOMMENT>{
+    "\n" {gCurrLineNo++; BEGIN(INITIAL);}
+    [^\n] {}
+}
 
 
 
