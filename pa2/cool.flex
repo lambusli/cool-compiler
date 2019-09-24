@@ -245,17 +245,25 @@ t(?i:rue) {
 
 <STRING>{
     "\"" {BEGIN(INITIAL);}
+
+    /* Escape */
+    \\[^ntbf] {printf("#%ld, %s\n", gCurrLineNo, yytext);}
+    \\[ntbf] {printf("#%ld, caution white space\n", gCurrLineNo); }
+
     "\n" {
         yylval.error_msg = "Unescaped newline in a string";
+        gCurrLineNo++;
         BEGIN(INITIAL);
         return (ERROR);
     }
     <<EOF>> {
-        /* Cannot be tested because Atom saves with an automatic newline */ 
+        /* Cannot be tested because Atom saves with an automatic newline */
         yylval.error_msg = "EOF in string constant";
         return (ERROR);
     }
-    [^"\n] {}
+
+    [^"\n] {/* Do nothing */}
+
 }
 
 
