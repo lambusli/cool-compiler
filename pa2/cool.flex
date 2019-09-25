@@ -241,15 +241,32 @@ t(?i:rue) {
     *  Escape sequence \c is accepted for all characters c. Except for
     *  \n \t \b \f, the result is c. (but note that 'c' can't be the NUL character)
     */
-<INITIAL>"\"" {BEGIN(STRING); }
+<INITIAL>"\"" {
+    string_buf.clear();
+    BEGIN(STRING);
+}
 
 <STRING>{
-    /* End of string */
-    "\"" {BEGIN(INITIAL);}
 
     /* Escape */
-    \\[^ntbf] {printf("#%ld, %s\n", gCurrLineNo, yytext);}
-    \\[ntbf] {printf("#%ld, caution white space\n", gCurrLineNo); }
+    "\\\"" { string_buf += '\"'; }
+    \\[^ntbf] { string_buf += yytext[1]; }
+    "\\n" { string_buf += '\n'; }
+    "\\t" { string_buf += '\t'; }
+    "\\b" { string_buf += '\b'; }
+    "\\f" { string_buf += '\f'; }
+
+    /* End of string */
+    "\"" {
+        yylval.expression = cool::StringLiteral::Create(string_buf, gCurrLineNo);
+        /* Test what the final string actually is
+        * const char *temp = string_buf.c_str();
+        * printf("temp = %s\n", temp);
+        */
+        string_buf.clear();
+        BEGIN(INITIAL);
+        return (STR_CONST);
+    }
 
     /* New line */
     "\n" {
@@ -263,13 +280,26 @@ t(?i:rue) {
     <<EOF>> {
         /* Cannot be tested because Atom saves with an automatic newline */
         yylval.error_msg = "EOF in string constant";
+        BEGIN(INITIAL);
+        return (ERROR);
+    }
+
+    /* Null char error */
+    "\0" {
+        yylval.error_msg = "String contains null character";
+        BEGIN(INITIAL);
         return (ERROR);
     }
 
     /* Anything else */
-    [^"\n] {/* Do nothing */}
-
+    [^"\n\\]* {
+        string_buf += yytext;
+    }
 }
+
+    /* Whatever */
+[\(\[\{\)\]\}:.;,<=+->] {/* Do nothing temporarily */}
+"<-" {/* Do nothing temporarily */}
 
 
 
