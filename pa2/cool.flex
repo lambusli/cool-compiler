@@ -233,6 +233,8 @@ t(?i:rue) {
      *  The multiple-character operators.
      */
 "=>" { return (DARROW); }
+"<-" {return (ASSIGN); }
+"<=" {return (LE);}
 
 
 
@@ -258,14 +260,17 @@ t(?i:rue) {
 
     /* End of string */
     "\"" {
-        yylval.expression = cool::StringLiteral::Create(string_buf, gCurrLineNo);
-        /* Test what the final string actually is
-        * const char *temp = string_buf.c_str();
-        * printf("temp = %s\n", temp);
-        */
-        string_buf.clear();
-        BEGIN(INITIAL);
-        return (STR_CONST);
+        if (string_buf.length() <= MAX_STR_CONST) {
+            yylval.expression = cool::StringLiteral::Create(string_buf, gCurrLineNo);
+            string_buf.clear();
+            BEGIN(INITIAL);
+            return (STR_CONST);
+        } else {
+            yylval.error_msg = "String constant too long";
+            string_buf.clear();
+            BEGIN(INITIAL);
+            return (ERROR);
+        }
     }
 
     /* New line */
@@ -292,16 +297,14 @@ t(?i:rue) {
     }
 
     /* Anything else */
-    [^"\n\\]* {
-        string_buf += yytext;
-    }
+    [^"\n\\]* { string_buf += yytext;}
 }
 
-    /* Whatever */
-[\(\[\{\)\]\}:.;,<=+->] {/* Do nothing temporarily */}
-"<-" {/* Do nothing temporarily */}
+    /* Single characters */
+[\(\[\{\)\]\}:.;,<=+-/] {return yytext[0];}
+"\*" {return yytext[0];}
 
-
+[*] {printf("Any char\n");}
 
 
 <<EOF>> {yyterminate();}
