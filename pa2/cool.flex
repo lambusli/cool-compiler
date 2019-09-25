@@ -90,6 +90,7 @@ extern YYSTYPE cool_yylval;
  * Add your own definitions here
  */
 int comment_depth = 0;
+bool null_char_flag = false;
 %}
 
 
@@ -245,6 +246,7 @@ t(?i:rue) {
     */
 <INITIAL>"\"" {
     string_buf.clear();
+    null_char_flag = false;
     BEGIN(STRING);
 }
 
@@ -260,16 +262,26 @@ t(?i:rue) {
 
     /* End of string */
     "\"" {
-        if (string_buf.length() <= MAX_STR_CONST) {
-            yylval.expression = cool::StringLiteral::Create(string_buf, gCurrLineNo);
-            string_buf.clear();
-            BEGIN(INITIAL);
-            return (STR_CONST);
-        } else {
-            yylval.error_msg = "String constant too long";
+        if (null_char_flag == true) {
+            yylval.error_msg = "String contains null character";
+            null_char_flag = false;
             string_buf.clear();
             BEGIN(INITIAL);
             return (ERROR);
+        }
+        else if (string_buf.length() > MAX_STR_CONST) {
+            yylval.error_msg = "String constant too long";
+            null_char_flag = false;
+            string_buf.clear();
+            BEGIN(INITIAL);
+            return (ERROR);
+        }
+        else {
+            yylval.expression = cool::StringLiteral::Create(string_buf, gCurrLineNo);
+            null_char_flag = false;
+            string_buf.clear();
+            BEGIN(INITIAL);
+            return (STR_CONST);
         }
     }
 
@@ -277,6 +289,8 @@ t(?i:rue) {
     "\n" {
         yylval.error_msg = "Unterminated string constant";
         gCurrLineNo++;
+        null_char_flag = false;
+        string_buf.clear();
         BEGIN(INITIAL);
         return (ERROR);
     }
@@ -285,15 +299,15 @@ t(?i:rue) {
     <<EOF>> {
         /* Cannot be tested because Atom saves with an automatic newline */
         yylval.error_msg = "EOF in string constant";
+        null_char_flag = false;
+        string_buf.clear();
         BEGIN(INITIAL);
         return (ERROR);
     }
 
     /* Null char error */
     "\0" {
-        yylval.error_msg = "String contains null character";
-        BEGIN(INITIAL);
-        return (ERROR);
+        null_char_flag = true;
     }
 
     /* Anything else */
@@ -301,10 +315,7 @@ t(?i:rue) {
 }
 
     /* Single characters */
-[\(\{\)\}:.;,<=+-/*~@] {
-    printf("%c\t", yytext[0]);
-    return yytext[0];
-    }
+[\(\{\)\}:.;,<=+-/*~@] {return yytext[0];}
 
 
 
