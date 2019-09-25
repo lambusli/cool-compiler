@@ -301,10 +301,18 @@ t(?i:rue) {
 }
 
     /* Single characters */
-[\(\[\{\)\]\}:.;,<=+-/] {return yytext[0];}
-"\*" {return yytext[0];}
+[\(\{\)\}:.;,<=+-/*~@] {
+    printf("%c\t", yytext[0]);
+    return yytext[0];
+    }
 
-[*] {printf("Any char\n");}
+
+
+    /* Invalid characters */
+[^a-zA-Z0-9\n \t\f\v\r"\(\{\)\}:.;,<=+-/*] {
+    yylval.error_msg = yytext;
+    return (ERROR);
+}
 
 
 <<EOF>> {yyterminate();}
