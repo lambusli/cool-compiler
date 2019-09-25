@@ -244,24 +244,29 @@ t(?i:rue) {
 <INITIAL>"\"" {BEGIN(STRING); }
 
 <STRING>{
+    /* End of string */
     "\"" {BEGIN(INITIAL);}
 
     /* Escape */
     \\[^ntbf] {printf("#%ld, %s\n", gCurrLineNo, yytext);}
     \\[ntbf] {printf("#%ld, caution white space\n", gCurrLineNo); }
 
+    /* New line */
     "\n" {
-        yylval.error_msg = "Unescaped newline in a string";
+        yylval.error_msg = "Unterminated string constant";
         gCurrLineNo++;
         BEGIN(INITIAL);
         return (ERROR);
     }
+
+    /* End of file */
     <<EOF>> {
         /* Cannot be tested because Atom saves with an automatic newline */
         yylval.error_msg = "EOF in string constant";
         return (ERROR);
     }
 
+    /* Anything else */
     [^"\n] {/* Do nothing */}
 
 }
