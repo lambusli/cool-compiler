@@ -254,7 +254,8 @@ t(?i:rue) {
 
     /* Escape */
     "\\\"" { string_buf += '\"'; }
-    \\[^ntbf] { string_buf += yytext[1]; }
+    "\\\n" {string_buf += "\n"; gCurrLineNo++;}
+    \\[^ntbf\n] { string_buf += yytext[1]; }
     "\\n" { string_buf += '\n'; }
     "\\t" { string_buf += '\t'; }
     "\\b" { string_buf += '\b'; }
@@ -320,7 +321,7 @@ t(?i:rue) {
 
 
     /* Invalid characters */
-[^a-zA-Z0-9\n \t\f\v\r"\(\{\)\}:.;,<=+-/*] {
+[^a-zA-Z0-9\n \t\f\v\r"\(\{\)\}:.;,<=+-/*~@] {
     yylval.error_msg = yytext;
     return (ERROR);
 }
