@@ -126,6 +126,7 @@ error when the lexer returns it.
 %type <features> optional_feature_list
 %type <features> feature_list /* Added */
 %type <feature> feature /* Added */
+%type <expression> expr
 
 
 /* Precedence declarations (in reverse order of precedence). */
@@ -141,10 +142,17 @@ program	:
     | error { gASTRoot = cool::Program::Create(cool::Klasses::Create()); }
     ;
 
+/*
+$$ is related to syntax directed translation and S-attributed grammar
+The dependency graph flows from bottom to up
+Each nonterminal has a type
+klasses is is an instance of Klasses
+*/
+
 class_list :
-    class                   { $$ = cool::Klasses::Create($1); }
-    | error ';'             { $$ = cool::Klasses::Create(); } // Error in the 1st class
-    | class_list class      { $$ = ($1)->push_back($2); }
+    class                   { $$ = cool::Klasses::Create($1); }  // Using the factory method to create a class with just one entry
+    | error ';'             { $$ = cool::Klasses::Create(); } // Error in the 1st class. Create an empty class
+    | class_list class      { $$ = ($1)->push_back($2); }  // We got a non-terminal here. Combine them into a new vector
     | class_list error ';'  { $$ = $1; }
     ;
 
@@ -168,8 +176,8 @@ optional_feature_list :
 
 /* Added */
 feature_list:
-    feature ';'
-    | error ';'
+    feature ';' {$$ = cool::Features::Create($1);}
+    | error ';' {$$ = cool::Features::Create();}
     | feature_list feature ';' {$$ = ($1)->push_back($2);}
     | feature_list error ';' {$$ = $1;}
     ;
@@ -180,7 +188,18 @@ feature :
     OBJECTID ':' TYPEID {
         $$ = cool::Attr::Create($1, $3, cool::NoExpr::Create(), @1);
     }
+    | OBJECTID ':' TYPEID ASSIGN expr {
+        // printf("assign\n");
+        $$ = cool::Attr::Create($1, $3, $5, @1);
+    }
     ;
+
+expr :
+    BOOL_CONST {$$ = $1;}
+    | STR_CONST {$$ = $1;}
+    | INT_CONST {$$ = $1;}
+    | OBJECTID {$$ = cool::Ref::Create($1, @1);}
+    | '(' expr ')' {$$ = $2;}
 
 /* end of grammar */
 %%
