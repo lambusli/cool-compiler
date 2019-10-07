@@ -178,7 +178,7 @@ feature_list:
 /* Added */
 feature :
     OBJECTID ':' TYPEID {
-        $$ = cool::Attr::Create($1, $3, cool::NoExpr::Create(), @1); 
+        $$ = cool::Attr::Create($1, $3, cool::NoExpr::Create(), @1);
     }
     ;
 
