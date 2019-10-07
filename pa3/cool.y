@@ -63,6 +63,7 @@
     using UnaryKind  = cool::UnaryOperator::UnaryKind;
 %}
 
+
 /* A union of all the types that can be the result of parsing actions. */
 %union {
     cool::Program* program;
@@ -143,26 +144,34 @@ program	:
     ;
 
 /*
-$$ is related to syntax directed translation and S-attributed grammar
-The dependency graph flows from bottom to up
-Each nonterminal has a type
-klasses is is an instance of Klasses
+* $$, $1, $2... is related to syntax directed translation and S-attributed grammar
+* The dependency graph flows from bottom to up
+* Each nonterminal has a type
+* klasses is is an instance of cool::Klasses
 */
 
 class_list :
-    class                   { $$ = cool::Klasses::Create($1); }  // Using the factory method to create a class with just one entry
-    | error ';'             { $$ = cool::Klasses::Create(); } // Error in the 1st class. Create an empty class
-    | class_list class      { $$ = ($1)->push_back($2); }  // We got a non-terminal here. Combine them into a new vector
+    class
+        // Using the factory method to create a class with just one entry
+        { $$ = cool::Klasses::Create($1); }
+    | error ';'
+        // Error in the 1st class. Create an empty class
+        { $$ = cool::Klasses::Create(); }
+    | class_list class
+        // We got a non-terminal here. Combine them into a new vector
+        { $$ = ($1)->push_back($2); }
     | class_list error ';'  { $$ = $1; }
     ;
 
 
 class :
-    CLASS TYPEID '{' optional_feature_list '}' ';' {
+    CLASS TYPEID '{' optional_feature_list '}' ';'
+    {
         /* If no parent class is specified, the class inherits from Object */
         $$ = cool::Klass::Create($2, cool::gIdentTable.emplace("Object"), $4, cool::StringLiteral::Create(gCurrFilename), @1);
     }
-    | CLASS TYPEID INHERITS TYPEID '{' optional_feature_list '}' ';' {
+    | CLASS TYPEID INHERITS TYPEID '{' optional_feature_list '}' ';'
+    {
         $$ = cool::Klass::Create($2, $4, $6, cool::StringLiteral::Create(gCurrFilename), @1);
     }
     ;
@@ -189,18 +198,18 @@ feature :
         $$ = cool::Attr::Create($1, $3, cool::NoExpr::Create(), @1);
     }
     | OBJECTID ':' TYPEID ASSIGN expr {
-        // printf("assign\n");
         $$ = cool::Attr::Create($1, $3, $5, @1);
     }
     ;
 
 expr :
-    BOOL_CONST {$$ = $1;}
-    | STR_CONST {$$ = $1;}
-    | INT_CONST {$$ = $1;}
-    | OBJECTID {$$ = cool::Ref::Create($1, @1);}
-    | '(' expr ')' {$$ = $2;}
-    | NOT expr {$$ = cool::UnaryOperator::Create(UnaryKind::UO_Not, $2, @1);}
+    BOOL_CONST      {$$ = $1;}
+    | STR_CONST     {$$ = $1;}
+    | INT_CONST     {$$ = $1;}
+    | OBJECTID      {$$ = cool::Ref::Create($1, @1);}
+    | TYPEID        {$$ = cool::Ref::Create($1, @1);}
+    | '(' expr ')'  {$$ = $2;}
+    | NOT expr      {$$ = cool::UnaryOperator::Create(UnaryKind::UO_Not, $2, @1);}
 
 /* end of grammar */
 %%
