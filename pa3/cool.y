@@ -200,6 +200,7 @@ expr :
     | INT_CONST {$$ = $1;}
     | OBJECTID {$$ = cool::Ref::Create($1, @1);}
     | '(' expr ')' {$$ = $2;}
+    | NOT expr {$$ = cool::UnaryOperator::Create(UnaryKind::UO_Not, $2, @1);}
 
 /* end of grammar */
 %%
