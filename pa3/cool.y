@@ -210,6 +210,11 @@ expr :
     | TYPEID        {$$ = cool::Ref::Create($1, @1);}
     | '(' expr ')'  {$$ = $2;}
     | NOT expr      {$$ = cool::UnaryOperator::Create(UnaryKind::UO_Not, $2, @1);}
+    | expr '=' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_EQ, $1, $3, @1);}
+    | expr LE expr  {$$ = cool::BinaryOperator::Create(BinaryKind::BO_LE, $1, $3, @1);}
+    | expr '<' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_LT, $1, $3, @1);}
+    | '~' expr      {$$ = cool::UnaryOperator::Create(UnaryKind::UO_Neg, $2, @1);}
+    ;
 
 /* end of grammar */
 %%
