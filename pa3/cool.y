@@ -125,9 +125,12 @@ error when the lexer returns it.
 %type <klasses> class_list
 %type <klass> class
 %type <features> optional_feature_list
-%type <features> feature_list /* Added */
-%type <feature> feature /* Added */
+%type <features> feature_list
+%type <feature> feature
+%type <expressions> expr_list
 %type <expression> expr
+%type <kase_branches> kase_list     /* Is this correct? */
+%type <kase_branch> kase            /* Is this correct? */
 
 
 /* Precedence declarations (in reverse order of precedence). */
@@ -144,6 +147,7 @@ program	:
     ;
 
 /*
+* Some clarifications
 * $$, $1, $2... is related to syntax directed translation and S-attributed grammar
 * The dependency graph flows from bottom to up
 * Each nonterminal has a type
@@ -179,11 +183,10 @@ class :
 /* Feature list may be empty, but no empty features in list. You will need to flesh this out further. */
 optional_feature_list :
     /* empty */ { $$ = cool::Features::Create(); }
-    | feature_list {$$ = $1;}   /* Added */
+    | feature_list {$$ = $1;}
     ;
 
 
-/* Added */
 feature_list:
     feature ';' {$$ = cool::Features::Create($1);}
     | error ';' {$$ = cool::Features::Create();}
@@ -192,7 +195,6 @@ feature_list:
     ;
 
 
-/* Added */
 feature :
     OBJECTID ':' TYPEID {
         $$ = cool::Attr::Create($1, $3, cool::NoExpr::Create(), @1);
@@ -219,7 +221,34 @@ expr :
     | expr '-' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Sub, $1, $3, @1);}
     | expr '+' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Add, $1, $3, @1);}
     | ISVOID expr   {$$ = cool::UnaryOperator::Create(UnaryKind::UO_IsVoid, $2, @1);}
+    | NEW TYPEID    {$$ = cool::Knew::Create($2, @1);}
+    /* | CASE expr OF kase_list ESAC  {$$ = cool::KaseBranch::Create(,, $2, @1);} */
+    /* | '{' expr_list  '}' */
+    /*    {cool::Expression::Create($2, @1);} */
     ;
+
+/*
+expr_list :
+    expr
+        {$$ = cool::Expressions::Create($1);}
+    | expr_list expr
+        {$$ = ($1)->push_back($2);}
+    // error handling
+    ;
+*/
+
+/*
+    kase_list :
+        kase                {}
+        | kase_list kase    {}
+        // error handling
+        ;
+
+
+    kase :
+        OBJECTID ':' TYPEID DARROW expr {}
+        | TYPEID ':' TYPEID DARROW expr {}
+*/
 
 /* end of grammar */
 %%
