@@ -214,6 +214,11 @@ expr :
     | expr LE expr  {$$ = cool::BinaryOperator::Create(BinaryKind::BO_LE, $1, $3, @1);}
     | expr '<' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_LT, $1, $3, @1);}
     | '~' expr      {$$ = cool::UnaryOperator::Create(UnaryKind::UO_Neg, $2, @1);}
+    | expr '/' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Div, $1, $3, @1);}
+    | expr '*' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Mul, $1, $3, @1);}
+    | expr '-' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Sub, $1, $3, @1);}
+    | expr '+' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Add, $1, $3, @1);}
+    | ISVOID expr   {$$ = cool::UnaryOperator::Create(UnaryKind::UO_IsVoid, $2, @1);}
     ;
 
 /* end of grammar */
