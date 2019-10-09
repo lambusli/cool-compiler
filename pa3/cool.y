@@ -128,6 +128,7 @@ error when the lexer returns it.
 %type <features> feature_list
 %type <feature> feature
 %type <expressions> expr_list
+%type <expressions> expr_list_2
 %type <expression> expr
 %type <kase_branches> kase_list     /* Is this correct? */
 %type <kase_branch> kase            /* Is this correct? */
@@ -223,23 +224,39 @@ expr :
     | ISVOID expr   {$$ = cool::UnaryOperator::Create(UnaryKind::UO_IsVoid, $2, @1);}
     | NEW TYPEID    {$$ = cool::Knew::Create($2, @1);}
     | CASE expr OF kase_list ESAC  {$$ = cool::Kase::Create($2, $4, @1);}
-    /* | '{' expr_list  '}' */
-    /*    {cool::Expression::Create($2, @1);} */
+    /*
+        | LET OBJECTID ':' TYPEID ASSIGN expr
+        | LET OBJECTID ':' TYPEID
+        | LET TYPEID ':' TYPEID
+    */
+    | '{' expr_list  '}' {$$ = cool::Block::Create($2, @1);}
     | WHILE expr LOOP expr POOL {$$ = cool::Loop::Create($2, $4, @1); }
     | IF expr THEN expr ELSE expr FI  {$$ = cool::Cond::Create($2, $4, $6, @1);}
+
+    | OBJECTID '(' expr_list_2 ')' { $$ = cool::Dispatch::Create(cool::Ref::Create(cool::gIdentTable.emplace("self")), $1, $3, @1);}
+
+    /* | TYPEID '(' expr_list_2 ')'  {} */
+
     | OBJECTID ASSIGN expr  {$$ = cool::Assign::Create($1, $3, @1);}
     | TYPEID ASSIGN expr  {$$ = cool::Assign::Create($1, $3, @1);}
     ;
 
-/*
+
 expr_list :
-    expr
-        {$$ = cool::Expressions::Create($1);}
-    | expr_list expr
-        {$$ = ($1)->push_back($2);}
+    expr ';'               {$$ = cool::Expressions::Create($1);}
+    | expr_list expr ';'   {$$ = ($1)->push_back($2);}
     // error handling
     ;
-*/
+
+
+expr_list_2 :
+    /* empty */           {$$ = cool::Expressions::Create();}
+    | expr                  {$$ = cool::Expressions::Create($1);}
+    | expr_list_2 ',' expr  {$$ = ($1)->push_back($3);}
+    // error handling
+    ;
+
+
 
 
 kase_list :
