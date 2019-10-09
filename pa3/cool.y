@@ -225,6 +225,10 @@ expr :
     /* | CASE expr OF kase_list ESAC  {$$ = cool::KaseBranch::Create(,, $2, @1);} */
     /* | '{' expr_list  '}' */
     /*    {cool::Expression::Create($2, @1);} */
+    | WHILE expr LOOP expr POOL {$$ = cool::Loop::Create($2, $4, @1); }
+    | IF expr THEN expr ELSE expr FI  {$$ = cool::Cond::Create($2, $4, $6, @1);}
+    | OBJECTID ASSIGN expr  {$$ = cool::Assign::Create($1, $3, @1);}
+    | TYPEID ASSIGN expr  {$$ = cool::Assign::Create($1, $3, @1);}
     ;
 
 /*
