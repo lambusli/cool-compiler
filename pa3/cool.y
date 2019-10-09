@@ -222,7 +222,7 @@ expr :
     | expr '+' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Add, $1, $3, @1);}
     | ISVOID expr   {$$ = cool::UnaryOperator::Create(UnaryKind::UO_IsVoid, $2, @1);}
     | NEW TYPEID    {$$ = cool::Knew::Create($2, @1);}
-    /* | CASE expr OF kase_list ESAC  {$$ = cool::KaseBranch::Create(,, $2, @1);} */
+    | CASE expr OF kase_list ESAC  {$$ = cool::Kase::Create($2, $4, @1);}
     /* | '{' expr_list  '}' */
     /*    {cool::Expression::Create($2, @1);} */
     | WHILE expr LOOP expr POOL {$$ = cool::Loop::Create($2, $4, @1); }
@@ -241,18 +241,16 @@ expr_list :
     ;
 */
 
-/*
-    kase_list :
-        kase                {}
-        | kase_list kase    {}
-        // error handling
-        ;
+
+kase_list :
+    kase ';'               {$$ = cool::KaseBranches::Create($1);}  // Create a vector
+    | kase_list kase ';'   {$$ = ($1)->push_back($2);}
+    ;
 
 
-    kase :
-        OBJECTID ':' TYPEID DARROW expr {}
-        | TYPEID ':' TYPEID DARROW expr {}
-*/
+kase :
+    OBJECTID ':' TYPEID DARROW expr {$$ = cool::KaseBranch::Create($1, $3, $5, @1);}
+    | TYPEID ':' TYPEID DARROW expr {$$ = cool::KaseBranch::Create($1, $3, $5, @1);}
 
 /* end of grammar */
 %%
