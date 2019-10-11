@@ -141,11 +141,19 @@ error when the lexer returns it.
 
 
 /* Precedence declarations (in reverse order of precedence). */
-%left '+'
-%left '-'
-%left '*'
-%left '/'
 %right ASSIGN
+%precedence NOT
+%precedence '='
+%precedence '<'
+%precedence LE
+%left '-'
+%left '+'
+%left '/'
+%left '*'
+%precedence ISVOID
+%precedence '~'
+%precedence '@'
+%precedence '.'
 %%
 
 program	:
