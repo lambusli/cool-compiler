@@ -134,6 +134,8 @@ error when the lexer returns it.
 %type <expression> optinit
 %type <kase_branches> kase_list     /* Is this correct? */
 %type <kase_branch> kase            /* Is this correct? */
+%type <formals> formal_list
+%type <formal> formal
 
 
 /* Precedence declarations (in reverse order of precedence). */
@@ -205,6 +207,7 @@ feature :
     | OBJECTID ':' TYPEID ASSIGN expr {
         $$ = cool::Attr::Create($1, $3, $5, @1);
     }
+    /* | OBJECTID '(' formal_list ')' */
     ;
 
 expr :
@@ -258,12 +261,11 @@ optinit :
     ;
 
 
-
-
 expr_list :
     expr ';'               {$$ = cool::Expressions::Create($1);}
+    | error ';' {cool::Expressions::Create();} // create an empty expression
     | expr_list expr ';'   {$$ = ($1)->push_back($2);}
-    // error handling
+    | expr_list error ';'  {$$ = $1; }
     ;
 
 
