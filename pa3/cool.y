@@ -250,6 +250,7 @@ expr :
     | OBJECTID ASSIGN expr  {$$ = cool::Assign::Create($1, $3, @1);}
     ;
 
+
 let_list :
     OBJECTID ':' TYPEID optinit IN expr  {$$ = cool::Let::Create($1, $3, $4, $6, @1); }
     | OBJECTID ':' TYPEID optinit ',' let_list  {$$ = cool::Let::Create($1, $3, $4, $6, @1); }
@@ -260,15 +261,16 @@ optinit :
     | ASSIGN expr {$$ = $2; }
     ;
 
-
+/* List of expressions for block */
 expr_list :
     expr ';'               {$$ = cool::Expressions::Create($1);}
-    | error ';'            {cool::Expressions::Create();} // create an empty expression
+    | error ';'            {$$ = cool::Expressions::Create();} // create an empty expression
     | expr_list expr ';'   {$$ = ($1)->push_back($2);}
     | expr_list error ';'  {$$ = $1; }
     ;
 
 
+/* List of expressions for function dispatches */
 expr_list_2 :
     /* empty */             {$$ = cool::Expressions::Create(); }
     | expr_list_2_pr        {$$ = $1;}
