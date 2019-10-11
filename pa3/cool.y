@@ -129,6 +129,7 @@ error when the lexer returns it.
 %type <feature> feature
 %type <expressions> expr_list
 %type <expressions> expr_list_2
+%type <expressions> expr_list_2_pr
 %type <expression> expr
 %type <expression> let_list         /* Let me pretend I understand why */
 %type <expression> optinit
@@ -207,7 +208,13 @@ feature :
     | OBJECTID ':' TYPEID ASSIGN expr {
         $$ = cool::Attr::Create($1, $3, $5, @1);
     }
-    /* | OBJECTID '(' formal_list ')' */
+    /*
+        | OBJECTID '(' formal_list ')' ':' TYPE '{' expr '}'
+        {
+            $$ = cool::Method::Create($1, $3, $6, $8, @1);
+        }
+        | OBJECTID '(' ')'
+    */
     ;
 
 expr :
@@ -228,9 +235,7 @@ expr :
     | ISVOID expr   {$$ = cool::UnaryOperator::Create(UnaryKind::UO_IsVoid, $2, @1);}
     | NEW TYPEID    {$$ = cool::Knew::Create($2, @1);}
     | CASE expr OF kase_list ESAC  {$$ = cool::Kase::Create($2, $4, @1);}
-
-
-
+    | LET let_list  {$$ = $2;}
     | '{' expr_list  '}' {$$ = cool::Block::Create($2, @1);}
     | WHILE expr LOOP expr POOL {$$ = cool::Loop::Create($2, $4, @1); }
     | IF expr THEN expr ELSE expr FI  {$$ = cool::Cond::Create($2, $4, $6, @1);}
@@ -238,7 +243,7 @@ expr :
     /* Line number of dispatch is messed up */
     | OBJECTID '(' expr_list_2 ')'
     { $$ = cool::Dispatch::Create(cool::Ref::Create(
-                                    cool::gIdentTable.emplace("self", @1)
+                                    cool::gIdentTable.emplace("self"), @1
                                   ), $1, $3, @1);
     }
     | expr '.' OBJECTID '(' expr_list_2 ')' { $$ = cool::Dispatch::Create($1, $3, $5, @1); }
@@ -247,7 +252,6 @@ expr :
         $$ = cool::StaticDispatch::Create($1, $3, $5, $7, @1);
     }
     | OBJECTID ASSIGN expr  {$$ = cool::Assign::Create($1, $3, @1);}
-    | LET let_list  {$$ = $2;}
     ;
 
 let_list :
@@ -263,17 +267,20 @@ optinit :
 
 expr_list :
     expr ';'               {$$ = cool::Expressions::Create($1);}
-    | error ';' {cool::Expressions::Create();} // create an empty expression
+    | error ';'            {cool::Expressions::Create();} // create an empty expression
     | expr_list expr ';'   {$$ = ($1)->push_back($2);}
     | expr_list error ';'  {$$ = $1; }
     ;
 
 
 expr_list_2 :
-    /* empty */           {$$ = cool::Expressions::Create();}
-    | expr                  {$$ = cool::Expressions::Create($1);}
-    | expr_list_2 ',' expr  {$$ = ($1)->push_back($3);}
-    // error handling
+    /* empty */             {$$ = cool::Expressions::Create(); }
+    | expr_list_2_pr        {$$ = $1;}
+    ;
+
+expr_list_2_pr :
+    expr                        {$$ = cool::Expressions::Create($1);}
+    | expr_list_2_pr ',' expr   {$$ = ($1)->push_back($3);}
     ;
 
 
