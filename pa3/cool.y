@@ -141,7 +141,10 @@ error when the lexer returns it.
 
 
 /* Precedence declarations (in reverse order of precedence). */
-
+%left '+'
+%left '-'
+%left '*'
+%left '/'
 %%
 
 program	:
@@ -209,7 +212,7 @@ feature :
     | OBJECTID ':' TYPEID ASSIGN expr  {
         $$ = cool::Attr::Create($1, $3, $5, @1);
     }
-    | OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}' 
+    | OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
     {
         $$ = cool::Method::Create($1, $3, $6, $8, @1);
     }
