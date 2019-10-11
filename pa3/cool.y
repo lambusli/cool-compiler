@@ -210,7 +210,6 @@ expr :
     | STR_CONST     {$$ = $1;}
     | INT_CONST     {$$ = $1;}
     | OBJECTID      {$$ = cool::Ref::Create($1, @1);}
-    | TYPEID        {$$ = cool::Ref::Create($1, @1);}
     | '(' expr ')'  {$$ = $2;}
     | NOT expr      {$$ = cool::UnaryOperator::Create(UnaryKind::UO_Not, $2, @1);}
     | expr '=' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_EQ, $1, $3, @1);}
@@ -233,12 +232,17 @@ expr :
     | WHILE expr LOOP expr POOL {$$ = cool::Loop::Create($2, $4, @1); }
     | IF expr THEN expr ELSE expr FI  {$$ = cool::Cond::Create($2, $4, $6, @1);}
 
-    | OBJECTID '(' expr_list_2 ')' { $$ = cool::Dispatch::Create(cool::Ref::Create(cool::gIdentTable.emplace("self")), $1, $3, @1);}
-
-    /* | TYPEID '(' expr_list_2 ')'  {} */
-
+    | OBJECTID '(' expr_list_2 ')'
+    { $$ = cool::Dispatch::Create(cool::Ref::Create(
+                                    cool::gIdentTable.emplace("self")
+                                  ), $1, $3, @1);
+    }
+    | expr '.' OBJECTID '(' expr_list_2 ')' { $$ = cool::Dispatch::Create($1, $3, $5, @1); }
+    | expr '@' TYPEID '.' OBJECTID '(' expr_list_2 ')'
+    {
+        $$ = cool::StaticDispatch::Create($1, $3, $5, $7, @1);
+    }
     | OBJECTID ASSIGN expr  {$$ = cool::Assign::Create($1, $3, @1);}
-    | TYPEID ASSIGN expr  {$$ = cool::Assign::Create($1, $3, @1);}
     ;
 
 
@@ -267,7 +271,7 @@ kase_list :
 
 kase :
     OBJECTID ':' TYPEID DARROW expr {$$ = cool::KaseBranch::Create($1, $3, $5, @1);}
-    | TYPEID ':' TYPEID DARROW expr {$$ = cool::KaseBranch::Create($1, $3, $5, @1);}
+    ;
 
 /* end of grammar */
 %%
