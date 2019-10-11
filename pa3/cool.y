@@ -195,21 +195,21 @@ optional_feature_list :
 
 
 feature_list:
-    feature ';' {$$ = cool::Features::Create($1);}
+    feature ';'  {$$ = cool::Features::Create($1);}
     | error ';' {$$ = cool::Features::Create();}
-    | feature_list feature ';' {$$ = ($1)->push_back($2);}
+    | feature_list feature ';'  {$$ = ($1)->push_back($2);}
     | feature_list error ';' {$$ = $1;}
     ;
 
 
 feature :
-    OBJECTID ':' TYPEID {
+    OBJECTID ':' TYPEID  {
         $$ = cool::Attr::Create($1, $3, cool::NoExpr::Create(), @1);
     }
-    | OBJECTID ':' TYPEID ASSIGN expr {
+    | OBJECTID ':' TYPEID ASSIGN expr  {
         $$ = cool::Attr::Create($1, $3, $5, @1);
     }
-    | OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
+    | OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}' 
     {
         $$ = cool::Method::Create($1, $3, $6, $8, @1);
     }
@@ -254,6 +254,8 @@ expr :
 let_list :
     OBJECTID ':' TYPEID optinit IN expr  {$$ = cool::Let::Create($1, $3, $4, $6, @1); }
     | OBJECTID ':' TYPEID optinit ',' let_list  {$$ = cool::Let::Create($1, $3, $4, $6, @1); }
+    | error let_list  {$$ = $2; }  // Go on to the next variable if the current one is busted
+    // possible bug: The final formal mustbe correct
     ;
 
 optinit :
