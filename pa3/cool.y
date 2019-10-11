@@ -136,6 +136,7 @@ error when the lexer returns it.
 %type <kase_branches> kase_list     /* Is this correct? */
 %type <kase_branch> kase            /* Is this correct? */
 %type <formals> formal_list
+%type <formals> formal_list_pr
 %type <formal> formal
 
 
@@ -208,13 +209,10 @@ feature :
     | OBJECTID ':' TYPEID ASSIGN expr {
         $$ = cool::Attr::Create($1, $3, $5, @1);
     }
-    /*
-        | OBJECTID '(' formal_list ')' ':' TYPE '{' expr '}'
-        {
-            $$ = cool::Method::Create($1, $3, $6, $8, @1);
-        }
-        | OBJECTID '(' ')'
-    */
+    | OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
+    {
+        $$ = cool::Method::Create($1, $3, $6, $8, @1);
+    }
     ;
 
 expr :
@@ -239,8 +237,6 @@ expr :
     | '{' expr_list  '}' {$$ = cool::Block::Create($2, @1);}
     | WHILE expr LOOP expr POOL {$$ = cool::Loop::Create($2, $4, @1); }
     | IF expr THEN expr ELSE expr FI  {$$ = cool::Cond::Create($2, $4, $6, @1);}
-
-    /* Line number of dispatch is messed up */
     | OBJECTID '(' expr_list_2 ')'
     { $$ = cool::Dispatch::Create(cool::Ref::Create(
                                     cool::gIdentTable.emplace("self"), @1
@@ -283,7 +279,18 @@ expr_list_2_pr :
     | expr_list_2_pr ',' expr   {$$ = ($1)->push_back($3);}
     ;
 
+formal_list :
+    /* empty */         {$$ = cool::Formals::Create();}
+    | formal_list_pr    {$$ = $1;}
+    ;
 
+formal_list_pr :
+    formal                          {$$ = cool::Formals::Create($1);}
+    | formal_list_pr ',' formal     {$$ = ($1)->push_back($3);}
+    ;
+
+formal :
+    OBJECTID ':' TYPEID    {$$ = cool::Formal::Create($1, $3, @1);}
 
 
 kase_list :
