@@ -145,6 +145,7 @@ error when the lexer returns it.
 %left '-'
 %left '*'
 %left '/'
+%right ASSIGN
 %%
 
 program	:
@@ -223,17 +224,6 @@ expr :
     | STR_CONST     {$$ = $1;}
     | INT_CONST     {$$ = $1;}
     | OBJECTID      {$$ = cool::Ref::Create($1, @1);}
-    | '(' expr ')'  {$$ = $2;}
-    | NOT expr      {$$ = cool::UnaryOperator::Create(UnaryKind::UO_Not, $2, @1);}
-    | expr '=' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_EQ, $1, $3, @1);}
-    | expr LE expr  {$$ = cool::BinaryOperator::Create(BinaryKind::BO_LE, $1, $3, @1);}
-    | expr '<' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_LT, $1, $3, @1);}
-    | '~' expr      {$$ = cool::UnaryOperator::Create(UnaryKind::UO_Neg, $2, @1);}
-    | expr '/' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Div, $1, $3, @1);}
-    | expr '*' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Mul, $1, $3, @1);}
-    | expr '-' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Sub, $1, $3, @1);}
-    | expr '+' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Add, $1, $3, @1);}
-    | ISVOID expr   {$$ = cool::UnaryOperator::Create(UnaryKind::UO_IsVoid, $2, @1);}
     | NEW TYPEID    {$$ = cool::Knew::Create($2, @1);}
     | CASE expr OF kase_list ESAC  {$$ = cool::Kase::Create($2, $4, @1);}
     | LET let_list  {$$ = $2;}
@@ -245,11 +235,23 @@ expr :
                                     cool::gIdentTable.emplace("self"), @1
                                   ), $1, $3, @1);
     }
+    /* Operator precedence */
+    | '(' expr ')'  {$$ = $2;}
     | expr '.' OBJECTID '(' expr_list_2 ')' { $$ = cool::Dispatch::Create($1, $3, $5, @1); }
     | expr '@' TYPEID '.' OBJECTID '(' expr_list_2 ')'
     {
         $$ = cool::StaticDispatch::Create($1, $3, $5, $7, @1);
     }
+    | '~' expr      {$$ = cool::UnaryOperator::Create(UnaryKind::UO_Neg, $2, @1);}
+    | ISVOID expr   {$$ = cool::UnaryOperator::Create(UnaryKind::UO_IsVoid, $2, @1);}
+    | expr '*' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Mul, $1, $3, @1);}
+    | expr '/' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Div, $1, $3, @1);}
+    | expr '-' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Sub, $1, $3, @1);}
+    | expr '+' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_Add, $1, $3, @1);}
+    | expr LE expr  {$$ = cool::BinaryOperator::Create(BinaryKind::BO_LE, $1, $3, @1);}
+    | expr '<' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_LT, $1, $3, @1);}
+    | expr '=' expr {$$ = cool::BinaryOperator::Create(BinaryKind::BO_EQ, $1, $3, @1);}
+    | NOT expr      {$$ = cool::UnaryOperator::Create(UnaryKind::UO_Not, $2, @1);}
     | OBJECTID ASSIGN expr  {$$ = cool::Assign::Create($1, $3, @1);}
     ;
 
