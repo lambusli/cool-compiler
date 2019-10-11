@@ -232,6 +232,7 @@ expr :
     | WHILE expr LOOP expr POOL {$$ = cool::Loop::Create($2, $4, @1); }
     | IF expr THEN expr ELSE expr FI  {$$ = cool::Cond::Create($2, $4, $6, @1);}
 
+    /* Line number of dispatch is messed up */ 
     | OBJECTID '(' expr_list_2 ')'
     { $$ = cool::Dispatch::Create(cool::Ref::Create(
                                     cool::gIdentTable.emplace("self")
