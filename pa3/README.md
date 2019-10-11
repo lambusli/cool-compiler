@@ -1,3 +1,4 @@
+
 # CS433 Programming Assignment 3: Parsing
 
 ## Files
@@ -49,5 +50,15 @@ Instructions for turning in the assignment will be posted on the course site. Ma
 
 
 ## Write-up
+The general idea behind this parser is to define all rules of productions and to define semantic actions using AST nodes. The uses of lists (for example, expr_list, let_list) allows expressing []* and []+ structure.
 
-Replace with a brief write-up of your implementation as described in the assignment PDF.
+For error recovery, I generally used `error ';'` or `XXX_list error ';'` structure to ensure that any error in such forms of productions are recognized and skipped. Error recovery has been applied on `let`, `class`, and `feature`.
+
+Currently identified and identified bugs:
+1. The precedence rule for `let` is not clear.
+1. Error recovery for `let` does not work for the last variable. For example `let v1 : nt, v2 : Int in expr` will recover, but `let v1 : nt, v2 : nt in expr` will not recover.
+1. Error caused by `class Name {;` can be recovered from neither my parser nor the reference parser. 
+
+Testing strategies:
+1. Whenever I write a production, I test the validity of it immediately using correct example.
+1. For error recovery example, I design edge cases for expression lists, feature lists, and let lists, and make sure the parser can recover from those errors.
