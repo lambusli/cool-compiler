@@ -130,6 +130,8 @@ error when the lexer returns it.
 %type <expressions> expr_list
 %type <expressions> expr_list_2
 %type <expression> expr
+%type <expression> let_list         /* Let me pretend I understand why */
+%type <expression> optinit
 %type <kase_branches> kase_list     /* Is this correct? */
 %type <kase_branch> kase            /* Is this correct? */
 
@@ -223,19 +225,17 @@ expr :
     | ISVOID expr   {$$ = cool::UnaryOperator::Create(UnaryKind::UO_IsVoid, $2, @1);}
     | NEW TYPEID    {$$ = cool::Knew::Create($2, @1);}
     | CASE expr OF kase_list ESAC  {$$ = cool::Kase::Create($2, $4, @1);}
-    /*
-        | LET OBJECTID ':' TYPEID ASSIGN expr
-        | LET OBJECTID ':' TYPEID
-        | LET TYPEID ':' TYPEID
-    */
+
+
+
     | '{' expr_list  '}' {$$ = cool::Block::Create($2, @1);}
     | WHILE expr LOOP expr POOL {$$ = cool::Loop::Create($2, $4, @1); }
     | IF expr THEN expr ELSE expr FI  {$$ = cool::Cond::Create($2, $4, $6, @1);}
 
-    /* Line number of dispatch is messed up */ 
+    /* Line number of dispatch is messed up */
     | OBJECTID '(' expr_list_2 ')'
     { $$ = cool::Dispatch::Create(cool::Ref::Create(
-                                    cool::gIdentTable.emplace("self")
+                                    cool::gIdentTable.emplace("self", @1)
                                   ), $1, $3, @1);
     }
     | expr '.' OBJECTID '(' expr_list_2 ')' { $$ = cool::Dispatch::Create($1, $3, $5, @1); }
@@ -244,7 +244,20 @@ expr :
         $$ = cool::StaticDispatch::Create($1, $3, $5, $7, @1);
     }
     | OBJECTID ASSIGN expr  {$$ = cool::Assign::Create($1, $3, @1);}
+    | LET let_list  {$$ = $2;}
     ;
+
+let_list :
+    OBJECTID ':' TYPEID optinit IN expr  {$$ = cool::Let::Create($1, $3, $4, $6, @1); }
+    | OBJECTID ':' TYPEID optinit ',' let_list  {$$ = cool::Let::Create($1, $3, $4, $6, @1); }
+    ;
+
+optinit :
+    /* empty */ {$$ = cool::NoExpr::Create();}
+    | ASSIGN expr {$$ = $2; }
+    ;
+
+
 
 
 expr_list :
