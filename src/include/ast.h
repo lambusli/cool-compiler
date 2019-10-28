@@ -64,9 +64,9 @@ limitations under the License.
  * }
  * \endcode
  * Note that the pointer needs to be dereferenced to use the vector in this way.
- * 
+ *
  * \subsection Traversing AST nodes
- * 
+ *
  * Review the ASTNode::DumpTree method for an example of recursively traversing the AST.
  */
 #pragma once
@@ -86,115 +86,115 @@ namespace cool {
  * @brief Abstract base class for all AST Nodes
  */
 class ASTNode {
- public:
-  /// Return location (line number) of this node
-  const SourceLoc& loc() const { return loc_; }
+public:
+    /// Return location (line number) of this node
+    const SourceLoc& loc() const { return loc_; }
 
 
-  /**
-   * @brief Dump AST as a formatted tree readable by Cool compiler phases
-   *
-   * @param os Output stream
-   * @param level Indentation level
-   * @param with_types Include Expression types
-   */
-  virtual void DumpTree(std::ostream& os, size_t level, bool with_types) const = 0;
+    /**
+    * @brief Dump AST as a formatted tree readable by Cool compiler phases
+    *
+    * @param os Output stream
+    * @param level Indentation level
+    * @param with_types Include Expression types
+    */
+    virtual void DumpTree(std::ostream& os, size_t level, bool with_types) const = 0;
 
- protected:
-  SourceLoc loc_ = 0;
+protected:
+    SourceLoc loc_ = 0;
 
-  ASTNode() {}
-  ASTNode(SourceLoc loc) : loc_(loc) {}
+    ASTNode() {}
+    ASTNode(SourceLoc loc) : loc_(loc) {}
 
-  void DumpLine(std::ostream& os, size_t level) const {
-    pad(os, level) << '#' << loc_ << std::endl;
-  }
+    void DumpLine(std::ostream& os, size_t level) const {
+        pad(os, level) << '#' << loc_ << std::endl;
+    }
 };
 
 /// AST node for Cool program
 class Program : public ASTNode {
- public:
-  static Program* Create(Klasses* klasses, SourceLoc loc = 0);
+public:
+    static Program* Create(Klasses* klasses, SourceLoc loc = 0);
 
-  /**
-   * @name Child node "getters"
-   * @{
-   */
-  Klasses* klasses() { return klasses_; }
-  //@}
+    /**
+    * @name Child node "getters"
+    * @{
+    */
+    Klasses* klasses() { return klasses_; }
+    //@}
 
-  // C++11+ Note: override specifier ensures we are actually overriding a virtual function
-  void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+    // C++11+ Note: override specifier ensures we are actually overriding a virtual function
+    void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
 
- protected:
-  Klasses* klasses_;
+protected:
+    Klasses* klasses_;
 
-  Program(Klasses* klasses, SourceLoc loc) : ASTNode(loc), klasses_(klasses) {}
+    Program(Klasses* klasses, SourceLoc loc) : ASTNode(loc), klasses_(klasses) {}
 };
 
 /// AST node for Cool class
 class Klass : public ASTNode {
- public:
-  static Klass* Create(Symbol* name, Symbol* parent, Features* features, StringLiteral* filename,
+public:
+    static Klass* Create(Symbol* name, Symbol* parent, Features* features, StringLiteral* filename,
                        SourceLoc loc = 0);
 
-  /**
-   * @name Attribute "getters"
-   * @{
-   */
-  Symbol* name() const { return name_; }
-  Symbol* parent() const { return parent_; }
-  StringLiteral* filename() const { return filename_; }
-  //@}
+    /**
+    * @name Attribute "getters"
+    * @{
+    */
+    Symbol* name() const { return name_; }
+    Symbol* parent() const { return parent_; }
+    StringLiteral* filename() const { return filename_; }
+    //@}
 
-  /**
-   * @name Child node "getters"
-   * @{
-   */
-  // C++ node: We make the return type here const so that consumers can't modify the vector of
-  // Features
-  const Features* features() const { return features_; }
+    /**
+    * @name Child node "getters"
+    * @{
+    */
+    // C++ node: We make the return type here const so that consumers can't modify the vector of
+    // Features
+    const Features* features() const { return features_; }
 
-  Features::size_type features_size() const { return features_->size(); }
-  Feature* feature(size_t i) const { return features_->at(i); }
-  Features::const_iterator features_begin() const { return features_->begin(); }
-  Features::const_iterator features_end() const { return features_->end(); }
+    Features::size_type features_size() const { return features_->size(); }
+    Feature* feature(size_t i) const { return features_->at(i); }
+    Features::const_iterator features_begin() const { return features_->begin(); }
+    Features::const_iterator features_end() const { return features_->end(); }
 
-  /// Get method AST node by name
-  Attr* attr(Symbol* name) const;
+    /// Get method AST node by name
+    Attr* attr(Symbol* name) const;
 
-  /// Get method AST node by name
-  Method* method(Symbol* name) const;
-  //@}
+    /// Get method AST node by name
+    Method* method(Symbol* name) const;
+    //@}
 
-  void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+    void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
 
- protected:
-  Symbol* name_;
-  Symbol* parent_;
-  Features* features_;
-  StringLiteral* filename_;
+protected:
+    Symbol* name_;
+    Symbol* parent_;
+    Features* features_;
+    StringLiteral* filename_;
 
-  Klass(Symbol* name, Symbol* parent, Features* features, StringLiteral* filename, SourceLoc loc)
+    Klass(Symbol* name, Symbol* parent, Features* features, StringLiteral* filename, SourceLoc loc)
       : ASTNode(loc), name_(name), parent_(parent), features_(features), filename_(filename) {}
 };
 
 /// AST node for Cool formal argument
 class Formal : public ASTNode {
- public:
-  static Formal* Create(Symbol* name, Symbol* decl_type, SourceLoc loc = 0);
+public:
+    static Formal* Create(Symbol* name, Symbol* decl_type, SourceLoc loc = 0);
 
-  Symbol* name() const { return name_; }
-  Symbol* decl_type() const { return decl_type_; }
+    Symbol* name() const { return name_; }
+    Symbol* decl_type() const { return decl_type_; }
 
 
-  void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+    void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
 
- protected:
-  Symbol* name_;
-  Symbol* decl_type_;
+protected:
+    Symbol* name_;
+    Symbol* decl_type_;
 
-  Formal(Symbol* name, Symbol* decl_type, SourceLoc loc)
+    Formal(Symbol* name, Symbol* decl_type, SourceLoc loc)
       : ASTNode(loc), name_(name), decl_type_(decl_type) {}
 };
 

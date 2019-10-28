@@ -47,10 +47,10 @@ namespace cool {
 // clang-format off
 /**
    * @name Predefined symbols used in Cool
-   * 
+   *
    * extern indicates that these variables are defined elsewhere (in this case ast_consumer.cc)
    * and so C++ doesn't need to create any storage.
-   * 
+   *
    * @{
    */
 extern Symbol
@@ -89,24 +89,36 @@ std::ostream& SemantError::operator()(const SemantNode* node) { return (*this)(n
 
 SemantKlassTable::SemantKlassTable(SemantError& error, Klasses* klasses)
     : KlassTable(), error_(error) {
-  // Pass 1, Part 1: Build inheritance graph
-  if (error_.errors() > 0) return;  // Can't continue with class table construction if errors found
 
-  // Pass 1, Part 2: Check for cycles in inheritance graph
+    // Pass 1, Part 1: Build inheritance graph
+    // printf("the size of klassTable = %d\n", klasses->size());
+    if (error_.errors() > 0) return;  // Can't continue with class table construction if errors found
+
+
+    // Pass 1, Part 2: Check for cycles in inheritance graph
 }
 
 
 void Semant(Program* program) {
-  // Initialize error tracker (and reporter)
-  SemantError error(std::cerr);
+    // Get something on the screen first
+    Klasses * listOfClasses = program->klasses();
+    for (Klass * c : *(listOfClasses)) {
+        std::cout << "name:" << c->name()->value() <<
+                     ", parent: " << c->parent()->value() << std::endl;
+    }
+    // std::cout << "class count: " << listOfClasses::size; 
+    std::cout << "---------------------------" << std::endl;
 
-  // Perform semantic analysis...
+    // Initialize error tracker (and reporter)
+    SemantError error(std::cerr);
 
-  // Halt program with non-zero exit if there are semantic errors
-  if (error.errors()) {
-    std::cerr << "Compilation halted due to static semantic errors." << std::endl;
-    exit(1);
-  }
+    // Perform semantic analysis...
+
+    // Halt program with non-zero exit if there are semantic errors
+    if (error.errors()) {
+        std::cerr << "Compilation halted due to static semantic errors." << std::endl;
+        exit(1);
+    }
 }
 
 }  // namespace cool
