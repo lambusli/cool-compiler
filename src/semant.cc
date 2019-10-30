@@ -1,3 +1,4 @@
+
 /*
 Copyright (c) 1995,1996 The Regents of the University of California.
 All rights reserved.
@@ -87,11 +88,23 @@ extern Symbol
 std::ostream& SemantError::operator()(const SemantNode* node) { return (*this)(node->klass()); }
 
 
+// Contructor of SemantKlassTable
+// Store all the class names that have appeared
 SemantKlassTable::SemantKlassTable(SemantError& error, Klasses* klasses)
     : KlassTable(), error_(error) {
 
     // Pass 1, Part 1: Build inheritance graph
-    // printf("the size of klassTable = %d\n", klasses->size());
+    for (auto klass : *klasses) {
+        std::cerr << "name:" << klass->name() <<
+                     ", parent: " << klass->parent() << std::endl;
+        SemantNode * old_node = ClassFind(klass->name());
+        if (old_node) {
+            error_(klass) << "Class " << klass->name() << " redefined." << std::endl;
+            continue;
+        }
+        InstallClass(klass, true /*Can Inherit*/, false /*NotBasic*/);
+    }
+
     if (error_.errors() > 0) return;  // Can't continue with class table construction if errors found
 
 
@@ -100,25 +113,26 @@ SemantKlassTable::SemantKlassTable(SemantError& error, Klasses* klasses)
 
 
 void Semant(Program* program) {
-    // Get something on the screen first
-    Klasses * listOfClasses = program->klasses();
-    for (Klass * c : *(listOfClasses)) {
-        std::cout << "name:" << c->name()->value() <<
-                     ", parent: " << c->parent()->value() << std::endl;
-    }
-    // std::cout << "class count: " << listOfClasses::size; 
-    std::cout << "---------------------------" << std::endl;
 
     // Initialize error tracker (and reporter)
     SemantError error(std::cerr);
 
     // Perform semantic analysis...
-
+    // Constructor of a semant class table
+    SemantKlassTable klass_table(error, program->klasses());
     // Halt program with non-zero exit if there are semantic errors
-    if (error.errors()) {
+    if (error.errors()) // If number of errors reported is non-zero
+    {
         std::cerr << "Compilation halted due to static semantic errors." << std::endl;
         exit(1);
     }
+
+    // If no error by now, then print all classes on screen
+    // for (auto klass : klass_table) {
+    //     std::cout << "Name: " << klass->name() << ", ";
+    //     std::cout << "Parent: " << klass->parent() << std::endl;
+    // }
+    std::cout << klass_table.root(); 
 }
 
 }  // namespace cool
