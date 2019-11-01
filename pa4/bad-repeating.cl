@@ -1,3 +1,4 @@
+class C {};
 class C {
 	a : Int;
 	b : Bool;

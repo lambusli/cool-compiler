@@ -1,0 +1,3 @@
+public void SemantKlassTable::traverse(SemantNode *klass_node);
+
+private int SemantNode::track_visit_; 

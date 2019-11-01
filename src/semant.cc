@@ -106,48 +106,38 @@ SemantKlassTable::SemantKlassTable(SemantError& error, Klasses* klasses)
         }
         // If no error, then we install that class in our SemantKlassTable
         InstallClass(klass, true /*Can Inherit*/, false /*NotBasic*/);
+    }
 
+    for (auto node : nodes_) {
         // Create Inheritance graph
-        SemantNode *new_node = ClassFind(klass->name());
-        SemantNode *parent_of_new_node = ClassFind(klass->parent());
-        new_node->parent_ = parent_of_new_node;  // Link from child to parent
-        parent_of_new_node->children_.push_back(new_node);
+        //SemantNode *new_node = ClassFind(klass->name());
+        SemantNode *parent_node = ClassFind(node->parent_name());
+        if (!parent_node) {
+            error_(node) << "Parent class " << node->parent_name() << " is not defined" << std::endl;
+            continue;
+        }
+        if (!parent_node->inheritable()) {
+            error_(node) << "Can't inherit from " << node->parent_name() << " class" << std::endl;
+            continue;
+        }
 
+        node->parent_ = parent_node;  // Link from child to parent
+        parent_node->children_.push_back(node);
     }
 
     if (error_.errors() > 0) return;  // Can't continue with class table construction if errors found
 
-    // Do some experiment for now
-
-    // Experment 1: print out root of the SemantKlassTable
-    std::cout << "The root of this SemantKlassTable is: "
-              << root()->name() << std::endl;
-
-    // Traverse std::vector<SemantNode *> nodes_
+    // Pass 1, Part 2: Check for cycles in the inheritance graph
+    traverse(root());
     for (auto node : nodes_) {
-        if (node->parent()) {
-            std::cout << "Name: " << node->name() << std::endl;
-            std::cout << "Parent: " << node->parent()->name() << std::endl;
-            std::cout << "Children: " << std::endl << "\t";
-            for (auto child : node->children_) {
-                std::cout << child->name() << " ";
-            }
-            std::cout << std::endl << std::endl;
-        } else {
-            std::cout << "Name: " << node->name()
-                      << " Parent: " << "NULL" << std::endl;
-            std::cout << "Children: " << std::endl << "\t";
-            for (auto child : node->children_) {
-              std::cout << child->name() << " ";
-            }
-            std::cout << std::endl << std::endl;
+        if (node->track_visit_ == UNVISITED) {
+            error_(node) << "Cyclical inheritance detected" << std::endl;
         }
-
     }
+    if (error_.errors() > 0) return;  // Can't continue with class table construction if errors found
 
-    // Traverse std::unordered_map< Symbol *, SemantNode > 	node_table_
 
-}
+} // end SemantKlassTable constructor
 
 
 void Semant(Program* program) {
@@ -165,6 +155,31 @@ void Semant(Program* program) {
         exit(1);
     }
 
-}
+} // end void Semant(Program* program)
+
+/*
+ * Below are all the helper and additional functions declared in semant.h
+ */
+
+// Traverse an inheritance graph in depth-first order to check for cycles
+void SemantKlassTable::traverse(SemantNode *klass_node) {
+
+    // check if a klass_node is unvisited, being visited, or already visited
+    if (klass_node->track_visit_) { // if either being visited or already visited
+        error_(klass_node) << "Cycle pointing to class " << klass_node->name()
+                           << " is detected.";
+        return;
+    }
+
+    klass_node->track_visit_ = VISITING;
+
+    // recursively call traverse() on each child node
+    for (auto child : klass_node->children_) {
+        traverse(child);
+    }
+
+    klass_node->track_visit_ = VISITED;
+} // end void traverse(SemantNode *klass_node)
+
 
 }  // namespace cool

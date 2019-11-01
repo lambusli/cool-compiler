@@ -48,11 +48,15 @@ limitations under the License.
 #include "scopedtab.h"
 #include "stringtab.h"
 
+#define UNVISITED 0
+#define VISITING 1
+#define VISITED 2
+
 namespace cool {
 
 /**
  * @brief Main entry point for semantic analysis
- * 
+ *
  * There are three passes:
  * -# Pass 1: This is not a true pass, as only the classes are inspected. Build the inheritance
  * graph and check for errors. There are two "sub"-passes: check that classes are not redefined and
@@ -65,7 +69,7 @@ namespace cool {
  * starting from the root class Object. For each class, typecheck each attribute and method.
  * Simultaneously, check identifiers for correct definition/use and for multiple definitions.
  * All parents of a class are checked before a class is checked.
- * 
+ *
  * @param program Root of the AST
  */
 void Semant(Program* program);
@@ -81,7 +85,7 @@ class SemantKlassTable;
  *
  * Use the most specific error reporting operator possible to generate the most informative error
  * messages.
- * 
+ *
  * An example of using the error reporting to report "An error with name [symbol]":
  * \code{.cpp}
  * SemantError error(std::cerr);
@@ -159,30 +163,32 @@ class SemantError {
  * child class types in the parent class.
  */
 class SemantNode : public InheritanceNode<SemantNode> {
- public:
-  SemantNode(Klass* klass, bool inheritable, bool basic)
-      : InheritanceNode(klass, inheritable, basic) {}
+    public:
+        SemantNode(Klass* klass, bool inheritable, bool basic)
+          : InheritanceNode(klass, inheritable, basic) {}
 
 
- private:
-  friend class SemantKlassTable;
+    private:
+        friend class SemantKlassTable;
+        int track_visit_ = UNVISITED; // {UNVISITED, VISITING, VISITED}
 };
 
 /// Class table for use in semantic analysis
 class SemantKlassTable : public KlassTable<SemantNode> {
- public:
-  /**
-   * @brief Construct a new Semant Klass Table object
-   * 
-   * @param error Error reporter
-   * @param klasses Class AST nodes in Cool program
-   */
-  SemantKlassTable(SemantError& error, Klasses* klasses);
-  
+    public:
+        /**
+        * @brief Construct a new Semant Klass Table object
+        *
+        * @param error Error reporter
+        * @param klasses Class AST nodes in Cool program
+        */
+        SemantKlassTable(SemantError& error, Klasses* klasses);
+        void traverse(SemantNode *klass_node);
 
- private:
-  /// Semantic error reporting class
-  SemantError& error_;
+
+    private:
+        /// Semantic error reporting class
+        SemantError& error_;
 
 };
 

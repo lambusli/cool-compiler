@@ -8,6 +8,12 @@ class C {
     } };
 };
 
+class B inherits C {};
+
+class A inherits C {};
+
+class D inherits A {}; 
+
 Class Main {
 	main():C {
 	  (new C).init(1, true)
