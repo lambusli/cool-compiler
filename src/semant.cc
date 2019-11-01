@@ -127,12 +127,10 @@ void Semant(Program* program) {
         exit(1);
     }
 
-    // If no error by now, then print all classes on screen
-    // for (auto klass : klass_table) {
-    //     std::cout << "Name: " << klass->name() << ", ";
-    //     std::cout << "Parent: " << klass->parent() << std::endl;
-    // }
-    std::cout << klass_table.root(); 
+    // If no error by now, then print all classes in klass_table on screen
+    std::cout << klass_table.root()->name() << std::endl; 
+
+    // std::cout << klass_table.root();
 }
 
 }  // namespace cool
