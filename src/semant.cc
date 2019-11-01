@@ -111,26 +111,36 @@ SemantKlassTable::SemantKlassTable(SemantError& error, Klasses* klasses)
         SemantNode *new_node = ClassFind(klass->name());
         SemantNode *parent_of_new_node = ClassFind(klass->parent());
         new_node->parent_ = parent_of_new_node;  // Link from child to parent
+        parent_of_new_node->children_.push_back(new_node);
 
     }
 
     if (error_.errors() > 0) return;  // Can't continue with class table construction if errors found
 
-    // Pass 1, Part 2: Check for cycles in inheritance graph
     // Do some experiment for now
 
     // Experment 1: print out root of the SemantKlassTable
     std::cout << "The root of this SemantKlassTable is: "
               << root()->name() << std::endl;
 
-    // Traverse std::vector< SemantNode * > nodes_
+    // Traverse std::vector<SemantNode *> nodes_
     for (auto node : nodes_) {
         if (node->parent()) {
-            std::cout << "Name: " << node->name()
-                      << " Parent: " << node->parent()->name() << std::endl;
+            std::cout << "Name: " << node->name() << std::endl;
+            std::cout << "Parent: " << node->parent()->name() << std::endl;
+            std::cout << "Children: " << std::endl << "\t";
+            for (auto child : node->children_) {
+                std::cout << child->name() << " ";
+            }
+            std::cout << std::endl << std::endl;
         } else {
             std::cout << "Name: " << node->name()
                       << " Parent: " << "NULL" << std::endl;
+            std::cout << "Children: " << std::endl << "\t";
+            for (auto child : node->children_) {
+              std::cout << child->name() << " ";
+            }
+            std::cout << std::endl << std::endl;
         }
 
     }
