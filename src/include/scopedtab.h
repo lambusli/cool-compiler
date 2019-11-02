@@ -172,7 +172,6 @@ namespace cool {
     }
 
    private:
-    friend class SemantKlassTable;
     ScopeStack scopes_;
   };
 }

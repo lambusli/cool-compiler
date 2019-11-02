@@ -193,13 +193,21 @@ void SemantKlassTable::traverse(SemantNode *klass_node) {
 
 
 // Create method-tables for all SemantNode
+// Not sure whether any error will be detected here
 void SemantKlassTable::make_all_mtables(SemantNode *klass_node) {
     // duplicate parent class' scoped-table
     klass_node->mtable_ = klass_node->parent()->mtable_;
-    std::cout << klass_node->name() << std::endl;
-    std::cout << klass_node->mtable_.scopes_.empty() << std::endl;
-    klass_node->mtable_.EnterScope();
-    std::cout << klass_node->mtable_.scopes_.empty() << std::endl;
+
+    for (auto feature : *klass_node->klass()->features()) {
+        std::cout << "Tell me the syntax is correct please." << std::endl;
+        std::cout << feature->name() << std::endl;
+        std::cout << "is method ? " << feature->method() << std::endl;
+        std::cout << "is attr ? " << feature->attr() << std::endl; 
+    }
+
+    // for (auto child : klass_node->children_) {
+    //     make_all_mtables(child);
+    // }
 }
 
 
