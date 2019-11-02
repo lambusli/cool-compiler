@@ -171,6 +171,7 @@ class SemantNode : public InheritanceNode<SemantNode> {
     private:
         friend class SemantKlassTable;
         int track_visit_ = UNVISITED; // {UNVISITED, VISITING, VISITED}
+        ScopedTable<Symbol *, Symbol *> mtable_;
 };
 
 /// Class table for use in semantic analysis
@@ -196,11 +197,11 @@ class SemantKlassTable : public KlassTable<SemantNode> {
 class SemantEnv {
   public:
     SemantEnv();
-    ScopedTable<Symbol *, Symbol *> *big_M();
-    void make_big_M(); 
+    ScopedTable<Symbol *, Symbol *> &big_M();
+    void make_big_M();
 
   private:
-    ScopedTable<Symbol *, Symbol *> *method_scoped_table_;
+    ScopedTable<Symbol *, Symbol *> method_scoped_table_;
 
 };
 
