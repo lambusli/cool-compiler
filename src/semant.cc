@@ -93,7 +93,7 @@ std::ostream& SemantError::operator()(const SemantNode* node) { return (*this)(n
 SemantKlassTable::SemantKlassTable(SemantError& error, Klasses* klasses)
     : KlassTable(), error_(error) {
 
-    // Pass 1, Part 1: Build inheritance graph
+    // Pass 1, Part 1: Add classes into SemantKlassTable
     for (auto klass : *klasses) {
         std::cerr << "name:" << klass->name() <<
                      ", parent: " << klass->parent() << std::endl;
@@ -108,6 +108,7 @@ SemantKlassTable::SemantKlassTable(SemantError& error, Klasses* klasses)
         InstallClass(klass, true /*Can Inherit*/, false /*NotBasic*/);
     }
 
+    // Pass 1, Part 2: Create inheritance graph and check for cycles
     for (auto node : nodes_) {
         // Create Inheritance graph
         //SemantNode *new_node = ClassFind(klass->name());
@@ -127,7 +128,7 @@ SemantKlassTable::SemantKlassTable(SemantError& error, Klasses* klasses)
 
     if (error_.errors() > 0) return;  // Can't continue with class table construction if errors found
 
-    // Pass 1, Part 2: Check for cycles in the inheritance graph
+    // Check for cycles
     traverse(root());
     for (auto node : nodes_) {
         if (node->track_visit_ == UNVISITED) {
@@ -135,7 +136,6 @@ SemantKlassTable::SemantKlassTable(SemantError& error, Klasses* klasses)
         }
     }
     if (error_.errors() > 0) return;  // Can't continue with class table construction if errors found
-
 
 } // end SemantKlassTable constructor
 
@@ -155,7 +155,17 @@ void Semant(Program* program) {
         exit(1);
     }
 
+    // Create scoped-table for method names
+    // Why a constructor won't compile but a declaration will work?
+    ScopedTable<Symbol *, Symbol *> method_scoped_table;
+    printf("address of scopedtable is %p\n", &method_scoped_table);
+    method_scoped_table.AddToScope(in_int, Int);
+    std::cout << method_scoped_table.Lookup(in_int) << std::endl;
+
 } // end void Semant(Program* program)
+
+
+
 
 /*
  * Below are all the helper and additional functions declared in semant.h
