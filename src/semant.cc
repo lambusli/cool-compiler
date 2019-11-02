@@ -199,10 +199,11 @@ void SemantKlassTable::make_all_mtables(SemantNode *klass_node) {
     klass_node->mtable_ = klass_node->parent()->mtable_;
 
     for (auto feature : *klass_node->klass()->features()) {
-        std::cout << "Tell me the syntax is correct please." << std::endl;
-        std::cout << feature->name() << std::endl;
+        std::cout << "name of feature: " << feature->name() << std::endl;
+        std::cout << "declared type: " << feature->decl_type() << std::endl; 
         std::cout << "is method ? " << feature->method() << std::endl;
-        std::cout << "is attr ? " << feature->attr() << std::endl; 
+        std::cout << "is attr ? " << feature->attr() << std::endl;
+
     }
 
     // for (auto child : klass_node->children_) {
