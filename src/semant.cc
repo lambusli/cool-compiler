@@ -201,21 +201,22 @@ ScopedTable<Symbol *, Symbol *> &SemantEnv::big_M() {
 // Create a method-name-scoped-table
 void SemantEnv::make_big_M() {
     big_M().EnterScope();
-    big_M().AddToScope(in_int, Int);
+    big_M().AddToScope(in_int, main_meth);
 
     big_M().EnterScope();
     big_M().AddToScope(in_int, Main);
 
     big_M().EnterScope();
-    big_M().AddToScope(in_int, main_meth);
+    big_M().AddToScope(in_int, Int);
 
     big_M().EnterScope();
     big_M().AddToScope(in_string, String);
+    big_M().AddToScope(copy, self);
 
     std::cout << big_M().Lookup(in_int) << std::endl;
-    // std::cout << big_M()->Probe(in_int) << std::endl; This line reports error, because on the current scope the key is not in_int.
-    // This design of Probe() may be improvable. If we probe(), we shoud not need to know any information about the scope on the stacktop.
+    // std::cout << big_M()->Probe(in_int) << std::endl; // This line reports error, because on the current scope the key is not in_int.
     std::cout << big_M().Probe(in_string) << std::endl;
+    std::cout << big_M().Probe(copy) << std::endl;
 }
 
 
