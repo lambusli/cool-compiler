@@ -211,8 +211,6 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
     mtable.EnterScope();
     otable.EnterScope();
 
-    std::cout << "class name: " << klass_node->name() << std::endl;
-
     for (auto feature : *klass_node->klass()->features()) {
         if (feature->attr()) { // if the feature is an attribute
             if (otable.Lookup(feature->name()))
@@ -228,14 +226,19 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
 
         } else { // if the feature is a method
             Method *method_info = (Method *)feature; // Method is inhertied from Feature
-            std::cout << "    method name: " << method_info->name()
-                      << "    method type: " << method_info->decl_type() << std::endl;
+            Method *found_method = mtable.Lookup(method_info->name());
 
-            for (auto formal : *method_info->formals()) {
-                std::cout << "\tformal name: " << formal->name()
-                          << "\tformal type: " << formal->decl_type() << std::endl;
-            }
-        }
+            if (found_method)
+            // if the method is already defined in some ancestor klass
+            {
+                // Need to make sure that the method name, the return type, and all formal names match in two methods
+                std::cout << "method " << method_info->name()
+                    << " is redefined in class " << klass_node->name() << std::endl;
+            } else // if the method is never defined before
+            {
+                mtable.AddToScope(method_info->name(), method_info);
+            } // end else
+        } // end else
     }
 
     // recursively make_all_sctables on all children klasses
