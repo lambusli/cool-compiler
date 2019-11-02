@@ -9,13 +9,13 @@ class A {
 };
 
 class B inherits A {
-    animal: Int;
+    a: Int;
     banana: Bool;
 };
 
 class C inherits A {
     ankor: Int;
-    bond: Bool;
+    b: Bool;
 };
 
 class D inherits B {

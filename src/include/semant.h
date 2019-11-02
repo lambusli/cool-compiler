@@ -171,7 +171,8 @@ class SemantNode : public InheritanceNode<SemantNode> {
     private:
         friend class SemantKlassTable;
         int track_visit_ = UNVISITED; // {UNVISITED, VISITING, VISITED}
-        ScopedTable<Symbol *, Symbol *> mtable_;
+        ScopedTable<Symbol *, Symbol *> mtable_; // method-scoped-table of the klass represented by this SemantNode. Storing all the methods defined in this klass.
+        ScopedTable<Symbol *, Symbol *> otable_; // object-scoped-table of the klass represented by this SemantNode. Storing all the attributes defined in this klass.
 };
 
 /// Class table for use in semantic analysis
@@ -185,7 +186,7 @@ class SemantKlassTable : public KlassTable<SemantNode> {
         */
         SemantKlassTable(SemantError& error, Klasses* klasses);
         void traverse(SemantNode *klass_node);
-        void make_all_mtables(SemantNode *klass_node); 
+        void make_all_sctables(SemantNode *klass_node);
 
 
     private:

@@ -95,8 +95,8 @@ SemantKlassTable::SemantKlassTable(SemantError& error, Klasses* klasses)
 
     // Pass 1, Part 1: Add classes into SemantKlassTable
     for (auto klass : *klasses) {
-        std::cerr << "name:" << klass->name() <<
-                     ", parent: " << klass->parent() << std::endl;
+        // std::cerr << "name:" << klass->name() <<
+        //              ", parent: " << klass->parent() << std::endl;
 
         // Check whether a class is already defined
         SemantNode * old_node = ClassFind(klass->name());
@@ -149,13 +149,17 @@ void Semant(Program* program) {
     // Constructor of a semant class table
     SemantKlassTable klass_table(error, program->klasses());
     // Halt program with non-zero exit if there are semantic errors
-    if (error.errors()) // If number of errors reported is non-zero
-    {
+    if (error.errors()) { // If number of errors reported is non-zero
         std::cerr << "Compilation halted due to static semantic errors." << std::endl;
         exit(1);
     }
 
-    klass_table.make_all_mtables(klass_table.root());
+    klass_table.make_all_sctables(klass_table.root());
+
+    if (error.errors()) { // If number of errors reported is non-zero
+        std::cerr << "Compilation halted due to static semantic errors." << std::endl;
+        exit(1);
+    }
 
     // Create scoped-table for method names
     // SemantEnv myEnv;
@@ -194,21 +198,41 @@ void SemantKlassTable::traverse(SemantNode *klass_node) {
 
 // Create method-tables for all SemantNode
 // Not sure whether any error will be detected here
-void SemantKlassTable::make_all_mtables(SemantNode *klass_node) {
-    // duplicate parent class' scoped-table
+void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
+
+    // duplicate parent class' scoped-tables (both M-table and O-table)
     klass_node->mtable_ = klass_node->parent()->mtable_;
+    klass_node->otable_ = klass_node->parent()->otable_;
+
+    auto &mtable = klass_node->mtable_; // method-table of current klass_node
+    auto &otable = klass_node->otable_; // object-table of current klass_node
+
+    // Push a new scope onto scopestack
+    mtable.EnterScope();
+    otable.EnterScope();
 
     for (auto feature : *klass_node->klass()->features()) {
-        std::cout << "name of feature: " << feature->name() << std::endl;
-        std::cout << "declared type: " << feature->decl_type() << std::endl; 
-        std::cout << "is method ? " << feature->method() << std::endl;
-        std::cout << "is attr ? " << feature->attr() << std::endl;
+        if (feature->attr()) { // if the feature is an attribute
+            if (otable.Lookup(feature->name()))
+            // if the attr is already defined in some ancestor klass
+            {
+                error_(klass_node) << otable << std::endl;
+                error_(klass_node) << "Attribute " << feature->name()
+                    << " is redefined in class " << klass_node->name() << std::endl;
+            } else // if the attr is never defined before
+            {
+                otable.AddToScope(feature->name(), feature->decl_type());
+            }
 
+        } else { // if the feature is a method
+            // std::cout << "Skip for now Jesus Christ" << std::endl;
+        }
     }
 
-    // for (auto child : klass_node->children_) {
-    //     make_all_mtables(child);
-    // }
+    // recursively make_all_sctables on all children klasses
+    for (auto child : klass_node->children_) {
+        make_all_sctables(child);
+    }
 }
 
 
