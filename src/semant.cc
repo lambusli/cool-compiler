@@ -146,14 +146,17 @@ void Semant(Program* program) {
     SemantError error(std::cerr);
 
     // Perform semantic analysis...
-    // Constructor of a semant class table
+    // Constructor of a semant class table.
+    // Inheritance graph is created along the way.
     SemantKlassTable klass_table(error, program->klasses());
+
     // Halt program with non-zero exit if there are semantic errors
     if (error.errors()) { // If number of errors reported is non-zero
         std::cerr << "Compilation halted due to static semantic errors." << std::endl;
         exit(1);
     }
 
+    // Create scoped table for each class containing attr names and method names
     klass_table.make_all_sctables(klass_table.root());
 
     if (error.errors()) { // If number of errors reported is non-zero
@@ -232,8 +235,20 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
             // if the method is already defined in some ancestor klass
             {
                 // Need to make sure that the method name, the return type, and all formal names match in two methods
-                std::cout << "method " << method_info->name()
-                    << " is redefined in class " << klass_node->name() << std::endl;
+
+                if (found_method->decl_type() != method_info->decl_type())
+                // if the return types of methodes don't match
+                {
+                    error_(klass_node) << "Method " << method_info->name()
+                        << " in class " << klass_node->name()
+                        << " should have returned type \"" << found_method->decl_type()
+                        << "\" but type \"" << method_info->decl_type()
+                        << "\" is returned.\n";
+                    return;
+                }
+
+
+
             } else // if the method is never defined before
             {
                 mtable.AddToScope(method_info->name(), method_info);
