@@ -211,6 +211,8 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
     mtable.EnterScope();
     otable.EnterScope();
 
+    std::cout << "class name: " << klass_node->name() << std::endl;
+
     for (auto feature : *klass_node->klass()->features()) {
         if (feature->attr()) { // if the feature is an attribute
             if (otable.Lookup(feature->name()))
@@ -225,7 +227,14 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
             }
 
         } else { // if the feature is a method
-            // std::cout << "Skip for now Jesus Christ" << std::endl;
+            Method *method_info = (Method *)feature; // Method is inhertied from Feature
+            std::cout << "    method name: " << method_info->name()
+                      << "    method type: " << method_info->decl_type() << std::endl;
+
+            for (auto formal : *method_info->formals()) {
+                std::cout << "\tformal name: " << formal->name()
+                          << "\tformal type: " << formal->decl_type() << std::endl;
+            }
         }
     }
 
@@ -233,7 +242,8 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
     for (auto child : klass_node->children_) {
         make_all_sctables(child);
     }
-}
+
+} // end void make_all_sctables(SemantNode *klass_node)
 
 
 

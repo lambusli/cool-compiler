@@ -11,11 +11,13 @@ class A {
 class B inherits A {
     animal: Int;
     banana: Bool;
+    defense(x : Int, y : D) : B {0};
 };
 
 class C inherits A {
     ankor: Int;
     bond: Bool;
+    offense(x : Int, y : B) : C {0}; 
 };
 
 class D inherits B {
