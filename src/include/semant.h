@@ -193,4 +193,15 @@ class SemantKlassTable : public KlassTable<SemantNode> {
 };
 
 // Implement your semantic environment here
+class SemantEnv {
+  public:
+    SemantEnv();
+    ScopedTable<Symbol *, Symbol *> *big_M();
+    void make_big_M(); 
+
+  private:
+    ScopedTable<Symbol *, Symbol *> *method_scoped_table_;
+
+};
+
 }  // namespace cool

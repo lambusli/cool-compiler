@@ -157,10 +157,8 @@ void Semant(Program* program) {
 
     // Create scoped-table for method names
     // Why a constructor won't compile but a declaration will work?
-    ScopedTable<Symbol *, Symbol *> method_scoped_table;
-    printf("address of scopedtable is %p\n", &method_scoped_table);
-    method_scoped_table.AddToScope(in_int, Int);
-    std::cout << method_scoped_table.Lookup(in_int) << std::endl;
+    SemantEnv *myEnv = new SemantEnv();
+    myEnv->make_big_M();
 
 } // end void Semant(Program* program)
 
@@ -190,6 +188,22 @@ void SemantKlassTable::traverse(SemantNode *klass_node) {
 
     klass_node->track_visit_ = VISITED;
 } // end void traverse(SemantNode *klass_node)
+
+// SemantEnv constructor
+SemantEnv::SemantEnv() {
+    method_scoped_table_ = new ScopedTable<Symbol *, Symbol *>();
+}
+
+// Return the pointer to method-name-scoped-table
+ScopedTable<Symbol *, Symbol *> *SemantEnv::big_M() {
+    return method_scoped_table_;
+}
+
+// Create a method-name-scoped-table
+void SemantEnv::make_big_M() {
+    big_M()->AddToScope(in_int, Int);
+    std::cout << big_M()->Lookup(in_int) << std::endl;
+}
 
 
 }  // namespace cool

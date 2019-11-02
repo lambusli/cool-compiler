@@ -1,3 +1,6 @@
 public void SemantKlassTable::traverse(SemantNode *klass_node);
 
-private int SemantNode::track_visit_; 
+private int SemantNode::track_visit_;
+
+In semant.h:
+class SemantEnv
