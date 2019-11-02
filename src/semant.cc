@@ -155,10 +155,11 @@ void Semant(Program* program) {
         exit(1);
     }
 
+    klass_table.make_all_mtables(klass_table.root());
+
     // Create scoped-table for method names
-    // Why a constructor won't compile but a declaration will work?
-    SemantEnv *myEnv = new SemantEnv();
-    myEnv->make_big_M();
+    // SemantEnv myEnv;
+    // myEnv.make_big_M();
 
 
 } // end void Semant(Program* program)
@@ -190,33 +191,30 @@ void SemantKlassTable::traverse(SemantNode *klass_node) {
     klass_node->track_visit_ = VISITED;
 } // end void traverse(SemantNode *klass_node)
 
+
+// Create method-tables for all SemantNode
+void SemantKlassTable::make_all_mtables(SemantNode *klass_node) {
+    // duplicate parent class' scoped-table
+    klass_node->mtable_ = klass_node->parent()->mtable_;
+    std::cout << klass_node->name() << std::endl;
+    std::cout << klass_node->mtable_.scopes_.empty() << std::endl;
+    klass_node->mtable_.EnterScope();
+    std::cout << klass_node->mtable_.scopes_.empty() << std::endl;
+}
+
+
+
 // SemantEnv constructor
 SemantEnv::SemantEnv() {}
 
-// Return the pointer to method-name-scoped-table
+// Return the pointer to mestd::cout << "I\'m about to begin." << std::endl;thod-name-scoped-table
 ScopedTable<Symbol *, Symbol *> &SemantEnv::big_M() {
     return method_scoped_table_;
 }
 
 // Create a method-name-scoped-table
 void SemantEnv::make_big_M() {
-    big_M().EnterScope();
-    big_M().AddToScope(in_int, main_meth);
-
-    big_M().EnterScope();
-    big_M().AddToScope(in_int, Main);
-
-    big_M().EnterScope();
-    big_M().AddToScope(in_int, Int);
-
-    big_M().EnterScope();
-    big_M().AddToScope(in_string, String);
-    big_M().AddToScope(copy, self);
-
-    std::cout << big_M().Lookup(in_int) << std::endl;
-    // std::cout << big_M()->Probe(in_int) << std::endl; // This line reports error, because on the current scope the key is not in_int.
-    std::cout << big_M().Probe(in_string) << std::endl;
-    std::cout << big_M().Probe(copy) << std::endl;
+    // Need to work on
 }
 
 

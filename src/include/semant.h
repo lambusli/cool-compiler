@@ -185,6 +185,7 @@ class SemantKlassTable : public KlassTable<SemantNode> {
         */
         SemantKlassTable(SemantError& error, Klasses* klasses);
         void traverse(SemantNode *klass_node);
+        void make_all_mtables(SemantNode *klass_node); 
 
 
     private:

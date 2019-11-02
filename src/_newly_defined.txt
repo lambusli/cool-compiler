@@ -1,5 +1,7 @@
 public void SemantKlassTable::traverse(SemantNode *klass_node);
 
+public void SemantKlassTable::make_all_mtables(SemantNode *klass_node); 
+
 private int SemantNode::track_visit_;
 
 In semant.h:

@@ -34,7 +34,7 @@ limitations under the License.
  */
 /**
  * @file
- * 
+ *
  * @brief Scope-aware lookup table useful in semantic analysis and code generation.
  */
 #pragma once
@@ -50,9 +50,9 @@ namespace cool {
 
   /**
    * @brief Scoped table for use as a SymbolTable in AST analysis
-   * 
-   * The table requires that the \p Value type be a pointer type, e.g. a pointer to an ASTNode or a \ref Symbol. 
-   * 
+   *
+   * The table requires that the \p Value type be a pointer type, e.g. a pointer to an ASTNode or a \ref Symbol.
+   *
    * Example usage creating a ScopedTable mapping an identifier (as a Symbol*) to a type (also a Symbol*):
    * \code{.cpp}
    * ScopedTable<Symbol*,Symbol*> variable_table;
@@ -60,7 +60,7 @@ namespace cool {
    * variable_tale.AddToScope(name, type);
    * variable_table.Probe(name);  // Should return type
    * \endcode
-   * 
+   *
    * @tparam Key
    * @tparam Value
    */
@@ -96,7 +96,7 @@ namespace cool {
      *
      * Will create new scope if one does not currently exist. Will throw std::invalid_argument
      * if key already exists in scope.
-     * 
+     *
      * @param key Key
      * @param value Associated value
      * @return Value Non-owning pointer to \p value
@@ -172,8 +172,7 @@ namespace cool {
     }
 
    private:
+    friend class SemantKlassTable;
     ScopeStack scopes_;
   };
 }
-
-
