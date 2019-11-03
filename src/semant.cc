@@ -231,11 +231,19 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
             Method *method_info = (Method *)feature; // Method is inhertied from Feature
             Method *found_method = mtable.Lookup(method_info->name());
 
+            // after you make this work, define an operator overload == in class Method
+
+
+
             if (found_method)
             // if the method is already defined in some ancestor klass
             {
                 // Need to make sure that the method name, the return type, and all formal names match in two methods
 
+                const Formals *formals_now = method_info->formals();
+                const Formals *formals_before = found_method->formals();
+
+                // Compare the return type
                 if (found_method->decl_type() != method_info->decl_type())
                 // if the return types of methodes don't match
                 {
@@ -244,8 +252,38 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
                         << " should have returned type \"" << found_method->decl_type()
                         << "\" but type \"" << method_info->decl_type()
                         << "\" is returned.\n";
-                    return;
+                    continue;
                 }
+
+                // Compare the size of formal lists
+                if (formals_now->size() != formals_before->size())
+                // if the size of formal lists don't match
+                {
+                    error_(klass_node) << "Method " << method_info->name()
+                        << " in class " << klass_node->name()
+                        << " should have had " << formals_before->size()
+                        << " formals but currently have " << formals_now->size()
+                        << " formals.\n";
+                    continue;
+                }
+
+                // Compare the formal lists and make sure they match
+                // std::cout << method_info->formals()->size() << std::endl;
+                // auto form_start = method_info->formals()->begin();
+                // auto form_end = method_info->formals()->end();
+                // if (method_info->formals()->size()) std::cout << (*form_start)->name() << std::endl;
+
+                // for (auto formal_now : *method_info->formals()) {
+                //     std::cout << formal_now->name() << std::endl;
+                // }
+
+                /*
+                while (it1 != method_info->formals()->end()
+                       && it2 != found_method->formals()->end()) {
+                    std::cout << it1->name() << " " << it2->name() << std::endl;
+                }
+                */
+
 
 
 
@@ -254,7 +292,7 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
                 mtable.AddToScope(method_info->name(), method_info);
             } // end else
         } // end else
-    }
+    } // end for
 
     // recursively make_all_sctables on all children klasses
     for (auto child : klass_node->children_) {
