@@ -20,7 +20,7 @@ class C inherits A {
     ankor: Int;
     bond: Bool;
     offense(x : Int, y : B) : C {0};
-    init(x : Bool, y : Int) : A {0};
+    init(xx : Bool, yy : Int) : A {0};
 };
 
 class D inherits B {
@@ -28,7 +28,7 @@ class D inherits B {
     bail: Bool;
     defense() : Int {0};
     evolve(panda : Int) : Bool {0};
-    uneq(x : Int, y : Int) : Bool {0}; 
+    uneq(x : Int, y : Int) : Bool {0};
 };
 
 Class Main {

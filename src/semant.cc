@@ -247,9 +247,9 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
                 if (found_method->decl_type() != method_info->decl_type())
                 // if the return types of methodes don't match
                 {
-                    error_(klass_node) << "Method " << method_info->name()
-                        << " in class " << klass_node->name()
-                        << " should have returned type \"" << found_method->decl_type()
+                    error_(klass_node) << "Method " << klass_node->name() << "."
+                        << method_info->name() << " should have returned type \""
+                        << found_method->decl_type()
                         << "\" but type \"" << method_info->decl_type()
                         << "\" is returned.\n";
                     continue;
@@ -259,33 +259,36 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
                 if (formals_now->size() != formals_before->size())
                 // if the size of formal lists don't match
                 {
-                    error_(klass_node) << "Method " << method_info->name()
-                        << " in class " << klass_node->name()
-                        << " should have had " << formals_before->size()
+                    error_(klass_node) << "Method " << klass_node->name() << "."
+                        << method_info->name() << " should have had "
+                        << formals_before->size()
                         << " formals but currently have " << formals_now->size()
                         << " formals.\n";
                     continue;
                 }
 
-                // Compare the formal lists and make sure they match
-                // std::cout << method_info->formals()->size() << std::endl;
-                // auto form_start = method_info->formals()->begin();
-                // auto form_end = method_info->formals()->end();
-                // if (method_info->formals()->size()) std::cout << (*form_start)->name() << std::endl;
+                auto formal_now = formals_now->begin();
+                auto formal_now_end = formals_now->end();
+                auto formal_before = formals_before->begin();
+                auto formal_before_end = formals_before->end();
 
-                // for (auto formal_now : *method_info->formals()) {
-                //     std::cout << formal_now->name() << std::endl;
-                // }
+                // Check whether each pair of formals have the same type
+                while (formal_now != formal_now_end
+                        && formal_before != formal_before_end)
+                {
+                    Symbol *type_now = (*formal_now)->decl_type();
+                    Symbol *type_before = (*formal_before)->decl_type();
+                    if (type_now != type_before) {
+                        error_(klass_node) << "The argument \"" << (*formal_now)->name()
+                            << "\" of method " << klass_node->name() << "."
+                            << method_info->name() << "() should have had type \""
+                            << type_before << "\" but currently has type \"" <<
+                            type_now << "\"\n";
+                    }
 
-                /*
-                while (it1 != method_info->formals()->end()
-                       && it2 != found_method->formals()->end()) {
-                    std::cout << it1->name() << " " << it2->name() << std::endl;
+                    formal_now++;
+                    formal_before++;
                 }
-                */
-
-
-
 
             } else // if the method is never defined before
             {
