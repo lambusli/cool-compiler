@@ -242,6 +242,7 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
 
                 const Formals *formals_now = method_info->formals();
                 const Formals *formals_before = found_method->formals();
+                bool error_flag = false;
 
                 // Compare the return type
                 if (found_method->decl_type() != method_info->decl_type())
@@ -252,6 +253,7 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
                         << found_method->decl_type()
                         << "\" but type \"" << method_info->decl_type()
                         << "\" is returned.\n";
+                    error_flag = true;
                     continue;
                 }
 
@@ -264,6 +266,7 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
                         << formals_before->size()
                         << " formals but currently have " << formals_now->size()
                         << " formals.\n";
+                    error_flag = true;
                     continue;
                 }
 
@@ -284,10 +287,15 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
                             << method_info->name() << "() should have had type \""
                             << type_before << "\" but currently has type \"" <<
                             type_now << "\"\n";
+                        error_flag = true;
                     }
 
                     formal_now++;
                     formal_before++;
+                }
+
+                if (!error_flag) {
+                    mtable.AddToScope(method_info->name(), method_info);
                 }
 
             } else // if the method is never defined before
