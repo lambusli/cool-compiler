@@ -177,7 +177,7 @@ class KlassTable {
    * Add node to name-node map, but not container tracking nodes in the inheritance graph. This
    * method is only used for special classes, like \p No_class, which are not included in the
    * inheritance graph.
-   * 
+   *
    * @return Node*
    */
   template <class... Args>
@@ -273,5 +273,7 @@ void KlassTable<Node>::InstallBasicClasses() {
   InstallClass(CreateBoolKlass(), false /*Can't Inherit*/, true /*Basic*/);
   InstallClass(CreateStringKlass(), false /*Can't Inherit*/, true /*Basic*/);
 }
+
+
 
 }  // namespace cool

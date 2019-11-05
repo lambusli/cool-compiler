@@ -164,9 +164,8 @@ void Semant(Program* program) {
         exit(1);
     }
 
-    // Create scoped-table for method names
-    // SemantEnv myEnv;
-    // myEnv.make_big_M();
+    SemantEnv env(klass_table, klass_table.root(), error);
+    klass_table.root()->klass()->Typecheck(env);
 
 
 } // end void Semant(Program* program)
@@ -231,14 +230,14 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
             Method *method_info = (Method *)feature; // Method is inhertied from Feature
             Method *found_method = mtable.Lookup(method_info->name());
 
-            // after you make this work, define an operator overload == in class Method
-
-
+            // BUG !! Or is it?
+            // You need to Probe the method name to make sure it is not defined in the same klass scope twice
 
             if (found_method)
             // if the method is already defined in some ancestor klass
             {
                 // Need to make sure that the method name, the return type, and all formal names match in two methods
+                // I have no idea to modularize the following code
 
                 const Formals *formals_now = method_info->formals();
                 const Formals *formals_before = found_method->formals();
@@ -313,19 +312,19 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
 } // end void make_all_sctables(SemantNode *klass_node)
 
 
+// Constructor of SemantEnv
+SemantEnv::SemantEnv(SemantKlassTable &klass_table_arg,
+          SemantNode *curr_semant_node_arg, SemantError &error_env_arg):
+          klass_table(klass_table_arg),
+          curr_semant_node(curr_semant_node_arg),
+          error_env(error_env_arg) {}
 
-// SemantEnv constructor
-SemantEnv::SemantEnv() {}
 
-// Return the pointer to mestd::cout << "I\'m about to begin." << std::endl;thod-name-scoped-table
-ScopedTable<Symbol *, Symbol *> &SemantEnv::big_M() {
-    return method_scoped_table_;
+void ASTNode::Typecheck(SemantEnv &env) {
+    std::cout << "C++ motherfucker do you speak it?!\n";
 }
 
-// Create a method-name-scoped-table
-void SemantEnv::make_big_M() {
-    // Need to work on
-}
+
 
 
 }  // namespace cool

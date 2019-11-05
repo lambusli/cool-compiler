@@ -78,8 +78,10 @@ limitations under the License.
 #include "stringtab.h"
 #include "utilities.h"
 
+
 namespace cool {
 
+class SemantEnv;
 // Forward declare semantic analysis and code generation environments
 
 /**
@@ -99,6 +101,7 @@ public:
     * @param with_types Include Expression types
     */
     virtual void DumpTree(std::ostream& os, size_t level, bool with_types) const = 0;
+    void Typecheck(SemantEnv &env);
 
 protected:
     SourceLoc loc_ = 0;
