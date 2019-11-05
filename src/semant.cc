@@ -164,8 +164,26 @@ void Semant(Program* program) {
         exit(1);
     }
 
+    // A very primitive, temporary example of type checking
     SemantEnv env(klass_table, klass_table.root(), error);
-    klass_table.root()->klass()->Typecheck(env);
+    for (auto child : klass_table.root()->children_) {
+        std::cout << child->name() << std::endl;
+        for (auto feature : *child->klass()->features()) {
+            std::cout << "\t" << feature->name() << ", ";
+            if (feature->method()) {continue; }
+            auto attr = (Attr *)feature;
+            auto expr = (BoolLiteral *)attr->init();  // cheating by casting all expression as Bool. 
+            if (expr) {
+                std::cout << expr->Typecheck(env) << std::endl;
+            }
+
+        }
+
+    }
+
+
+
+
 
 
 } // end void Semant(Program* program)
@@ -320,10 +338,15 @@ SemantEnv::SemantEnv(SemantKlassTable &klass_table_arg,
           error_env(error_env_arg) {}
 
 
-void ASTNode::Typecheck(SemantEnv &env) {
-    std::cout << "C++ motherfucker do you speak it?!\n";
-}
 
+
+
+/*
+ * Below are type checking rules
+ */
+Symbol *ASTNode::Typecheck(SemantEnv &env) {return No_type; }
+
+Symbol *BoolLiteral::Typecheck(SemantEnv &env) {return Bool; }
 
 
 

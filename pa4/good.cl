@@ -17,12 +17,13 @@ class B inherits A {
 class C inherits A {
     ankor: Int;
     bond: Bool;
-    offense(x : Int, y : B) : C {0}; 
+    offense(x : Int, y : B) : C {0};
 };
 
 class D inherits B {
     angel: Int;
     bail: Bool;
+    defense(me : Int, enemy : D) : B {0}; 
 };
 
 Class Main {
