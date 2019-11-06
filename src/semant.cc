@@ -382,7 +382,12 @@ void IntLiteral::Typecheck(SemantEnv &env) {
 }
 
 void StringLiteral::Typecheck(SemantEnv &env) {
-    set_type(String); 
+    set_type(String);
+}
+
+void Ref::Typecheck(SemantEnv &env) {
+    set_type(env.curr_semant_node->otable_.Lookup(name_));
+    std::cout << type() << std::endl;
 }
 
 }  // namespace cool

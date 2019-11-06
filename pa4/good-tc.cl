@@ -9,3 +9,8 @@ class B {
 class C {
     z : String <- "here";
 };
+
+class D {
+    temp : Int;
+    x : Int <- temp;
+};
