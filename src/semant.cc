@@ -85,6 +85,10 @@ extern Symbol
 //@}
 // clang-format on
 
+Symbol *leaf;
+// such that LUB(leaf, x) = x, LUB(x, leaf) = x, LUB(leaf, leaf) = leaf
+// leaf <= any type
+
 std::ostream& SemantError::operator()(const SemantNode* node) { return (*this)(node->klass()); }
 
 
@@ -359,6 +363,9 @@ void SemantKlassTable::Typecheck_subgraph(SemantNode *klass_node) {
 
 // Check whether type1 <= type2
 bool SemantEnv::type_LE(Symbol *type1, Symbol *type2) {
+    if (type1 == leaf) {return true; }
+    if (type2 == leaf && type1 != leaf) {return false; }
+
     SemantNode *klass_node_1 = klass_table->ClassFind(type1);
     SemantNode *klass_node_2 = klass_table->ClassFind(type2);
     return klass_table->SNLE(klass_node_1, klass_node_2);
@@ -377,6 +384,9 @@ bool SemantKlassTable::SNLE(SemantNode *klass_node_1, SemantNode *klass_node_2) 
 
 // Find the least upper bound of two types
 Symbol *SemantEnv::type_LUB(Symbol *type1, Symbol *type2) {
+    if (type1 == leaf) {return type2; }
+    if (type2 == leaf) {return type1; }
+
     SemantNode *klass_node_1 = klass_table->ClassFind(type1);
     SemantNode *klass_node_2 = klass_table->ClassFind(type2);
     SemantNode *lowest_ances_node = klass_table->SNLUB(klass_node_1, klass_node_2);
@@ -485,8 +495,18 @@ void Cond::Typecheck(SemantEnv &env) {
     }
 
     set_type(env.type_LUB(then_branch_->type(), else_branch_->type()));
-    
 } // end void Cond::Typecheck(SemantEnv &env)
+
+void Block::Typecheck(SemantEnv &env) {
+    // The parsing rules already ensured that there are more than one expression in a block
+
+    Symbol *final_type = leaf;
+    for (auto expr : *body_) {
+        expr->Typecheck(env);
+        final_type = env.type_LUB(final_type, expr->type());
+    }
+    set_type(final_type);
+} // end void Block::Typecheck(SemantEnv &env)
 
 
 }  // namespace cool
