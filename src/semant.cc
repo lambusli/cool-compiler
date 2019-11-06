@@ -354,7 +354,13 @@ void SemantKlassTable::Typecheck_subgraph(SemantNode *klass_node) {
 }
 
 void Klass::Typecheck(SemantEnv &env) {
-    std::cout << env.curr_semant_node->name() << std::endl;
+    for (auto feature : *features()) {
+        feature->Typecheck(env);
+    }
+}
+
+void Feature::Typecheck(SemantEnv &env) {
+    std::cout << name() << std::endl; 
 }
 
 }  // namespace cool
