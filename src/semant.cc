@@ -164,26 +164,9 @@ void Semant(Program* program) {
         exit(1);
     }
 
-    // A very primitive, temporary example of type checking
-    SemantEnv env(klass_table, klass_table.root(), error);
-    for (auto child : klass_table.root()->children_) {
-        std::cout << child->name() << std::endl;
-        for (auto feature : *child->klass()->features()) {
-            std::cout << "\t" << feature->name() << ", ";
-            if (feature->method()) {continue; }
-            auto attr = (Attr *)feature;
-            auto expr = (BoolLiteral *)attr->init();  // cheating by casting all expression as Bool. 
-            if (expr) {
-                std::cout << expr->Typecheck(env) << std::endl;
-            }
-
-        }
-
-    }
-
-
-
-
+    // Create scoped-table for method names
+    // SemantEnv myEnv;
+    // myEnv.make_big_M();
 
 
 } // end void Semant(Program* program)
@@ -192,7 +175,14 @@ void Semant(Program* program) {
 
 
 /*
+ **********************************************************************
  * Below are all the helper and additional functions declared in semant.h
+ **********************************************************************
+ */
+
+
+/*
+ * Part I: Check the inheritance graph is sound
  */
 
 // Traverse an inheritance graph in depth-first order to check for cycles
@@ -215,6 +205,11 @@ void SemantKlassTable::traverse(SemantNode *klass_node) {
     klass_node->track_visit_ = VISITED;
 } // end void traverse(SemantNode *klass_node)
 
+
+
+/*
+ * Part II: Create scoped tables
+ */
 
 // Create method-tables for all SemantNode
 // Not sure whether any error will be detected here
@@ -248,14 +243,14 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
             Method *method_info = (Method *)feature; // Method is inhertied from Feature
             Method *found_method = mtable.Lookup(method_info->name());
 
-            // BUG !! Or is it?
-            // You need to Probe the method name to make sure it is not defined in the same klass scope twice
+            // after you make this work, define an operator overload == in class Method
+
+
 
             if (found_method)
             // if the method is already defined in some ancestor klass
             {
                 // Need to make sure that the method name, the return type, and all formal names match in two methods
-                // I have no idea to modularize the following code
 
                 const Formals *formals_now = method_info->formals();
                 const Formals *formals_before = found_method->formals();
@@ -330,23 +325,10 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
 } // end void make_all_sctables(SemantNode *klass_node)
 
 
-// Constructor of SemantEnv
-SemantEnv::SemantEnv(SemantKlassTable &klass_table_arg,
-          SemantNode *curr_semant_node_arg, SemantError &error_env_arg):
-          klass_table(klass_table_arg),
-          curr_semant_node(curr_semant_node_arg),
-          error_env(error_env_arg) {}
-
-
-
-
 
 /*
- * Below are type checking rules
+ * Part III: Semantic environment and Typechecking
  */
-Symbol *ASTNode::Typecheck(SemantEnv &env) {return No_type; }
-
-Symbol *BoolLiteral::Typecheck(SemantEnv &env) {return Bool; }
 
 
 

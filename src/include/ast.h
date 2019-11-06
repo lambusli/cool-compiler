@@ -78,10 +78,8 @@ limitations under the License.
 #include "stringtab.h"
 #include "utilities.h"
 
-
 namespace cool {
 
-class SemantEnv;
 // Forward declare semantic analysis and code generation environments
 
 /**
@@ -101,8 +99,6 @@ public:
     * @param with_types Include Expression types
     */
     virtual void DumpTree(std::ostream& os, size_t level, bool with_types) const = 0;
-    // virtual void Typecheck(SemantEnv &env);
-    Symbol *Typecheck(SemantEnv &env); 
 
 protected:
     SourceLoc loc_ = 0;
@@ -612,7 +608,6 @@ class BoolLiteral : public Expression {
 
   bool value() const { return value_; }
 
-  Symbol *Typecheck(SemantEnv &env);
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
 

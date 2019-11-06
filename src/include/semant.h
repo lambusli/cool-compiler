@@ -170,7 +170,6 @@ class SemantNode : public InheritanceNode<SemantNode> {
 
     private:
         friend class SemantKlassTable;
-        friend void Semant(Program* program);
         int track_visit_ = UNVISITED; // {UNVISITED, VISITING, VISITED}
         ScopedTable<Symbol *, Method *> mtable_; // method-scoped-table of the klass represented by this SemantNode. Storing all the methods defined in this klass.
         ScopedTable<Symbol *, Symbol *> otable_; // object-scoped-table of the klass represented by this SemantNode. Storing all the attributes defined in this klass.
@@ -199,18 +198,7 @@ class SemantKlassTable : public KlassTable<SemantNode> {
 // Implement your semantic environment here
 class SemantEnv {
   public:
-    SemantKlassTable &klass_table;
-    SemantNode *curr_semant_node;
-    SemantError &error_env;
-
-    SemantEnv(SemantKlassTable &klass_table_arg,
-              SemantNode *curr_semant_node_arg, SemantError &error_env_arg);
-
-    void tra();
-
+    
 };
-
-
-
 
 }  // namespace cool
