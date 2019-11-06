@@ -111,7 +111,6 @@ SemantKlassTable::SemantKlassTable(SemantError& error, Klasses* klasses)
     // Pass 1, Part 2: Create inheritance graph and check for cycles
     for (auto node : nodes_) {
         // Create Inheritance graph
-        //SemantNode *new_node = ClassFind(klass->name());
         SemantNode *parent_node = ClassFind(node->parent_name());
         if (!parent_node) {
             error_(node) << "Parent class " << node->parent_name() << " is not defined" << std::endl;
@@ -165,6 +164,11 @@ void Semant(Program* program) {
     }
 
     klass_table.Typecheck_all();
+
+    if (error.errors()) { // If number of errors reported is non-zero
+        std::cerr << "Compilation halted due to static semantic errors." << std::endl;
+        exit(1);
+    }
 
 } // end void Semant(Program* program)
 
@@ -327,8 +331,8 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
  * Part III: Semantic environment and Typechecking
  */
 
- // Constructor of semantic environment
- SemantEnv::SemantEnv(SemantKlassTable *klass_table_arg,
+// Constructor of semantic environment
+SemantEnv::SemantEnv(SemantKlassTable *klass_table_arg,
            SemantNode *curr_semant_node_arg,
            SemantError &error_env_arg) :
            klass_table(klass_table_arg),
@@ -352,6 +356,25 @@ void SemantKlassTable::Typecheck_subgraph(SemantNode *klass_node) {
         Typecheck_subgraph(child);
     }
 }
+
+// Check whether type1 <= type2
+bool SemantEnv::type_LE(Symbol *type1, Symbol *type2) {
+    SemantNode *klass_node_1 = klass_table->ClassFind(type1);
+    SemantNode *klass_node_2 = klass_table->ClassFind(type2);
+    return klass_table->SNLE(klass_node_1, klass_node_2);
+}
+
+// Check whether the first SemantNode is the descendant of or the same as the second SemantNode
+bool SemantKlassTable::SNLE(SemantNode *klass_node_1, SemantNode *klass_node_2) {
+    if (klass_node_1 == klass_node_2) {return true; }
+
+    for (auto child : klass_node_2->children_) {
+        if (SNLE(klass_node_1, child)) {return true;}
+    }
+
+    return false;
+}
+
 
 void Klass::Typecheck(SemantEnv &env) {
     for (auto feature : *features()) {
@@ -388,6 +411,19 @@ void StringLiteral::Typecheck(SemantEnv &env) {
 void Ref::Typecheck(SemantEnv &env) {
     set_type(env.curr_semant_node->otable_.Lookup(name_));
     std::cout << type() << std::endl;
+}
+
+void Assign::Typecheck(SemantEnv &env) {
+    Symbol *type_lhs = env.curr_semant_node->otable_.Lookup(name_);
+    value_->Typecheck(env);
+    Symbol *type_rhs = value_->type();
+
+    if (env.type_LE(type_rhs, type_lhs)) {
+        set_type(type_rhs);
+    } else {
+        env.error_env(env.curr_semant_node->klass(), this) << "Inconsistent types in assignment: Assign a value of type \"" << type_rhs << "\" to an objectID of type \"" << type_lhs << "\"\n";
+    }
+
 }
 
 }  // namespace cool

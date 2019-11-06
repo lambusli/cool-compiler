@@ -170,7 +170,8 @@ class SemantNode : public InheritanceNode<SemantNode> {
 
     private:
         friend class SemantKlassTable;
-        friend class Ref; 
+        friend class Ref;
+        friend class Assign; 
         int track_visit_ = UNVISITED; // {UNVISITED, VISITING, VISITED}
         ScopedTable<Symbol *, Method *> mtable_; // method-scoped-table of the klass represented by this SemantNode. Storing all the methods defined in this klass.
         ScopedTable<Symbol *, Symbol *> otable_; // object-scoped-table of the klass represented by this SemantNode. Storing all the attributes defined in this klass.
@@ -192,6 +193,7 @@ class SemantKlassTable : public KlassTable<SemantNode> {
         void Typecheck_all();
         void Typecheck_subgraph(SemantNode *klass_node);
 
+        bool SNLE(SemantNode *klass_node_1, SemantNode *klass_node_2);
 
     private:
         /// Semantic error reporting class
@@ -209,6 +211,8 @@ class SemantEnv {
     SemantEnv(SemantKlassTable *klass_table_arg,
               SemantNode *curr_semant_node_arg,
               SemantError &error_env_arg);
+
+    bool type_LE(Symbol *type1, Symbol *type2);
 };
 
 }  // namespace cool

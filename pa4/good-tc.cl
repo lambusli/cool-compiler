@@ -12,5 +12,5 @@ class C {
 
 class D {
     temp : Int;
-    x : Int <- temp;
+    x : Int <- (temp <- 5);
 };
