@@ -539,13 +539,29 @@ void Let::Typecheck(SemantEnv &env) {
             if (env.klass_table->ClassFind(decl_type_)) {decl_type_final = decl_type_; }
             else {
                 env.error_env(env.curr_semant_node->klass(), this) << "Type \"" << decl_type_ << "\" is undefined.\n";
-                decl_type_final = Object; 
+                decl_type_final = Object;
             }
         }
 
-        std::cout << decl_type_final << std::endl;
+        // Make sure that a superior type is not assigned to an inferior type
+        if (!env.type_LE(init_->type(), decl_type_final)) {
+            env.error_env(env.curr_semant_node->klass(), this) << "Inconsistent types in Let initialization: Assign a value of type \"" << init_->type() << "\" to an objectID of type \"" << decl_type_final << "\"\n";
+        }
 
-    }
+        // Push a new scope into the current Object Scoped Table
+        // Temporary: name_ ----mapTo----> decl_type_final
+        env.curr_semant_node->otable_.EnterScope();
+        env.curr_semant_node->otable_.AddToScope(name_, decl_type_final);
+
+        // Under the current temporary environment, typecheck the body expression of Let
+        body_->Typecheck(env);
+
+        // Delete the temporary scope
+        env.curr_semant_node->otable_.ExitScope();
+
+        set_type(body_->type());
+        std::cout << type() << std::endl; 
+    } // end else
 } // end void Let::Typecheck(SemantEnv &env)
 
 void NoExpr::Typecheck(SemantEnv &env) {

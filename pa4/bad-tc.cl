@@ -12,7 +12,10 @@ class A {
     xA3 : Int <- (if 5 then 5 else 3 fi);
 };
 
-class LetTest {
+class Test {};
+
+class LetTest inherits Test {
     xL3 : Int <- (let s : SELF_TYPE <- (new Blah) in true);
     xL4 : Int <- (let s : Undef <- 5 in true);
+    xL5 : Int <- (let s : SELF_TYPE <- (new Test) in true);
 };
