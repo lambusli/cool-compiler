@@ -383,7 +383,7 @@ class Loop : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
-  void Typecheck(SemantEnv &env); 
+  void Typecheck(SemantEnv &env);
 
  protected:
   Expression* pred_;
@@ -416,6 +416,7 @@ class Let : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void Typecheck(SemantEnv &env);
 
  protected:
   Symbol* name_;
@@ -552,6 +553,7 @@ class NoExpr : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void Typecheck(SemantEnv &env); 
 
  protected:
   NoExpr(SourceLoc loc) : Expression(loc) {}

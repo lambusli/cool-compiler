@@ -21,3 +21,9 @@ class B inherits Bishop {
     xB2 : Int <- {5; if true then soldier else 5 fi; };
     xB3 : Int <- {5; "str";};
 };
+
+class LetTest {
+    s : String;
+    xL1 : Int <- (let s : Int <- 5 in true);
+    xL2 : Int <- (let s : Int in true);
+};

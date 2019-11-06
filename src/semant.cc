@@ -516,6 +516,15 @@ void Loop::Typecheck(SemantEnv &env) {
     if (pred_->type() != Bool) {
         env.error_env(env.curr_semant_node->klass(), this) << "Predicate should evaluate to type \"Bool\", but it has type \"" << pred_->type() << "\" instead\n";
     }
+} // end void Loop::Typecheck(SemantEnv &env)
+
+void Let::Typecheck(SemantEnv &env) {
+    init_->Typecheck(env);
+    std::cout << init_->type() << std::endl;
+}
+
+void NoExpr::Typecheck(SemantEnv &env) {
+    set_type(No_type);
 }
 
 
