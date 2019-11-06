@@ -1,3 +1,7 @@
+class Queen {};
+
+class King inherits Queen {};
+
 class A {
     x : Bool <- true;
 };
@@ -12,5 +16,8 @@ class C {
 
 class D {
     temp : Int;
-    x : Int <- (temp <- 5);
+    xp : Int <- (temp <- 5);
+    tempK : King;
+    tempQ : Queen;
+    x : Int <- (tempQ <- tempK); -- You cannot assign sth superior to sth inferior
 };

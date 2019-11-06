@@ -410,7 +410,6 @@ void StringLiteral::Typecheck(SemantEnv &env) {
 
 void Ref::Typecheck(SemantEnv &env) {
     set_type(env.curr_semant_node->otable_.Lookup(name_));
-    std::cout << type() << std::endl;
 }
 
 void Assign::Typecheck(SemantEnv &env) {
@@ -423,7 +422,8 @@ void Assign::Typecheck(SemantEnv &env) {
     } else {
         env.error_env(env.curr_semant_node->klass(), this) << "Inconsistent types in assignment: Assign a value of type \"" << type_rhs << "\" to an objectID of type \"" << type_lhs << "\"\n";
     }
+} // end void Assign::Typecheck(SemantEnv &env)
 
-}
+
 
 }  // namespace cool
