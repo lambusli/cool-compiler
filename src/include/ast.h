@@ -570,6 +570,7 @@ class StringLiteral : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void Typecheck(SemantEnv &env); 
 
   friend std::ostream& operator<<(std::ostream& os, const StringLiteral* s) {
     return os << s->value();
@@ -598,6 +599,7 @@ class IntLiteral : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void Typecheck(SemantEnv &env);
 
  protected:
   const Int32Entry* value_;
@@ -614,7 +616,7 @@ class BoolLiteral : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
-  void Typecheck(SemantEnv &env); 
+  void Typecheck(SemantEnv &env);
 
  protected:
   const bool value_;

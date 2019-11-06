@@ -369,12 +369,20 @@ void Feature::Typecheck(SemantEnv &env) {
     } else
     // If the feature is a method
     {
-        std::cout << "Feature is a method. Wait for future development.\n";
+        // std::cout << "Feature is a method. Wait for future development.\n";
     }
 }
 
 void BoolLiteral::Typecheck(SemantEnv &env) {
-    std::cout << "Congratulations! You detected a boolean literal! \n" << std::endl; 
+    set_type(Bool);
+}
+
+void IntLiteral::Typecheck(SemantEnv &env) {
+    set_type(Int);
+}
+
+void StringLiteral::Typecheck(SemantEnv &env) {
+    set_type(String); 
 }
 
 }  // namespace cool
