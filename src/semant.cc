@@ -164,10 +164,7 @@ void Semant(Program* program) {
         exit(1);
     }
 
-    // Create scoped-table for method names
-    // SemantEnv myEnv;
-    // myEnv.make_big_M();
-
+    klass_table.Typecheck_all(); 
 
 } // end void Semant(Program* program)
 
@@ -330,6 +327,26 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
  * Part III: Semantic environment and Typechecking
  */
 
+ // Constructor of semantic environment
+ SemantEnv::SemantEnv(SemantKlassTable *klass_table_arg,
+           SemantNode *curr_semant_node_arg,
+           SemantError &error_env_arg) :
+           klass_table(klass_table_arg),
+           curr_semant_node(curr_semant_node_arg),
+           error_env(error_env_arg) {}
+
+void SemantKlassTable::Typecheck_all() {
+    Typecheck_subgraph(root());
+}
+
+// Type check all the classes in the subgraph of the inheritance graph
+// where the root of subgraph is klass_node
+void SemantKlassTable::Typecheck_subgraph(SemantNode *klass_node) {
+    std::cout << klass_node->name() << std::endl;
+    for (auto child : klass_node->children_) {
+        Typecheck_subgraph(child);
+    }
+}
 
 
 }  // namespace cool

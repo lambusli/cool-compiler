@@ -188,6 +188,9 @@ class SemantKlassTable : public KlassTable<SemantNode> {
         void traverse(SemantNode *klass_node);
         void make_all_sctables(SemantNode *klass_node);
 
+        void Typecheck_all();
+        void Typecheck_subgraph(SemantNode *klass_node); 
+
 
     private:
         /// Semantic error reporting class
@@ -198,7 +201,13 @@ class SemantKlassTable : public KlassTable<SemantNode> {
 // Implement your semantic environment here
 class SemantEnv {
   public:
-    
+    SemantKlassTable *klass_table;
+    SemantNode *curr_semant_node;
+    SemantError &error_env;
+
+    SemantEnv(SemantKlassTable *klass_table_arg,
+              SemantNode *curr_semant_node_arg,
+              SemantError &error_env_arg);
 };
 
 }  // namespace cool
