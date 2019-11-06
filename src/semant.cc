@@ -520,8 +520,33 @@ void Loop::Typecheck(SemantEnv &env) {
 
 void Let::Typecheck(SemantEnv &env) {
     init_->Typecheck(env);
-    std::cout << init_->type() << std::endl;
-}
+
+    // Need different actions on let-with-init and let-no-init
+    if (init_->type() == No_type)
+    // let-no-init
+    {
+        std::cout << "Coming soon" << std::endl;
+    } else
+    // let-with-init
+    {
+        Symbol *decl_type_final;
+
+        if (decl_type_ == SELF_TYPE) {
+            decl_type_final = env.curr_semant_node->name();
+        } else {
+            // for expression "new XXX"
+            // We need to check whether class XXX is defined in the first place
+            if (env.klass_table->ClassFind(decl_type_)) {decl_type_final = decl_type_; }
+            else {
+                env.error_env(env.curr_semant_node->klass(), this) << "Type \"" << decl_type_ << "\" is undefined.\n";
+                decl_type_final = Object; 
+            }
+        }
+
+        std::cout << decl_type_final << std::endl;
+
+    }
+} // end void Let::Typecheck(SemantEnv &env)
 
 void NoExpr::Typecheck(SemantEnv &env) {
     set_type(No_type);

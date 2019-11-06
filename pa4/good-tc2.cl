@@ -22,8 +22,13 @@ class B inherits Bishop {
     xB3 : Int <- {5; "str";};
 };
 
+class Test {
+    xL3 : Int <- (let s : SELF_TYPE <- (new LetTest) in true);
+};
+
 class LetTest {
     s : String;
     xL1 : Int <- (let s : Int <- 5 in true);
     xL2 : Int <- (let s : Int in true);
+
 };

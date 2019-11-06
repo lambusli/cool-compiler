@@ -11,3 +11,8 @@ class A {
     xA2 : Int <- (xA1 <- undef);
     xA3 : Int <- (if 5 then 5 else 3 fi);
 };
+
+class LetTest {
+    xL3 : Int <- (let s : SELF_TYPE <- (new Blah) in true);
+    xL4 : Int <- (let s : Undef <- 5 in true);
+};
