@@ -328,7 +328,7 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
 
 
 /*
- * Part III: Semantic environment and Typechecking
+ * Part III: Helper functions related to of Semantic Environment
  */
 
 // Constructor of semantic environment
@@ -375,6 +375,34 @@ bool SemantKlassTable::SNLE(SemantNode *klass_node_1, SemantNode *klass_node_2) 
     return false;
 }
 
+// Find the least upper bound of two types
+// If the two types don't have a LUB, then return No_type
+Symbol *SemantEnv::type_LUB(Symbol *type1, Symbol *type2) {
+    SemantNode *klass_node_1 = klass_table->ClassFind(type1);
+    SemantNode *klass_node_2 = klass_table->ClassFind(type2);
+    SemantNode *lowest_ances_node = klass_table->SNLUB(klass_node_1, klass_node_2);
+
+    if (lowest_ances_node) {
+        return lowest_ances_node->name();
+    } else {
+        return No_type;
+    }
+}
+
+// Find the lowest common ancestor of two SemandNode's
+// If they don't share a common ancestor, return null
+SemantNode *SemantKlassTable::SNLUB(SemantNode *klass_node_1, SemantNode *klass_node_2) {
+    SemantNode *next_up = klass_node_2->parent();
+    if (next_up == NULL) {return NULL; }
+    if (SNLE(klass_node_1, next_up)) {return next_up; }
+    return SNLUB(klass_node_1, next_up);
+}
+
+
+
+/*
+ * Part IV: Type checking
+ */
 
 void Klass::Typecheck(SemantEnv &env) {
     for (auto feature : *features()) {
