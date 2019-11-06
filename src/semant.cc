@@ -342,12 +342,19 @@ void SemantKlassTable::Typecheck_all() {
 // Type check all the classes in the subgraph of the inheritance graph
 // where the root of subgraph is klass_node
 void SemantKlassTable::Typecheck_subgraph(SemantNode *klass_node) {
-    SemantEnv envnow(this, klass_node, error_); 
+    // Construct the semantic environment specific to klass_node
+    SemantEnv envnow(this, klass_node, error_);
+
+    // Traverse the AST under klass_node and do Typechecking
+    klass_node->klass()->Typecheck(envnow);
 
     for (auto child : klass_node->children_) {
         Typecheck_subgraph(child);
     }
 }
 
+void Klass::Typecheck(SemantEnv &env) {
+    std::cout << env.curr_semant_node->name() << std::endl;
+}
 
 }  // namespace cool
