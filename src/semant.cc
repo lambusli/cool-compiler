@@ -508,5 +508,15 @@ void Block::Typecheck(SemantEnv &env) {
     set_type(final_type);
 } // end void Block::Typecheck(SemantEnv &env)
 
+void Loop::Typecheck(SemantEnv &env) {
+    pred_->Typecheck(env);
+    body_->Typecheck(env);
+    set_type(Object);
+
+    if (pred_->type() != Bool) {
+        env.error_env(env.curr_semant_node->klass(), this) << "Predicate should evaluate to type \"Bool\", but it has type \"" << pred_->type() << "\" instead\n";
+    }
+}
+
 
 }  // namespace cool
