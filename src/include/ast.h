@@ -218,7 +218,7 @@ class Feature : public ASTNode {
   Symbol* decl_type() const { return decl_type_; }
   //@}
 
-  void Typecheck(SemantEnv &env); 
+  void Typecheck(SemantEnv &env);
 
  protected:
   Symbol* name_;
@@ -614,6 +614,7 @@ class BoolLiteral : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void Typecheck(SemantEnv &env); 
 
  protected:
   const bool value_;

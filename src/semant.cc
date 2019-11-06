@@ -360,7 +360,21 @@ void Klass::Typecheck(SemantEnv &env) {
 }
 
 void Feature::Typecheck(SemantEnv &env) {
-    std::cout << name() << std::endl; 
+    if (attr())
+    // If the feature is an attribute
+    {
+        Attr *attr = (Attr *)this;
+        Expression *expr = attr->init();
+        expr->Typecheck(env);
+    } else
+    // If the feature is a method
+    {
+        std::cout << "Feature is a method. Wait for future development.\n";
+    }
+}
+
+void BoolLiteral::Typecheck(SemantEnv &env) {
+    std::cout << "Congratulations! You detected a boolean literal! \n" << std::endl; 
 }
 
 }  // namespace cool
