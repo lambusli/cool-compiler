@@ -164,7 +164,7 @@ void Semant(Program* program) {
         exit(1);
     }
 
-    klass_table.Typecheck_all(); 
+    klass_table.Typecheck_all();
 
 } // end void Semant(Program* program)
 
@@ -342,7 +342,8 @@ void SemantKlassTable::Typecheck_all() {
 // Type check all the classes in the subgraph of the inheritance graph
 // where the root of subgraph is klass_node
 void SemantKlassTable::Typecheck_subgraph(SemantNode *klass_node) {
-    std::cout << klass_node->name() << std::endl;
+    SemantEnv envnow(this, klass_node, error_); 
+
     for (auto child : klass_node->children_) {
         Typecheck_subgraph(child);
     }

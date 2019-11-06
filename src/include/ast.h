@@ -80,6 +80,7 @@ limitations under the License.
 
 namespace cool {
 
+class SemantEnv;
 // Forward declare semantic analysis and code generation environments
 
 /**
@@ -99,6 +100,7 @@ public:
     * @param with_types Include Expression types
     */
     virtual void DumpTree(std::ostream& os, size_t level, bool with_types) const = 0;
+    virtual void Typecheck(SemantEnv &env) {}
 
 protected:
     SourceLoc loc_ = 0;
@@ -168,6 +170,7 @@ public:
     //@}
 
     void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+    void Typecheck(SemantEnv &env);
 
 protected:
     Symbol* name_;
