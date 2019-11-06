@@ -409,7 +409,14 @@ void StringLiteral::Typecheck(SemantEnv &env) {
 }
 
 void Ref::Typecheck(SemantEnv &env) {
-    set_type(env.curr_semant_node->otable_.Lookup(name_));
+    Symbol *type = env.curr_semant_node->otable_.Lookup(name_);
+    // Need to check whether the objectID is undefined
+    if (type) {set_type(type); }
+    else {
+        env.error_env(env.curr_semant_node->klass(), this) << "ObjectID \"" << name_ << "\" is undefined\n";
+        set_type(No_type);
+    }
+
 }
 
 void Assign::Typecheck(SemantEnv &env) {
@@ -423,6 +430,20 @@ void Assign::Typecheck(SemantEnv &env) {
         env.error_env(env.curr_semant_node->klass(), this) << "Inconsistent types in assignment: Assign a value of type \"" << type_rhs << "\" to an objectID of type \"" << type_lhs << "\"\n";
     }
 } // end void Assign::Typecheck(SemantEnv &env)
+
+void Knew::Typecheck(SemantEnv &env) {
+    if (name_ == SELF_TYPE) {
+        set_type(env.curr_semant_node->name());
+    } else {
+        // for expression "new XXX"
+        // We need to check whether class XXX is defined in the first place
+        if (env.klass_table->ClassFind(name_)) {set_type(name_); }
+        else {
+            env.error_env(env.curr_semant_node->klass(), this) << "Type \"" << name_ << "\" is undefined.\n";
+            set_type(No_type);
+        }
+    }
+}
 
 
 

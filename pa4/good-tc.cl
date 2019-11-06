@@ -1,6 +1,11 @@
-class Queen {};
+class Queen {
+    xq1 : Int <- (new SELF_TYPE);
+    xq2 : Int <- (new A); 
+};
 
-class King inherits Queen {};
+class King inherits Queen {
+    xk1 : Int <- (new SELF_TYPE);
+};
 
 class A {
     x : Bool <- true;
@@ -16,8 +21,9 @@ class C {
 
 class D {
     temp : Int;
-    xp : Int <- (temp <- 5);
+    x : Int <- (temp <- 5);
     tempK : King;
     tempQ : Queen;
-    x : Int <- (tempQ <- tempK); -- You cannot assign sth superior to sth inferior
+    xp : Int <- (tempQ <- tempK); -- You cannot assign sth superior to sth inferior
+    xp2 : Int <- (tempQ <- new King);
 };
