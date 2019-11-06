@@ -376,7 +376,6 @@ bool SemantKlassTable::SNLE(SemantNode *klass_node_1, SemantNode *klass_node_2) 
 }
 
 // Find the least upper bound of two types
-// If the two types don't have a LUB, then return No_type
 Symbol *SemantEnv::type_LUB(Symbol *type1, Symbol *type2) {
     SemantNode *klass_node_1 = klass_table->ClassFind(type1);
     SemantNode *klass_node_2 = klass_table->ClassFind(type2);
@@ -385,13 +384,14 @@ Symbol *SemantEnv::type_LUB(Symbol *type1, Symbol *type2) {
     if (lowest_ances_node) {
         return lowest_ances_node->name();
     } else {
-        return No_type;
+        return Object;
     }
 }
 
 // Find the lowest common ancestor of two SemandNode's
 // If they don't share a common ancestor, return null
 SemantNode *SemantKlassTable::SNLUB(SemantNode *klass_node_1, SemantNode *klass_node_2) {
+    if (klass_node_1 == klass_node_2) {return klass_node_1; }
     SemantNode *next_up = klass_node_2->parent();
     if (next_up == NULL) {return NULL; }
     if (SNLE(klass_node_1, next_up)) {return next_up; }
@@ -442,7 +442,7 @@ void Ref::Typecheck(SemantEnv &env) {
     if (type) {set_type(type); }
     else {
         env.error_env(env.curr_semant_node->klass(), this) << "ObjectID \"" << name_ << "\" is undefined\n";
-        set_type(No_type);
+        set_type(Object);
     }
 
 }
@@ -468,11 +468,25 @@ void Knew::Typecheck(SemantEnv &env) {
         if (env.klass_table->ClassFind(name_)) {set_type(name_); }
         else {
             env.error_env(env.curr_semant_node->klass(), this) << "Type \"" << name_ << "\" is undefined.\n";
-            set_type(No_type);
+            set_type(Object);
         }
     }
-}
+} // end void Knew::Typecheck(SemantEnv &env)
 
+void Cond::Typecheck(SemantEnv &env) {
+    pred_->Typecheck(env);
+    then_branch_->Typecheck(env);
+    else_branch_->Typecheck(env);
+
+    if (pred_->type() != Bool) {
+        env.error_env(env.curr_semant_node->klass(), this) << "Predicate should evaluate to type \"Bool\", but it has type \"" << pred_->type() << "\" instead\n";
+        set_type(Object);
+        return;
+    }
+
+    set_type(env.type_LUB(then_branch_->type(), else_branch_->type()));
+    
+} // end void Cond::Typecheck(SemantEnv &env)
 
 
 }  // namespace cool

@@ -1,6 +1,6 @@
 class Queen {
     xq1 : Int <- (new SELF_TYPE);
-    xq2 : Int <- (new A); 
+    xq2 : Int <- (new A);
 };
 
 class King inherits Queen {
