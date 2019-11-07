@@ -574,8 +574,38 @@ void Kase::Typecheck(SemantEnv &env) {
     }
 
     set_type(ans);
-    
 } // end void Kase::Typecheck(SemantEnv &env)
+
+void UnaryOperator::Typecheck(SemantEnv &env) {
+    input_->Typecheck(env);
+
+    switch (kind_) {
+        case UnaryOperator::UnaryKind::UO_Not:
+            if (input_->type() == Bool) {set_type(Bool); }
+            else {
+                env.error_env(env.curr_semant_node->klass(), this) <<
+                    "\"Not\" operator applied on a non-boolean expression\n";
+                set_type(Object);
+            }
+            break;
+
+        case UnaryOperator::UnaryKind::UO_Neg:
+            if (input_->type() == Int) {set_type(Int); }
+            else {
+                env.error_env(env.curr_semant_node->klass(), this) <<
+                    "\"Negation\" operator applied on a non-integer expression\n";
+                set_type(Object);
+            }
+            break;
+
+        case UnaryOperator::UnaryKind::UO_IsVoid:
+            set_type(Bool);
+            break;
+
+        default:
+            break;
+    } // end switch
+} // end UnaryOperator::Typecheck(SemantEnv &env)
 
 
 }  // namespace cool

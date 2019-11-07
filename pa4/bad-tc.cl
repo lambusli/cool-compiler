@@ -19,3 +19,10 @@ class LetTest inherits Test {
     xL4 : Int <- (let s : Undef <- 5 in true);
     xL5 : Int <- (let s : SELF_TYPE <- (new Test) in true);
 };
+
+class Un {
+    xU1 : Int <- {
+        ~(if true then 5 else 10 fi);
+        ~(if true then 5 else "10" fi);
+    };
+};

@@ -20,6 +20,7 @@ class B inherits Bishop {
     xB1 : Int <- {new SELF_TYPE; new A; };
     xB2 : Int <- {5; if true then soldier else 5 fi; };
     xB3 : Int <- {5; "str";};
+    --xB4 : Int <- (isvoid 5);
 };
 
 class Test {
@@ -46,4 +47,12 @@ class CaseTest inherits Test {
     xC2 : Int <- (
         case 0 of rho1 : Int => r1; r2 : Int => r2; esac
     );
+};
+
+class Un {
+    xU1 : Int <- {
+        isvoid (if true then 5 else 10 fi);
+        not (true);
+        not (5);
+    };
 };

@@ -495,6 +495,7 @@ class UnaryOperator : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void Typecheck(SemantEnv &env); 
 
  protected:
   UnaryKind kind_;
