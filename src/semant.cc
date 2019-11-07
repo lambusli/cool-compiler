@@ -555,12 +555,27 @@ void Let::Typecheck(SemantEnv &env) {
     env.curr_semant_node->otable_.ExitScope();
 
     set_type(body_->type());
-    std::cout << type() << std::endl; 
 } // end void Let::Typecheck(SemantEnv &env)
 
 void NoExpr::Typecheck(SemantEnv &env) {
     set_type(No_type);
 }
+
+void Kase::Typecheck(SemantEnv &env) {
+    input_->Typecheck(env);
+    Symbol *ans = leaf;
+
+    for (auto branch : *cases_) {
+        env.curr_semant_node->otable_.EnterScope();
+        env.curr_semant_node->otable_.AddToScope(branch->name_, branch->decl_type_);
+        branch->body_->Typecheck(env);
+        ans = env.type_LUB(ans, branch->body_->type());
+        env.curr_semant_node->otable_.ExitScope();
+    }
+
+    set_type(ans);
+    
+} // end void Kase::Typecheck(SemantEnv &env)
 
 
 }  // namespace cool

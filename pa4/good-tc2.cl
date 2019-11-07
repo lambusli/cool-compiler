@@ -24,6 +24,8 @@ class B inherits Bishop {
 
 class Test {
     s : String;
+    r1 : Int;
+    r2 : String;
     xT1 : Int <- (let s : SELF_TYPE <- (new LetTest) in s);
     xT2 : Int <- (let s : SELF_TYPE in (if true then s else 5 fi));
     xT3 : Int <- (let tar : Int, s : SELF_TYPE <- (new LetTest) in (s));
@@ -35,4 +37,13 @@ class LetTest inherits Test {
     xL2 : Int <- (let s : Int in true);
     xL3 : Int <- (let what : Int in s);
 
+};
+
+class CaseTest inherits Test {
+    xC1 : Int <- (
+        case 0 of r1 : Bishop => r1; r2 : King => r2; esac
+    );
+    xC2 : Int <- (
+        case 0 of rho1 : Int => r1; r2 : Int => r2; esac
+    );
 };
