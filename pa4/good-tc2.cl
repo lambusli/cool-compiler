@@ -24,13 +24,15 @@ class B inherits Bishop {
 
 class Test {
     s : String;
-    xL3 : Int <- (let s : SELF_TYPE <- (new LetTest) in s);
-    xL4 : Int <- (let s : SELF_TYPE <- (new LetTest) in (if true then s else 5 fi));
+    xT1 : Int <- (let s : SELF_TYPE <- (new LetTest) in s);
+    xT2 : Int <- (let s : SELF_TYPE in (if true then s else 5 fi));
+    xT3 : Int <- (let tar : Int, s : SELF_TYPE <- (new LetTest) in (s));
 };
 
 class LetTest inherits Test {
 
     xL1 : Int <- (let s : Int <- 5 in true);
     xL2 : Int <- (let s : Int in true);
+    xL3 : Int <- (let what : Int in s);
 
 };

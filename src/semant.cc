@@ -521,47 +521,41 @@ void Loop::Typecheck(SemantEnv &env) {
 void Let::Typecheck(SemantEnv &env) {
     init_->Typecheck(env);
 
-    // Need different actions on let-with-init and let-no-init
-    if (init_->type() == No_type)
-    // let-no-init
-    {
-        std::cout << "Coming soon" << std::endl;
-    } else
-    // let-with-init
-    {
-        Symbol *decl_type_final;
-
-        if (decl_type_ == SELF_TYPE) {
-            decl_type_final = env.curr_semant_node->name();
-        } else {
-            // for expression "new XXX"
-            // We need to check whether class XXX is defined in the first place
-            if (env.klass_table->ClassFind(decl_type_)) {decl_type_final = decl_type_; }
-            else {
-                env.error_env(env.curr_semant_node->klass(), this) << "Type \"" << decl_type_ << "\" is undefined.\n";
-                decl_type_final = Object;
-            }
+    Symbol *decl_type_final;
+    // Finalize declare type
+    if (decl_type_ == SELF_TYPE) {
+        decl_type_final = env.curr_semant_node->name();
+    } else {
+        // for expression "new XXX"
+        // We need to check whether class XXX is defined in the first place
+        if (env.klass_table->ClassFind(decl_type_)) {decl_type_final = decl_type_; }
+        else {
+            env.error_env(env.curr_semant_node->klass(), this) << "Type \"" << decl_type_ << "\" is undefined.\n";
+            decl_type_final = Object;
         }
+    }
 
+    // Need additional actions on let-with-init
+    if (init_->type() != No_type){
         // Make sure that a superior type is not assigned to an inferior type
         if (!env.type_LE(init_->type(), decl_type_final)) {
             env.error_env(env.curr_semant_node->klass(), this) << "Inconsistent types in Let initialization: Assign a value of type \"" << init_->type() << "\" to an objectID of type \"" << decl_type_final << "\"\n";
         }
+    }
 
-        // Push a new scope into the current Object Scoped Table
-        // Temporary: name_ ----mapTo----> decl_type_final
-        env.curr_semant_node->otable_.EnterScope();
-        env.curr_semant_node->otable_.AddToScope(name_, decl_type_final);
+    // Push a new scope into the current Object Scoped Table
+    // Temporary: name_ ----mapTo----> decl_type_final
+    env.curr_semant_node->otable_.EnterScope();
+    env.curr_semant_node->otable_.AddToScope(name_, decl_type_final);
 
-        // Under the current temporary environment, typecheck the body expression of Let
-        body_->Typecheck(env);
+    // Under the current temporary environment, typecheck the body expression of Let
+    body_->Typecheck(env);
 
-        // Delete the temporary scope
-        env.curr_semant_node->otable_.ExitScope();
+    // Delete the temporary scope
+    env.curr_semant_node->otable_.ExitScope();
 
-        set_type(body_->type());
-        std::cout << type() << std::endl; 
-    } // end else
+    set_type(body_->type());
+    std::cout << type() << std::endl; 
 } // end void Let::Typecheck(SemantEnv &env)
 
 void NoExpr::Typecheck(SemantEnv &env) {
