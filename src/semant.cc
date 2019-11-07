@@ -626,7 +626,27 @@ void BinaryOperator::Typecheck(SemantEnv &env) {
         }
         if (lhs_->type() == Int && rhs_->type() == Int) {set_type(Int); }
     } // end if arithmetic operation
-    
+
+    else if (kind_ == BO_LT || kind_ == BO_LE)
+    // comparison
+    {
+        if (lhs_->type() != Int) {
+            env.error_env(env.curr_semant_node->klass(), this) << "Left hand side of comparison should have type \"Int\" but instead has type \"" << lhs_->type() << "\"\n";
+            set_type(Object);
+        }
+        if (rhs_->type() != Int) {
+            env.error_env(env.curr_semant_node->klass(), this) << "Right hand side of comparison should have type \"Int\" but instead has type \"" << rhs_->type() << "\"\n";
+            set_type(Object);
+        }
+        if (lhs_->type() == Int && rhs_->type() == Int) {set_type(Bool); }
+    } // end else if comparison
+
+    else if (kind_ == BO_EQ)
+    //equal sign
+    {
+        
+    }
+    std::cout << type() << std::endl;
 
 } // end void BinaryOperator::Typecheck(SemantEnv &env)
 

@@ -58,6 +58,6 @@ class Un {
 };
 
 class Bin {
-    xBin1 : Int <- {3 + 4; 3 - 4; 3 * 4; 3 / 4;};
+    xBin1 : Int <- {3 + 4; 3 - 4; 3 * 4; 3 / 4; 3 < 4; 3 <= 4; };
     --xBin2 : Int <- (true + true);
 };
