@@ -607,5 +607,27 @@ void UnaryOperator::Typecheck(SemantEnv &env) {
     } // end switch
 } // end UnaryOperator::Typecheck(SemantEnv &env)
 
+// enum BinaryKind { BO_Add, BO_Sub, BO_Mul, BO_Div, BO_LT, BO_EQ, BO_LE };
+void BinaryOperator::Typecheck(SemantEnv &env) {
+    lhs_->Typecheck(env);
+    rhs_->Typecheck(env);
+
+    if (kind_ == BinaryKind::BO_Add || kind_ == BinaryKind::BO_Sub
+        || kind_ == BinaryKind::BO_Mul || kind_ == BinaryKind::BO_Div)
+    // arithmetic operation
+    {
+        if (lhs_->type() != Int) {
+            env.error_env(env.curr_semant_node->klass(), this) << "Left hand side of arithmetic operation should have type \"Int\" but instead has type \"" << lhs_->type() << "\"\n";
+            set_type(Object);
+        }
+        if (rhs_->type() != Int) {
+            env.error_env(env.curr_semant_node->klass(), this) << "Right hand side of arithmetic operation should have type \"Int\" but instead has type \"" << rhs_->type() << "\"\n";
+            set_type(Object);
+        }
+        if (lhs_->type() == Int && rhs_->type() == Int) {set_type(Int); }
+    } // end if arithmetic operation
+    
+
+} // end void BinaryOperator::Typecheck(SemantEnv &env)
 
 }  // namespace cool

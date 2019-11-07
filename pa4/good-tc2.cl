@@ -53,6 +53,11 @@ class Un {
     xU1 : Int <- {
         isvoid (if true then 5 else 10 fi);
         not (true);
-        not (5);
+        ~ (5);
     };
+};
+
+class Bin {
+    xBin1 : Int <- {3 + 4; 3 - 4; 3 * 4; 3 / 4;};
+    --xBin2 : Int <- (true + true);
 };
