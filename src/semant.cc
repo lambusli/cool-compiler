@@ -397,8 +397,26 @@ Symbol *SemantEnv::type_LUB(Symbol *type1, Symbol *type2) {
     if (type1 == leaf) {return type2; }
     if (type2 == leaf) {return type1; }
 
-    SemantNode *klass_node_1 = klass_table->ClassFind(type1);
-    SemantNode *klass_node_2 = klass_table->ClassFind(type2);
+    SemantNode *klass_node_1, *klass_node_2;
+
+    // Need to extend the LUB operation to SELF_TYPE
+    if (type1 == SELF_TYPE && type2 == SELF_TYPE) {return SELF_TYPE; }
+
+    else if (type1 == SELF_TYPE && type2 != SELF_TYPE) {
+        klass_node_1 = curr_semant_node;
+        klass_node_2 = klass_table->ClassFind(type2);
+    }
+
+    else if (type1 != SELF_TYPE && type2 == SELF_TYPE) {
+        klass_node_1 = klass_table->ClassFind(type1);
+        klass_node_2 = curr_semant_node;
+    }
+
+    else {
+        klass_node_1 = klass_table->ClassFind(type1);
+        klass_node_2 = klass_table->ClassFind(type2);
+    }
+
     SemantNode *lowest_ances_node = klass_table->SNLUB(klass_node_1, klass_node_2);
 
     if (lowest_ances_node) {
@@ -406,7 +424,7 @@ Symbol *SemantEnv::type_LUB(Symbol *type1, Symbol *type2) {
     } else {
         return Object;
     }
-}
+} // end Symbol *SemantEnv::type_LUB(Symbol *type1, Symbol *type2)
 
 // Find the lowest common ancestor of two SemandNode's
 // If they don't share a common ancestor, return null
