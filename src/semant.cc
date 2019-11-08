@@ -459,10 +459,16 @@ void Feature::Typecheck(SemantEnv &env) {
         expr->Typecheck(env);
         env.curr_semant_node->otable_.ExitScope();
 
+        // catch error if the declared type of attribute does not exist
+        if (!env.klass_table->ClassFind(attr->decl_type())) {
+            env.error_env(env.curr_semant_node->klass(), this) << "Type \"" << attr->decl_type() << "\" is undefined\n";
+            return;
+        }
+
         // case for [Attr-No-Init]
         if (expr->type() == No_type) {return; }
 
-        // catch error for [Attr-Init]
+        // catch error for type inconsistency for [Attr-Init]
         if (!env.type_LE(expr->type(), decl_type())) {
             env.error_env(env.curr_semant_node->klass(), this) << "Inconsistent types in attribute initializer: attrbute \"" << attr->name() << "\" has type \"" << decl_type() << "\" but it is assigned an expression of type \"" << expr->type() << "\"\n";
         }
@@ -480,7 +486,7 @@ void Feature::Typecheck(SemantEnv &env) {
         // env.curr_semant_node->mtable_.ExitScope();
         //
         // // catch error
-        // if
+        // if (!env.type_LE())
 
     } // end else the feature is a method
 } // end void Feature::Typecheck(SemantEnv &env)
