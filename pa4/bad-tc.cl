@@ -23,6 +23,8 @@ class Test {
         t <- (new LetTest);
         t2 <- (new SELF_TYPE);
     };
+    xT1 : Int <- (let s : SELF_TYPE <- (new LetTest) in s);
+    xT3 : Int <- (let tar : Int, s : SELF_TYPE <- (new LetTest) in (s));
 };
 
 class LetTest inherits Test {
