@@ -642,11 +642,21 @@ void BinaryOperator::Typecheck(SemantEnv &env) {
     } // end else if comparison
 
     else if (kind_ == BO_EQ)
-    //equal sign
+    // equal sign
     {
-        
-    }
-    std::cout << type() << std::endl;
+        bool lit1 = (lhs_->type() == Int) | (lhs_->type() == String)
+                    | (lhs_->type() == Bool);
+        bool lit2 = (rhs_->type() == Int) | (rhs_->type() == String)
+                    | (rhs_->type() == Bool);
+        bool lit3 = (lhs_->type() == rhs_->type());
+        bool lit_final = (!(lit1 | lit2)) | (lit3);
+
+        if (lit_final) {set_type(Bool); }
+        else {
+            env.error_env(env.curr_semant_node->klass(), this) << "Inconsistent types in equality expression\n";
+            set_type(Object);
+        }
+    } // end else if equal sign
 
 } // end void BinaryOperator::Typecheck(SemantEnv &env)
 

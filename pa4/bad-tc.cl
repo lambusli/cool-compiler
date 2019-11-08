@@ -29,5 +29,13 @@ class Un {
 
 class Bin {
     --xBin1 : Int <- {3 + 4; 3 - 4; 3 * 4; 3 / 4;};
-    xBin2 : Int <- {true + true; true < true; true <= true;};
+    xBin2 : Int <- {
+        true + true;
+        true < true;
+        true <= true;
+        true = 2;
+        true = "bc";
+        2 = " bc";
+        (new Queen) = "a"; 
+    };
 };

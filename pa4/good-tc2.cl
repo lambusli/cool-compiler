@@ -58,6 +58,11 @@ class Un {
 };
 
 class Bin {
-    xBin1 : Int <- {3 + 4; 3 - 4; 3 * 4; 3 / 4; 3 < 4; 3 <= 4; };
-    --xBin2 : Int <- (true + true);
+    --xBin1 : Int <- {3 + 4; 3 - 4; 3 * 4; 3 / 4; 3 < 4; 3 <= 4; };
+    xBin2 : Int <- {
+        true = false;
+        1 = 2;
+        "ad" = "bc";
+        (new Queen) = (new King);
+    };
 };
