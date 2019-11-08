@@ -454,13 +454,25 @@ void Feature::Typecheck(SemantEnv &env) {
     {
         Attr *attr = (Attr *)this;
         Expression *expr = attr->init();
+        env.curr_semant_node->otable_.EnterScope();
+        env.curr_semant_node->otable_.AddToScope(self, SELF_TYPE);
         expr->Typecheck(env);
-    } else
+        env.curr_semant_node->otable_.ExitScope();
+
+        // case for [Attr-No-Init]
+        if (expr->type() == No_type) {return; }
+
+        // catch error for [Attr-Init]
+        if (!env.type_LE(expr->type(), decl_type())) {
+            env.error_env(env.curr_semant_node->klass(), this) << "Inconsistent types in attribute initializer: attrbute \"" << attr->name() << "\" has type \"" << decl_type() << "\" but it is assigned an expression of type \"" << expr->type() << "\"\n";
+        }
+    } // end if the feature is attribute
+    else
     // If the feature is a method
     {
         // std::cout << "Feature is a method. Wait for future development.\n";
     }
-}
+} // end void Feature::Typecheck(SemantEnv &env)
 
 void BoolLiteral::Typecheck(SemantEnv &env) {
     set_type(Bool);
