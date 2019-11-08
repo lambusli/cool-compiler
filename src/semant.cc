@@ -747,7 +747,20 @@ void BinaryOperator::Typecheck(SemantEnv &env) {
 
 void Dispatch::Typecheck(SemantEnv &env) {
     receiver_->Typecheck(env);
-    Method *meth_info = env.curr_semant_node->mtable_.Lookup(name_);
+    Method *meth_info;
+
+    if (receiver_->type() == SELF_TYPE) { // I really do need to resolve SELF_TYPE here!
+        meth_info = env.curr_semant_node->mtable_.Lookup(name_);
+    } else {
+        meth_info = env.klass_table->ClassFind(receiver_->type())->mtable_.Lookup(name_);
+    }
+
+    // Check whether the method name is defined under current class
+    if (!meth_info) {
+        env.error_env(env.curr_semant_node->klass(), this) << "Cannot call method \"" << name_ << "\" on an object of type \"" << receiver_->type() << "\"\n";
+        set_type(Object);
+        return;
+    }
 
     const Formals &formals = *meth_info->formals();
     Expressions &actuals = *actuals_;
@@ -762,6 +775,31 @@ void Dispatch::Typecheck(SemantEnv &env) {
         return;
     } // end if check arugments-size
 
+    auto formal = formals.begin();
+    auto formal_end = formals.end();
+    auto actual = actuals.begin();
+    auto actual_end = actuals.end();
+    int i = 1;
+    bool error_flag = false;
+
+    // Check whether each argument has the correct type
+    while(formal != formal_end && actual != actual_end) {
+        (*actual)->Typecheck(env);
+        Symbol *type_formal = (*formal)->decl_type();
+        Symbol *type_actual = (*actual)->type();
+
+        if (type_formal != type_actual) {
+            env.error_env(env.curr_semant_node->klass(), this) << "The " << i << "th/st/nd argument shoud have type \"" << type_formal << "\" but instead has type \"" << type_actual;
+            error_flag = true;
+        }
+
+        formal++;
+        actual++;
+        i++;
+    } // end while
+
+    if (error_flag) {set_type(Object); }
+    else {set_type(meth_info->decl_type()); }
 } // end void Dispatch::Typecheck(SemantEnv &env)
 
 }  // namespace cool

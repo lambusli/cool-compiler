@@ -15,8 +15,9 @@ class A inherits Bishop {
 
     fA2(argc : Int) : SELF_TYPE {new SELF_TYPE};
     mainA : Object <- {
-        let gen : Pawn <- (new Pawn) in (coup(new Pawn, 5, 10));
-
+        --let gen : Pawn <- (new Pawn) in (coup(new Pawn, 5, 10));
+        --let gen : Pawn <- (new Pawn) in (coup(new Pawn, true));
+        let gen : Pawn <- (new Pawn) in (coup(new Pawn, 5));
     };
 };
 

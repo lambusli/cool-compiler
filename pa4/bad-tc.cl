@@ -13,6 +13,11 @@ class A {
     xA4 : Undef;
     fA1(argc : King) : SELF_TYPE {argc};
     fA2(argc : SELF_TYPE) : King {argc};
+    mainA : Object <- {
+        let gen : Pawn <- (new Pawn) in (coup(new Pawn, 5, 10));
+        let gen : Pawn <- (new Pawn) in (coup(new Pawn, true));
+        --let gen : Pawn <- (new Pawn) in (coup(new Pawn, 5));
+    };
 };
 
 class Test {
