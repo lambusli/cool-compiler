@@ -57,5 +57,23 @@ If you get compiler errors that `spdlog` is not found, you will need to import t
 Instructions for turning in the assignment will be posted on the course site. Make sure to complete the writeup below.
 
 ## Write-up
+The majority of implementation is in ../src/semant.cc
 
-Replace with a brief write-up of your implementation as described in the assignment PDF.
+Line 146 ~ 177 is the main function that executes all the subroutines of typechecking: 1. Constructing inheritance graph of classes; 2. Creating Scoped Tables of objects and methods; 3. The actual typechecking. Notice that I abort the execution of program if any one subroutine detects error. This is to avoid cascading error that makes absolutely no sense. Within each subroutine, errors are recoverable.
+
+Line 97 ~ 143 is the constructor of SemantKlassTable. Within this constructor, an inheritance graph of classes is created. We check for errors such as repeating definition and cyclic inheritance graph. Notice that cyclic inheritance graph can be spotted by checking whether the inheritance is connected. If the graph is separated into forest, then there are cycles.
+
+Line 221 ~ 327 is the function that creates all scoped tables. We use ScopedTable to store the scopes of each class. If class B inherits class A, then we first copy the scoped tables of A into B so that B inherits every method and attribute from A, and then use AddToScope() function to add attributes and methods newly defined in B.
+We detect errors such as repeating attribute, inconsistent method definition between ancestors and childrens.
+
+Line 331 ~ 439 are helper functions related to Semantic Environment. The functions include the following functionalities: 1. recursively traverse all the SemantNode to do typechecking; 2. Create and adjust new semantic environment when we are under a different class; 3. implementation of <= and LUB.
+
+Line 447 ~ 886 are all the typechecking functions for AST nodes. The typechecking process happens recursively: the type of a parent AST node depends on the types of its children.
+
+Final remark on the resolution of SELF_TYPE. I mention this issue because the sheer number of bugs related to this issue calls my attention. Generally, SELF_TYPE is not resolved if we just perform <= or LUB operation. However, in [Dispatch] and [StaticDispatch], SELF_TYPE is resolved under two circumstances: 1. when an argument of dispatch evaluates to SELF_TYPE; 2. when the declared type of the method is SELF_TYPE.
+SELF_TYPE is resolved under scenario 1, because we need to compare whether an argument's type is consistent with the definition of formal. Since formal cannot have SELF_TYPE and the comparison has to happen, we resolve the SELF_TYPE of the argument in dispatch.
+SELF_TYPE is resolved under scenario 2. Consider this example:
+```
+true = true.copy()
+```
+This expression should evaluates to Bool. However, since .copy() function evalutes to SELF_TYPE, if SELF_TYPE does not resolve here, then the [Compare] rule is no longer valid and the expression evaluates to Object. 
