@@ -486,7 +486,16 @@ void Feature::Typecheck(SemantEnv &env) {
             {
                 env.error_env(env.curr_semant_node->klass(), this) << "Type \"" << formal->decl_type() << "\" is undefined\n";
                 env.curr_semant_node->otable_.AddToScope(formal->name(), Object);
-            } else {
+            }
+
+            else if (formal->decl_type() == SELF_TYPE)
+            // if the type of a formal is SELF_TYPE
+            {
+                env.error_env(env.curr_semant_node->klass(), this) << "Formals cannot have type \"SELF_TYPE\"\n";
+                env.curr_semant_node->otable_.AddToScope(formal->name(), Object);
+            }
+
+            else {
                 env.curr_semant_node->otable_.AddToScope(formal->name(), formal->decl_type());
             }
         } // end for
@@ -735,5 +744,12 @@ void BinaryOperator::Typecheck(SemantEnv &env) {
         }
     } // end else if equal sign
 } // end void BinaryOperator::Typecheck(SemantEnv &env)
+
+void Dispatch::Typecheck(SemantEnv &env) {
+
+
+
+
+}
 
 }  // namespace cool

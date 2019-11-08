@@ -252,7 +252,7 @@ class Method : public Feature {
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
 
  protected:
-  friend class Feature; 
+  friend class Feature;
   Formals* formals_;
   Expression* body_;
 
@@ -331,6 +331,7 @@ class Dispatch : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void Typecheck(SemantEnv &env); 
 
  protected:
   Expression* receiver_;

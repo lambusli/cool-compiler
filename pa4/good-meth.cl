@@ -10,4 +10,8 @@ class Bishop inherits Queen {
 
 class A inherits King {
     fA1(argc : SELF_TYPE) : King {argc};
+    fA2(argc : Int) : SELF_TYPE {new SELF_TYPE};
+};
+
+class B inherits A {
 };
