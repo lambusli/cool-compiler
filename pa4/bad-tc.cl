@@ -10,6 +10,8 @@ class A {
     xA1 : Int <- (tempK <- tempQ); -- You cannot assign sth superior to sth inferior
     xA2 : Int <- (xA1 <- undef);
     xA3 : Int <- (if 5 then 5 else 3 fi);
+    xA4 : Undef;
+    fA1(argc : King) : SELF_TYPE {argc}; 
 };
 
 class Test {

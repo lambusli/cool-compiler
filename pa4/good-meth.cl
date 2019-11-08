@@ -9,6 +9,5 @@ class Bishop inherits Queen {
 };
 
 class A inherits King {
-    xA1 : Undef;
-    xA2 : Undef <- 5; 
+    fA1(argc : SELF_TYPE) : King {argc};
 };

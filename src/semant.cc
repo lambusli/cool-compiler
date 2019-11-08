@@ -476,17 +476,37 @@ void Feature::Typecheck(SemantEnv &env) {
     else
     // If the feature is a method
     {
-        // Method *meth = (Method *)this;
-        // env.curr_semant_node->mtable_.EnterScope();
-        // env.curr_semant_node->mtable_.AddToScope(self, SELF_TYPE);
-        // for (auto formal : *meth->formals()) {
-        //     env.curr_semant_node->mtable_.AddToScope(formal->name(), formal->decl_type());
-        // }
-        // meth->body_->Typecheck(env);
-        // env.curr_semant_node->mtable_.ExitScope();
-        //
-        // // catch error
-        // if (!env.type_LE())
+        Method *meth = (Method *)this;
+        env.curr_semant_node->otable_.EnterScope();
+        env.curr_semant_node->otable_.AddToScope(self, SELF_TYPE);
+
+        for (auto formal : *meth->formals()) {
+            if (!env.klass_table->ClassFind(formal->decl_type()))
+            // if the type of a formal is undefined
+            {
+                env.error_env(env.curr_semant_node->klass(), this) << "Type \"" << formal->decl_type() << "\" is undefined\n";
+                env.curr_semant_node->otable_.AddToScope(formal->name(), Object);
+            } else {
+                env.curr_semant_node->otable_.AddToScope(formal->name(), formal->decl_type());
+            }
+        } // end for
+
+        meth->body_->Typecheck(env);
+        env.curr_semant_node->otable_.ExitScope();
+
+        // catch error if the declared type of method does not exist
+        if (!env.klass_table->ClassFind(meth->decl_type())) {
+            env.error_env(env.curr_semant_node->klass(), this) << "Type \"" << meth->decl_type() << "\" is undefined\n";
+            return;
+        }
+
+        // Waive for <basic class>
+        if (meth->body_->type() == No_type) {return; }
+
+        // catch error for type inconsistency for [Attr-Init]
+        if (!env.type_LE(meth->body_->type(), decl_type())) {
+            env.error_env(env.curr_semant_node->klass(), this) << "Inconsistent types in method definition: method \"" << meth->name() << "\" has type \"" << decl_type() << "\" but it is assigned an expression of type \"" << meth->body_->type() << "\"\n";
+        }
 
     } // end else the feature is a method
 } // end void Feature::Typecheck(SemantEnv &env)
