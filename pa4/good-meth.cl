@@ -26,5 +26,6 @@ class B inherits A {
 };
 
 class Main {
-    main() : Object {0}; 
+    fM1(x : Int, y : Int) : Int {0};
+    main() : SELF_TYPE {self};
 };

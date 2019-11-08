@@ -245,12 +245,9 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
             }
 
         } else { // if the feature is a method
+
             Method *method_info = (Method *)feature; // Method is inhertied from Feature
             Method *found_method = mtable.Lookup(method_info->name());
-
-            // after you make this work, define an operator overload == in class Method
-
-
 
             if (found_method)
             // if the method is already defined in some ancestor klass
@@ -486,6 +483,12 @@ void Feature::Typecheck(SemantEnv &env) {
         env.curr_semant_node->otable_.AddToScope(self, SELF_TYPE);
 
         for (auto formal : *meth->formals()) {
+            // Check repeating formal name
+            if (env.curr_semant_node->otable_.Probe(formal->name())) {
+                env.error_env(env.curr_semant_node->klass(), this) << "Formal name \"" << formal->name() << "\" is already defined\n";
+                continue; 
+            }
+
             if (!env.klass_table->ClassFind(formal->decl_type()))
             // if the type of a formal is undefined
             {
