@@ -499,7 +499,7 @@ void Assign::Typecheck(SemantEnv &env) {
 
 void Knew::Typecheck(SemantEnv &env) {
     if (name_ == SELF_TYPE) {
-        set_type(env.curr_semant_node->name());
+        set_type(SELF_TYPE);
     } else {
         // for expression "new XXX"
         // We need to check whether class XXX is defined in the first place

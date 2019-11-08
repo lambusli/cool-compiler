@@ -12,9 +12,23 @@ class A {
     xA3 : Int <- (if 5 then 5 else 3 fi);
 };
 
-class Test {};
+class Test {
+    s : String;
+    t : SELF_TYPE;
+    t2 : LetTest;
+    r1 : Int;
+    r2 : String;
+    xT0 : Int <- {
+        --t <- (new SELF_TYPE);
+        t <- (new LetTest);
+        t2 <- (new SELF_TYPE);
+    };
+};
 
 class LetTest inherits Test {
+    xL0 : Int <- {
+        t2 <- (new SELF_TYPE);
+    };
     xL3 : Int <- (let s : SELF_TYPE <- (new Blah) in true);
     xL4 : Int <- (let s : Undef <- 5 in true);
     xL5 : Int <- (let s : SELF_TYPE <- (new Test) in true);
@@ -36,6 +50,6 @@ class Bin {
         true = 2;
         true = "bc";
         2 = " bc";
-        (new Queen) = "a"; 
+        (new Queen) = "a";
     };
 };
