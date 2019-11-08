@@ -7,19 +7,19 @@ class King inherits Queen {
     xk1 : Int <- (new SELF_TYPE);
 };
 
-class A {
+class AA {
     x : Bool <- true;
 };
 
-class B {
+class BB {
     y : Int <- 10;
 };
 
-class C {
+class CC {
     z : String <- "here";
 };
 
-class D {
+class DD {
     temp : Int;
     x : Int <- (temp <- 5);
     tempK : King;

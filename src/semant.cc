@@ -796,6 +796,10 @@ void Dispatch::Typecheck(SemantEnv &env) {
         Symbol *type_formal = (*formal)->decl_type();
         Symbol *type_actual = (*actual)->type();
 
+        if (type_actual == SELF_TYPE) {
+            type_actual = env.curr_semant_node->klass()->name();
+        }
+
         if (type_formal != type_actual) {
             env.error_env(env.curr_semant_node->klass(), this) << "The " << i << "th/st/nd argument shoud have type \"" << type_formal << "\" but instead has type \"" << type_actual;
             error_flag = true;
@@ -859,6 +863,10 @@ void StaticDispatch::Typecheck(SemantEnv &env) {
         Symbol *type_formal = (*formal)->decl_type();
         Symbol *type_actual = (*actual)->type();
 
+        if (type_actual == SELF_TYPE) {
+            type_actual = env.curr_semant_node->klass()->name();
+        }
+
         if (type_formal != type_actual) {
             env.error_env(env.curr_semant_node->klass(), this) << "The " << i << "th/st/nd argument shoud have type \"" << type_formal << "\" but instead has type \"" << type_actual;
             error_flag = true;
@@ -874,7 +882,7 @@ void StaticDispatch::Typecheck(SemantEnv &env) {
         if (meth_info->decl_type() != SELF_TYPE) {set_type(meth_info->decl_type()); }
         else {set_type(receiver_->type()); }
     }
-    
+
 } // end void StaticDispatch::Typecheck(SemantEnv &env)
 
 

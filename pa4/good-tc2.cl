@@ -8,7 +8,7 @@ class Bishop inherits Queen {
     soldier : Int;
 };
 
-class A inherits King {
+class AAA inherits King {
     kA1 : King;
     bA1 : Bishop;
     xA1 : Object <- (if true then 5 else 3 fi);
@@ -16,8 +16,8 @@ class A inherits King {
     xA4 : Object <- (if true then kA1 else bA1 fi);
 };
 
-class B inherits Bishop {
-    xB1 : Object <- {new SELF_TYPE; new A; };
+class BBB inherits Bishop {
+    xB1 : Object <- {new SELF_TYPE; new AAA; };
     xB2 : Object <- {5; if true then soldier else 5 fi; };
     xB3 : Object <- {5; "str";};
     --xB4 : Object <- (isvoid 5);
