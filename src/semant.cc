@@ -366,10 +366,20 @@ bool SemantEnv::type_LE(Symbol *type1, Symbol *type2) {
     if (type1 == leaf) {return true; }
     if (type2 == leaf && type1 != leaf) {return false; }
 
-    SemantNode *klass_node_1 = klass_table->ClassFind(type1);
-    SemantNode *klass_node_2 = klass_table->ClassFind(type2);
-    return klass_table->SNLE(klass_node_1, klass_node_2);
-}
+    if (type1 != SELF_TYPE && type2 != SELF_TYPE)
+    // When the comparison between types does not involve SELF_TYPE
+    {
+        SemantNode *klass_node_1 = klass_table->ClassFind(type1);
+        SemantNode *klass_node_2 = klass_table->ClassFind(type2);
+        return klass_table->SNLE(klass_node_1, klass_node_2);
+    }
+    // Below are the extensions of <= operator between types to SELF_TYPE
+    else if (type1 == SELF_TYPE && type2 == SELF_TYPE) {return true; }
+    else if (type1 != SELF_TYPE && type2 == SELF_TYPE) {return false; }
+    else if (type1 == SELF_TYPE && type2 != SELF_TYPE) {
+        return klass_table->SNLE(curr_semant_node, klass_table->ClassFind(type2));
+    }
+} // end SemantEnv::type_LE(Symbol *type1, Symbol *type2)
 
 // Check whether the first SemantNode is the descendant of or the same as the second SemantNode
 bool SemantKlassTable::SNLE(SemantNode *klass_node_1, SemantNode *klass_node_2) {
@@ -607,7 +617,6 @@ void UnaryOperator::Typecheck(SemantEnv &env) {
     } // end switch
 } // end UnaryOperator::Typecheck(SemantEnv &env)
 
-// enum BinaryKind { BO_Add, BO_Sub, BO_Mul, BO_Div, BO_LT, BO_EQ, BO_LE };
 void BinaryOperator::Typecheck(SemantEnv &env) {
     lhs_->Typecheck(env);
     rhs_->Typecheck(env);
@@ -657,7 +666,6 @@ void BinaryOperator::Typecheck(SemantEnv &env) {
             set_type(Object);
         }
     } // end else if equal sign
-
 } // end void BinaryOperator::Typecheck(SemantEnv &env)
 
 }  // namespace cool
