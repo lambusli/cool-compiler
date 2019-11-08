@@ -486,7 +486,7 @@ void Feature::Typecheck(SemantEnv &env) {
             // Check repeating formal name
             if (env.curr_semant_node->otable_.Probe(formal->name())) {
                 env.error_env(env.curr_semant_node->klass(), this) << "Formal name \"" << formal->name() << "\" is already defined\n";
-                continue; 
+                continue;
             }
 
             if (!env.klass_table->ClassFind(formal->decl_type()))
@@ -807,8 +807,11 @@ void Dispatch::Typecheck(SemantEnv &env) {
     } // end while
 
     if (error_flag) {set_type(Object); }
-    else {set_type(meth_info->decl_type()); }
-    // std::cout << type() << std::endl;
+    else {
+        if (meth_info->decl_type() != SELF_TYPE) {set_type(meth_info->decl_type()); }
+        else {set_type(receiver_->type()); }
+    }
+
 } // end void Dispatch::Typecheck(SemantEnv &env)
 
 void StaticDispatch::Typecheck(SemantEnv &env) {
@@ -867,8 +870,11 @@ void StaticDispatch::Typecheck(SemantEnv &env) {
     } // end while
 
     if (error_flag) {set_type(Object); }
-    else {set_type(meth_info->decl_type()); }
-    // std::cout << type() << std::endl;
+    else {
+        if (meth_info->decl_type() != SELF_TYPE) {set_type(meth_info->decl_type()); }
+        else {set_type(receiver_->type()); }
+    }
+    
 } // end void StaticDispatch::Typecheck(SemantEnv &env)
 
 

@@ -25,7 +25,16 @@ class A inherits Bishop {
 class B inherits A {
 };
 
-class Main {
+class Main inherits IO {
+    temp : B;
     fM1(x : Int, y : Int) : Int {0};
-    main() : SELF_TYPE {self};
+    main() : SELF_TYPE {{
+        if (true = true.copy()) then
+            out_string("c")
+        else
+            out_string("w")
+        fi;
+        self;
+    }};
+
 };
