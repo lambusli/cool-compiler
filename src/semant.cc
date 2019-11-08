@@ -466,12 +466,23 @@ void Feature::Typecheck(SemantEnv &env) {
         if (!env.type_LE(expr->type(), decl_type())) {
             env.error_env(env.curr_semant_node->klass(), this) << "Inconsistent types in attribute initializer: attrbute \"" << attr->name() << "\" has type \"" << decl_type() << "\" but it is assigned an expression of type \"" << expr->type() << "\"\n";
         }
-    } // end if the feature is attribute
+    } // end if the feature is an attribute
     else
     // If the feature is a method
     {
-        // std::cout << "Feature is a method. Wait for future development.\n";
-    }
+        // Method *meth = (Method *)this;
+        // env.curr_semant_node->mtable_.EnterScope();
+        // env.curr_semant_node->mtable_.AddToScope(self, SELF_TYPE);
+        // for (auto formal : *meth->formals()) {
+        //     env.curr_semant_node->mtable_.AddToScope(formal->name(), formal->decl_type());
+        // }
+        // meth->body_->Typecheck(env);
+        // env.curr_semant_node->mtable_.ExitScope();
+        //
+        // // catch error
+        // if
+
+    } // end else the feature is a method
 } // end void Feature::Typecheck(SemantEnv &env)
 
 void BoolLiteral::Typecheck(SemantEnv &env) {
@@ -540,12 +551,10 @@ void Cond::Typecheck(SemantEnv &env) {
 void Block::Typecheck(SemantEnv &env) {
     // The parsing rules already ensured that there are more than one expression in a block
 
-    Symbol *final_type = leaf;
     for (auto expr : *body_) {
         expr->Typecheck(env);
-        final_type = env.type_LUB(final_type, expr->type());
+        set_type(expr->type());
     }
-    set_type(final_type);
 } // end void Block::Typecheck(SemantEnv &env)
 
 void Loop::Typecheck(SemantEnv &env) {
