@@ -24,3 +24,7 @@ class A inherits Bishop {
 
 class B inherits A {
 };
+
+class Main {
+    main() : Object {0}; 
+};

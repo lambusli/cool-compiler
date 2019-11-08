@@ -345,6 +345,11 @@ SemantEnv::SemantEnv(SemantKlassTable *klass_table_arg,
 
 void SemantKlassTable::Typecheck_all() {
     Typecheck_subgraph(root());
+
+    // Check whethe Main and main are present
+    SemantNode *Main_node = ClassFind(Main);
+    if (!Main_node) {error_() << "Class Main is not defined\n"; return; }
+    if (!Main_node->mtable_.Lookup(main_meth)) {error_() << "Method main is not defined\n"; return;}
 }
 
 // Type check all the classes in the subgraph of the inheritance graph
