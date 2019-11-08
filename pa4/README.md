@@ -70,10 +70,12 @@ Line 331 ~ 439 are helper functions related to Semantic Environment. The functio
 
 Line 447 ~ 886 are all the typechecking functions for AST nodes. The typechecking process happens recursively: the type of a parent AST node depends on the types of its children.
 
+My testing approach is generally "write a little bit codes and then test." At each mini-step: inheritance graph, checking for repetitions, scoped tables, typechecking for each ASTnode, I stopped and came up with both good and bad examples. 
+
 Final remark on the resolution of SELF_TYPE. I mention this issue because the sheer number of bugs related to this issue calls my attention. Generally, SELF_TYPE is not resolved if we just perform <= or LUB operation. However, in [Dispatch] and [StaticDispatch], SELF_TYPE is resolved under two circumstances: 1. when an argument of dispatch evaluates to SELF_TYPE; 2. when the declared type of the method is SELF_TYPE.
 SELF_TYPE is resolved under scenario 1, because we need to compare whether an argument's type is consistent with the definition of formal. Since formal cannot have SELF_TYPE and the comparison has to happen, we resolve the SELF_TYPE of the argument in dispatch.
 SELF_TYPE is resolved under scenario 2. Consider this example:
 ```
 true = true.copy()
 ```
-This expression should evaluates to Bool. However, since .copy() function evalutes to SELF_TYPE, if SELF_TYPE does not resolve here, then the [Compare] rule is no longer valid and the expression evaluates to Object. 
+This expression should evaluates to Bool. However, since .copy() function evalutes to SELF_TYPE, if SELF_TYPE does not resolve here, then the [Compare] rule is no longer valid and the expression evaluates to Object.
