@@ -747,14 +747,20 @@ void BinaryOperator::Typecheck(SemantEnv &env) {
 
 void Dispatch::Typecheck(SemantEnv &env) {
     receiver_->Typecheck(env);
-
     Method *meth_info = env.curr_semant_node->mtable_.Lookup(name_);
 
     const Formals &formals = *meth_info->formals();
     Expressions &actuals = *actuals_;
 
-    std::cout << "size of formals-vector = " << formals.size() << std::endl;
-    std::cout << "size of actuals-vector = " << actuals.size() << std::endl; 
+    // Check whether the dispatch has the right number of arguments
+    if (formals.size() != actuals.size()) {
+        env.error_env(env.curr_semant_node->klass(), this) << "Method dispatch \"" << name_ << "\" should have " << formals.size() << " arguments but instead " << actuals.size() << " were given\n";
+
+        // Despite the error, typecheck all arguments that are passed as arguments
+        for (auto actual : actuals) {actual->Typecheck(env); }
+        set_type(Object);
+        return;
+    } // end if check arugments-size
 
 } // end void Dispatch::Typecheck(SemantEnv &env)
 
