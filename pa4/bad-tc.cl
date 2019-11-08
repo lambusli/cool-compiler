@@ -11,7 +11,8 @@ class A {
     xA2 : Int <- (xA1 <- undef);
     xA3 : Int <- (if 5 then 5 else 3 fi);
     xA4 : Undef;
-    fA1(argc : King) : SELF_TYPE {argc}; 
+    fA1(argc : King) : SELF_TYPE {argc};
+    fA2(argc : SELF_TYPE) : King {argc};
 };
 
 class Test {

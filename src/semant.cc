@@ -314,8 +314,8 @@ void SemantKlassTable::make_all_sctables(SemantNode *klass_node) {
                 if (!error_flag) {
                     mtable.AddToScope(method_info->name(), method_info);
                 }
-
-            } else // if the method is never defined before
+            } // end if the method is already defined in some ancestor klass
+            else // if the method is never defined before
             {
                 mtable.AddToScope(method_info->name(), method_info);
             } // end else
@@ -746,10 +746,14 @@ void BinaryOperator::Typecheck(SemantEnv &env) {
 } // end void BinaryOperator::Typecheck(SemantEnv &env)
 
 void Dispatch::Typecheck(SemantEnv &env) {
+    receiver_->Typecheck(env);
 
+    Method *meth_info = env.curr_semant_node->mtable_.Lookup(name_);
 
+    for (auto formal : *meth_info->formals()) {
+        std::cout << formal->name() << ", " << formal->decl_type() << std::endl;
+    }
 
-
-}
+} // end void Dispatch::Typecheck(SemantEnv &env)
 
 }  // namespace cool

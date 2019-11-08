@@ -6,11 +6,18 @@ class King inherits Queen {};
 
 class Bishop inherits Queen {
     soldier : Int;
+    coup(p1 : Pawn, date : Int) : SELF_TYPE {self};
 };
 
-class A inherits King {
-    fA1(argc : SELF_TYPE) : King {argc};
+class Pawn {};
+
+class A inherits Bishop {
+    
     fA2(argc : Int) : SELF_TYPE {new SELF_TYPE};
+    mainA : Object <- {
+        let gen : Pawn <- (new Pawn) in (self.coup(new Pawn, 5));
+
+    };
 };
 
 class B inherits A {
