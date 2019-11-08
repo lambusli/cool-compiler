@@ -12,10 +12,10 @@ class Bishop inherits Queen {
 class Pawn {};
 
 class A inherits Bishop {
-    
+
     fA2(argc : Int) : SELF_TYPE {new SELF_TYPE};
     mainA : Object <- {
-        let gen : Pawn <- (new Pawn) in (self.coup(new Pawn, 5));
+        let gen : Pawn <- (new Pawn) in (self.coup(new Pawn, 5, 10));
 
     };
 };

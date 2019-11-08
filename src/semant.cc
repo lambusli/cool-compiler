@@ -750,9 +750,11 @@ void Dispatch::Typecheck(SemantEnv &env) {
 
     Method *meth_info = env.curr_semant_node->mtable_.Lookup(name_);
 
-    for (auto formal : *meth_info->formals()) {
-        std::cout << formal->name() << ", " << formal->decl_type() << std::endl;
-    }
+    const Formals &formals = *meth_info->formals();
+    Expressions &actuals = *actuals_;
+
+    std::cout << "size of formals-vector = " << formals.size() << std::endl;
+    std::cout << "size of actuals-vector = " << actuals.size() << std::endl; 
 
 } // end void Dispatch::Typecheck(SemantEnv &env)
 
