@@ -800,6 +800,68 @@ void Dispatch::Typecheck(SemantEnv &env) {
 
     if (error_flag) {set_type(Object); }
     else {set_type(meth_info->decl_type()); }
+    // std::cout << type() << std::endl;
 } // end void Dispatch::Typecheck(SemantEnv &env)
+
+void StaticDispatch::Typecheck(SemantEnv &env) {
+    receiver_->Typecheck(env);
+
+    // Check the hierarchy of receiver type and dispatch type
+    if (!env.type_LUB(receiver_->type(), dispatch_type_)) {
+        env.error_env(env.curr_semant_node->klass(), this) << "Cannot dispatch as type \"" << dispatch_type_ << "\"\n";
+        set_type(Object);
+        return;
+    }
+
+    Method *meth_info = env.klass_table->ClassFind(dispatch_type_)->mtable_.Lookup(name_);
+
+    // Check whether the method name is defined under current class
+    if (!meth_info) {
+        env.error_env(env.curr_semant_node->klass(), this) << "Cannot call method \"" << name_ << "\" on an object of type \"" << receiver_->type() << "\"\n";
+        set_type(Object);
+        return;
+    }
+
+    const Formals &formals = *meth_info->formals();
+    Expressions &actuals = *actuals_;
+
+    // Check whether the dispatch has the right number of arguments
+    if (formals.size() != actuals.size()) {
+        env.error_env(env.curr_semant_node->klass(), this) << "Method dispatch \"" << name_ << "\" should have " << formals.size() << " arguments but instead " << actuals.size() << " were given\n";
+
+        // Despite the error, typecheck all arguments that are passed as arguments
+        for (auto actual : actuals) {actual->Typecheck(env); }
+        set_type(Object);
+        return;
+    } // end if check arugments-size
+
+    auto formal = formals.begin();
+    auto formal_end = formals.end();
+    auto actual = actuals.begin();
+    auto actual_end = actuals.end();
+    int i = 1;
+    bool error_flag = false;
+
+    // Check whether each argument has the correct type
+    while(formal != formal_end && actual != actual_end) {
+        (*actual)->Typecheck(env);
+        Symbol *type_formal = (*formal)->decl_type();
+        Symbol *type_actual = (*actual)->type();
+
+        if (type_formal != type_actual) {
+            env.error_env(env.curr_semant_node->klass(), this) << "The " << i << "th/st/nd argument shoud have type \"" << type_formal << "\" but instead has type \"" << type_actual;
+            error_flag = true;
+        }
+
+        formal++;
+        actual++;
+        i++;
+    } // end while
+
+    if (error_flag) {set_type(Object); }
+    else {set_type(meth_info->decl_type()); }
+    // std::cout << type() << std::endl;
+} // end void StaticDispatch::Typecheck(SemantEnv &env)
+
 
 }  // namespace cool

@@ -331,7 +331,7 @@ class Dispatch : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
-  void Typecheck(SemantEnv &env); 
+  void Typecheck(SemantEnv &env);
 
  protected:
   Expression* receiver_;
@@ -350,6 +350,7 @@ class StaticDispatch : public Dispatch {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void Typecheck(SemantEnv &env); 
 
  protected:
   Symbol* dispatch_type_;
