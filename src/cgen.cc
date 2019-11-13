@@ -151,7 +151,7 @@ std::ostream& emit_jalr(const char* dest, std::ostream& os) {
 }
 
 std::ostream& emit_return(std::ostream& os) {
-  return emit_instr(os, "jr $ra\n"); 
+  return emit_instr(os, "jr $ra\n");
 }
 
 std::ostream& emit_jal_to_label(const char* label, std::ostream& os) {
@@ -429,9 +429,16 @@ std::ostream& CgenDef(std::ostream& os, const SymbolTable<Elem>& table, size_t c
 CgenKlassTable::CgenKlassTable(Klasses* klasses) {
   InstallClasses(klasses);
 
-  // Add your code to:
-  // 1. Build inheritance graph
-  // 2. Initialize the node tags and other information you need
+    // Add your code to:
+    // 1. Build inheritance graph
+    // 2. Initialize the node tags and other information you need
+    for (auto node : nodes_) {
+        CgenNode *parent_node = ClassFind(node->parent_name());
+        node->parent_ = parent_node;
+        parent_node->children_.push_back(node);
+    }
+
+    setAllTags();
 }
 
 
@@ -534,6 +541,39 @@ void CgenKlassTable::CodeGen(std::ostream& os) {
 void Cgen(Program* program, std::ostream& os) {
   CgenKlassTable klass_table(program->klasses());
   klass_table.CodeGen(os);
+}
+
+
+
+
+/*
+ *************************
+ * Additional methods
+ *************************
+ */
+
+// Assign tags for all CgenNode
+void CgenKlassTable::setAllTags() {
+    size_t val = 0;
+    setTag(root(), val);
+}
+
+// Recursively set tags for each CgenNode
+size_t CgenKlassTable::setTag(CgenNode *node, size_t val) {
+    node->tag_ = val;
+    size_t next_val = val + 1;  // the tag that is to be assigned to the next CgenNode
+
+    std::cout << node->name() << " " << node->tag_ << std::endl;
+
+    if (node->children_.size() == 0) {
+        return val + 1;
+    }
+
+    for (auto child : node->children_) {
+        next_val = setTag(child, next_val);
+    }
+
+    return next_val; 
 }
 
 }  // namespace cool

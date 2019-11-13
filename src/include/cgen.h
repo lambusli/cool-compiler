@@ -118,11 +118,15 @@ class CgenKlassTable : public KlassTable<CgenNode> {
   /**
    * @brief Generate code for entire Cool program as represented by this KlassTable.
    *
-   * This method would be called by cool::Cgen after you constructed the CgenKlassTable from the Program AST node. 
+   * This method would be called by cool::Cgen after you constructed the CgenKlassTable from the Program AST node.
    *
    * @param os std::ostream to write generated code to
    */
   void CodeGen(std::ostream& os);
+
+  // Methods that configure tags of classes
+  void setAllTags();
+  size_t setTag(CgenNode *node, size_t val); 
 
  private:
 
