@@ -436,6 +436,7 @@ CgenKlassTable::CgenKlassTable(Klasses* klasses) {
         CgenNode *parent_node = ClassFind(node->parent_name());
         node->parent_ = parent_node;
         parent_node->children_.push_back(node);
+        gStringTable.emplace(node->name()->value());
     }
 
     setAllTags();
@@ -526,7 +527,10 @@ void CgenKlassTable::CodeGen(std::ostream& os) {
   // Add your code to emit:
   // 1. Prototype objects
   // 2. class_nameTab and class_objTab
+  CgenClassNameTable(os);
   // 3. Dispatch tables for each class
+
+
 
 
   CgenGlobalText(os);
@@ -559,21 +563,28 @@ void CgenKlassTable::setAllTags() {
 }
 
 // Recursively set tags for each CgenNode
+// Return the value of the next tag we should assign after we finish process the subtree at node.
 size_t CgenKlassTable::setTag(CgenNode *node, size_t val) {
     node->tag_ = val;
     size_t next_val = val + 1;  // the tag that is to be assigned to the next CgenNode
-
-    std::cout << node->name() << " " << node->tag_ << std::endl;
-
-    if (node->children_.size() == 0) {
-        return val + 1;
-    }
 
     for (auto child : node->children_) {
         next_val = setTag(child, next_val);
     }
 
-    return next_val; 
-}
+    return next_val;
+} // end size_t CgenKlassTable::setTag(CgenNode *node, size_t val)
+
+
+// Emit class nametable
+void CgenKlassTable::CgenClassNameTable(std::ostream& os) const {
+    os << CLASSNAMETAB << LABEL;
+
+    for (auto node : nodes_) {
+        os << WORD;
+        CgenRef(os, gStringTable.lookup(node->name()));
+        os << std::endl;
+    } // end for
+} // end void CgenKlassTable::CgenClassNameTable(std::ostream& os) const
 
 }  // namespace cool
