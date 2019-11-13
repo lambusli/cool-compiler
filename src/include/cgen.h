@@ -157,6 +157,8 @@ class CgenKlassTable : public KlassTable<CgenNode> {
   void CgenGlobalText(std::ostream& os) const;
 
   void CgenClassNameTable(std::ostream& os) const;
+
+  void CgenClassObjTable(std::ostream& os) const;
 };
 
 

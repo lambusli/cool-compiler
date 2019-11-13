@@ -528,6 +528,7 @@ void CgenKlassTable::CodeGen(std::ostream& os) {
   // 1. Prototype objects
   // 2. class_nameTab and class_objTab
   CgenClassNameTable(os);
+  CgenClassObjTable(os);
   // 3. Dispatch tables for each class
 
 
@@ -586,5 +587,18 @@ void CgenKlassTable::CgenClassNameTable(std::ostream& os) const {
         os << std::endl;
     } // end for
 } // end void CgenKlassTable::CgenClassNameTable(std::ostream& os) const
+
+void CgenKlassTable::CgenClassObjTable(std::ostream& os) const {
+    os << CLASSOBJTAB << LABEL;
+
+    for (auto node : nodes_) {
+        os << WORD;
+        emit_protobj_ref(node->name(), os);
+        os << std::endl;
+        os << WORD;
+        emit_init_ref(node->name(), os);
+        os << std::endl;
+    } // end for
+} // end void CgenKlassTable::CgenClassObjTable(std::ostream& os) const
 
 }  // namespace cool
