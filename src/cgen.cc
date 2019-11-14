@@ -432,15 +432,16 @@ CgenKlassTable::CgenKlassTable(Klasses* klasses) {
     // Add your code to:
     // 1. Build inheritance graph
     // 2. Initialize the node tags and other information you need
+    int val = 0;
     for (auto node : nodes_) {
         CgenNode *parent_node = ClassFind(node->parent_name());
         node->parent_ = parent_node;
         parent_node->children_.push_back(node);
+        node->tag_ = val;
+        val++;
         gStringTable.emplace(node->name()->value());
-    }
-
-    setAllTags();
-}
+    } // end for
+} // end CgenKlassTable constructor
 
 
 void CgenKlassTable::CgenGlobalData(std::ostream& os) const {
@@ -526,6 +527,8 @@ void CgenKlassTable::CodeGen(std::ostream& os) {
 
   // Add your code to emit:
   // 1. Prototype objects
+  CgenProtobj(os);
+
   // 2. class_nameTab and class_objTab
   CgenClassNameTable(os);
   CgenClassObjTable(os);
@@ -557,26 +560,6 @@ void Cgen(Program* program, std::ostream& os) {
  *************************
  */
 
-// Assign tags for all CgenNode
-void CgenKlassTable::setAllTags() {
-    size_t val = 0;
-    setTag(root(), val);
-}
-
-// Recursively set tags for each CgenNode
-// Return the value of the next tag we should assign after we finish process the subtree at node.
-size_t CgenKlassTable::setTag(CgenNode *node, size_t val) {
-    node->tag_ = val;
-    size_t next_val = val + 1;  // the tag that is to be assigned to the next CgenNode
-
-    for (auto child : node->children_) {
-        next_val = setTag(child, next_val);
-    }
-
-    return next_val;
-} // end size_t CgenKlassTable::setTag(CgenNode *node, size_t val)
-
-
 // Emit class nametable
 void CgenKlassTable::CgenClassNameTable(std::ostream& os) const {
     os << CLASSNAMETAB << LABEL;
@@ -588,6 +571,7 @@ void CgenKlassTable::CgenClassNameTable(std::ostream& os) const {
     } // end for
 } // end void CgenKlassTable::CgenClassNameTable(std::ostream& os) const
 
+// Emit class objtable
 void CgenKlassTable::CgenClassObjTable(std::ostream& os) const {
     os << CLASSOBJTAB << LABEL;
 
@@ -595,10 +579,44 @@ void CgenKlassTable::CgenClassObjTable(std::ostream& os) const {
         os << WORD;
         emit_protobj_ref(node->name(), os);
         os << std::endl;
+
         os << WORD;
         emit_init_ref(node->name(), os);
         os << std::endl;
     } // end for
 } // end void CgenKlassTable::CgenClassObjTable(std::ostream& os) const
+
+// Emit Prototype object
+void CgenKlassTable::CgenProtobj(std::ostream& os) const {
+    for (auto node : nodes_) {
+        emit_protobj_ref(node->name(), os);
+        os << LABEL;
+
+        // Class tag, offset 0
+        os << WORD;
+        os << node->tag_;
+        os << std::endl;
+
+        // Object size, offset 4
+        os << WORD;
+        os << "# I have no idea what is the size of this object";
+        os << std::endl;
+
+        // Dispatch pointer, offset 8
+        os << WORD;
+        emit_disptable_ref(node->name(), os);
+        os << std::endl;
+
+        // Attributes, offset 12+
+        for (auto feature : *node->klass()->features()) {
+            if (feature->attr()) {
+                os << WORD;
+                os << "I have no idea how to get attributes";
+                os << std::endl;
+            }
+        } // end for
+
+    } // end for
+} // end void CgenKlassTable::CgenProtobj(std::ostream& os) const
 
 }  // namespace cool

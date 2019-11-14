@@ -124,11 +124,6 @@ class CgenKlassTable : public KlassTable<CgenNode> {
    */
   void CodeGen(std::ostream& os);
 
-  // Methods that configure tags of classes
-  void setAllTags();
-  size_t setTag(CgenNode *node, size_t val);
-
-
  private:
 
   /**
@@ -159,6 +154,8 @@ class CgenKlassTable : public KlassTable<CgenNode> {
   void CgenClassNameTable(std::ostream& os) const;
 
   void CgenClassObjTable(std::ostream& os) const;
+
+  void CgenProtobj(std::ostream& os) const; 
 };
 
 
