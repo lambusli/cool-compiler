@@ -531,12 +531,11 @@ void CgenKlassTable::CodeGen(std::ostream& os) {
   // Add your code to emit:
   // 1. Prototype objects
   CgenProtobj(os);
-
   // 2. class_nameTab and class_objTab
   CgenClassNameTable(os);
   CgenClassObjTable(os);
   // 3. Dispatch tables for each class
-
+  CgenDispTable(os);
 
 
 
@@ -597,7 +596,7 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
 
         // title
         emit_protobj_ref(node->name(), os);
-        os << LABEL;        
+        os << LABEL;
 
         // Class tag, offset 0
         os << WORD << node->tag_ << std::endl;
@@ -633,6 +632,17 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
     } // end for
 } // end void CgenKlassTable::CgenProtobj(std::ostream& os) const
 
+// Emit dispatch table
+void CgenKlassTable::CgenDispTable(std::ostream& os) const {
+    for (auto node : nodes_) {
+        os << node->name() << "_dispTab" << LABEL;
+
+        for (auto entry : node->etable_meth_) {
+            os << WORD << entry.second->class_name_ << "." << entry.first << std::endl;
+        } // end for
+    } // end for
+} // end void CgenKlassTable::CgenDispTable(std::ostream& os) const
+
 // Varbinding for all CgenNode
 void CgenKlassTable::allBinding() {
     doBinding(root(), NULL);
@@ -646,6 +656,7 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
     // Inheritance: duplicate the etables from parent to node
     if (parent) {
         node->etable_attr_ = parent->etable_attr_;
+        node->etable_meth_ = parent->etable_meth_; 
         attr_offset += 4 * node->etable_attr_.size();
     }
 
@@ -666,7 +677,12 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
         } else
         // operation if feature is method
         {
+            VarBinding *vb = new VarBinding();
+            vb->class_name_ = node->name();
+            vb->var_name_ = feature->name();
+            vb->decl_type_ = feature->decl_type();
 
+            node->etable_meth_[feature->name()] = vb;
         }
     } // end for
 

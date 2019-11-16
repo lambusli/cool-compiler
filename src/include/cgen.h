@@ -106,7 +106,7 @@ class CgenNode : public InheritanceNode<CgenNode> {
   std::size_t tag_;
 
   std::unordered_map<Symbol *, VarBinding *> etable_attr_;
-  // std::unordered_map<Symbol *, VarBinding *> etable_meth_;
+  std::unordered_map<Symbol *, VarBinding *> etable_meth_;
 
 
   friend class CgenKlassTable;
@@ -173,6 +173,8 @@ class CgenKlassTable : public KlassTable<CgenNode> {
   void CgenClassObjTable(std::ostream& os) const;
 
   void CgenProtobj(std::ostream& os) const;
+
+  void CgenDispTable(std::ostream& os) const; 
 };
 
 
