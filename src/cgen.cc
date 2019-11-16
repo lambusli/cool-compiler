@@ -601,8 +601,9 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
         os << std::endl;
 
         // Object size, offset 4
+        // components: attributes, tag, dispatch pointer, garbage collector 
         os << WORD;
-        os << "# I have no idea what is the size of this object";
+        os << node->etable_attr_.size() + 3;
         os << std::endl;
 
         // Dispatch pointer, offset 8
@@ -627,7 +628,7 @@ void CgenKlassTable::allBinding() {
     doBinding(root(), NULL);
 }
 
-// Recursive do varbinding for each CgenNode 
+// Recursive do varbinding for each CgenNode
 void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
     // Starting from offset 12, we store attributes
     int attr_offset = 12;
