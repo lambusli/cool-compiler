@@ -73,6 +73,13 @@ void Cgen(Program* program, std::ostream& os);
 // Forward declarations
 class CgenKlassTable;
 
+class VarBinding {
+  private:
+    friend class CgenKlassTable;
+    friend class CgenNode;
+    int offset_;
+};
+
 /**
  * @brief Node in the code generation inheritance graph
  */
@@ -94,6 +101,9 @@ class CgenNode : public InheritanceNode<CgenNode> {
    * no specific ordering requirement.
    */
   std::size_t tag_;
+
+  std::unordered_map<Symbol *, VarBinding *> etable_attr_;
+  // std::unordered_map<Symbol *, VarBinding *> etable_meth_;
 
 
   friend class CgenKlassTable;
@@ -123,6 +133,10 @@ class CgenKlassTable : public KlassTable<CgenNode> {
    * @param os std::ostream to write generated code to
    */
   void CodeGen(std::ostream& os);
+
+  // methods related to varBinding
+  void allBinding();
+  void doBinding(CgenNode *node, CgenNode *parent);
 
  private:
 
@@ -155,7 +169,7 @@ class CgenKlassTable : public KlassTable<CgenNode> {
 
   void CgenClassObjTable(std::ostream& os) const;
 
-  void CgenProtobj(std::ostream& os) const; 
+  void CgenProtobj(std::ostream& os) const;
 };
 
 

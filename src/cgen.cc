@@ -525,6 +525,9 @@ void CgenKlassTable::CodeGen(std::ostream& os) {
   CgenSelectGC(os);
   CgenConstants(os);
 
+  // Do all the varBinding
+  allBinding();
+
   // Add your code to emit:
   // 1. Prototype objects
   CgenProtobj(os);
@@ -618,5 +621,43 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
 
     } // end for
 } // end void CgenKlassTable::CgenProtobj(std::ostream& os) const
+
+// Varbinding for all CgenNode
+void CgenKlassTable::allBinding() {
+    doBinding(root(), NULL);
+}
+
+// Recursive do varbinding for each CgenNode 
+void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
+    // Starting from offset 12, we store attributes
+    int attr_offset = 12;
+
+    // Inheritance: duplicate the etables from parent to node
+    if (parent) {
+        node->etable_attr_ = parent->etable_attr_;
+        attr_offset += 4 * node->etable_attr_.size();
+    }
+
+    // traverse each feature of this CgenNode
+    for (auto feature : *node->klass()->features()) {
+        if (feature->attr())
+        // operation if feature is attribute
+        {
+            VarBinding *vb = new VarBinding();
+            vb->offset_ = attr_offset;
+            attr_offset += 4;
+            node->etable_attr_[feature->name()] = vb;
+        } else
+        // operation if feature is method
+        {
+
+        }
+    } // end for
+
+    // Recursively doBinding for all children
+    for (auto child : node->children_) {
+        doBinding(child, node);
+    }
+} // end void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent)
 
 }  // namespace cool
