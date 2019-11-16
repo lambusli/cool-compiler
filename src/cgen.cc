@@ -601,7 +601,7 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
         os << std::endl;
 
         // Object size, offset 4
-        // components: attributes, tag, dispatch pointer, garbage collector 
+        // components: attributes, tag, dispatch pointer, garbage collector
         os << WORD;
         os << node->etable_attr_.size() + 3;
         os << std::endl;
@@ -612,10 +612,23 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
         os << std::endl;
 
         // Attributes, offset 12+
-        for (auto feature : *node->klass()->features()) {
-            if (feature->attr()) {
+        for (auto entry : node->etable_attr_) {
+            if (entry.second->decl_type_ == String)
+            // if the attribute is an string, then look up gStringTable
+            {
                 os << WORD;
-                os << "I have no idea how to get attributes";
+                std::cout << node->name() << "." << entry.first << " ";
+                std::cout << "String ? " << gStringTable.has(entry.first) << std::endl;
+                // CgenRef(os, gStringTable.lookup(entry.first));
+                os << std::endl;
+            }
+            else if (entry.second->decl_type_ == Int)
+            // if the attribute is an integer, then look up gIntTable
+            {
+                os << WORD;
+                std::cout << node->name() << "." << entry.first << " "; 
+                std::cout << "Int ? " << gStringTable.has(entry.first) << std::endl;
+                // CgenRef(os, gStringTable.lookup(entry.first));
                 os << std::endl;
             }
         } // end for
@@ -646,6 +659,10 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
         {
             VarBinding *vb = new VarBinding();
             vb->offset_ = attr_offset;
+            vb->class_name_ = node->name();
+            vb->var_name_ = feature->name();
+            vb->decl_type_ = feature->decl_type();
+
             attr_offset += 4;
             node->etable_attr_[feature->name()] = vb;
         } else

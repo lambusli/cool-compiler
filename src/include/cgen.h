@@ -77,6 +77,9 @@ class VarBinding {
   private:
     friend class CgenKlassTable;
     friend class CgenNode;
+    Symbol *class_name_;
+    Symbol *var_name_;
+    Symbol *decl_type_;
     int offset_;
 };
 
