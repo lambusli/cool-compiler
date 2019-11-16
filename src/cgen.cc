@@ -592,19 +592,19 @@ void CgenKlassTable::CgenClassObjTable(std::ostream& os) const {
 // Emit Prototype object
 void CgenKlassTable::CgenProtobj(std::ostream& os) const {
     for (auto node : nodes_) {
+        // Garbage collector tag, offset = -4
+        os << WORD << -1 << std::endl;
+
+        // title
         emit_protobj_ref(node->name(), os);
-        os << LABEL;
+        os << LABEL;        
 
         // Class tag, offset 0
-        os << WORD;
-        os << node->tag_;
-        os << std::endl;
+        os << WORD << node->tag_ << std::endl;
 
         // Object size, offset 4
         // components: attributes, tag, dispatch pointer, garbage collector
-        os << WORD;
-        os << node->etable_attr_.size() + 3;
-        os << std::endl;
+        os << WORD << node->etable_attr_.size() + 3 << std::endl;
 
         // Dispatch pointer, offset 8
         os << WORD;
@@ -613,26 +613,23 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
 
         // Attributes, offset 12+
         for (auto entry : node->etable_attr_) {
-            if (entry.second->decl_type_ == String)
-            // if the attribute is an string, then look up gStringTable
-            {
-                os << WORD;
-                std::cout << node->name() << "." << entry.first << " ";
-                std::cout << "String ? " << gStringTable.has(entry.first) << std::endl;
-                // CgenRef(os, gStringTable.lookup(entry.first));
-                os << std::endl;
-            }
-            else if (entry.second->decl_type_ == Int)
-            // if the attribute is an integer, then look up gIntTable
-            {
-                os << WORD;
-                std::cout << node->name() << "." << entry.first << " "; 
-                std::cout << "Int ? " << gStringTable.has(entry.first) << std::endl;
-                // CgenRef(os, gStringTable.lookup(entry.first));
-                os << std::endl;
-            }
-        } // end for
+            os << WORD;
 
+            if (entry.second->decl_type_ == String) {
+                CgenRef(os, gStringTable.emplace(""));
+            }
+            else if (entry.second->decl_type_ == Int) {
+                CgenRef(os, gIntTable.emplace(0));
+            }
+            else if (entry.second->decl_type_ == Bool) {
+                CgenRef(os, false);
+            }
+            else {
+                os << 0;
+            }
+
+            os << std::endl;
+        } // end for
     } // end for
 } // end void CgenKlassTable::CgenProtobj(std::ostream& os) const
 
@@ -665,6 +662,7 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
 
             attr_offset += 4;
             node->etable_attr_[feature->name()] = vb;
+
         } else
         // operation if feature is method
         {
