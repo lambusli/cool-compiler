@@ -25,11 +25,20 @@ _MemMgr_COLLECTOR:
 _MemMgr_TEST:
 	.word	0
 	.word	-1
-str_const11:
+str_const12:
 	.word	4
 	.word	5
 	.word	String_dispTab
-	.word	int_const0
+	.word	int_const2
+	.byte	0	
+	.align	2
+	.word	-1
+str_const11:
+	.word	4
+	.word	6
+	.word	String_dispTab
+	.word	int_const4
+	.ascii	"Main"
 	.byte	0	
 	.align	2
 	.word	-1
@@ -37,8 +46,8 @@ str_const10:
 	.word	4
 	.word	6
 	.word	String_dispTab
-	.word	int_const2
-	.ascii	"Main"
+	.word	int_const4
+	.ascii	"King"
 	.byte	0	
 	.align	2
 	.word	-1
@@ -46,8 +55,8 @@ str_const9:
 	.word	4
 	.word	6
 	.word	String_dispTab
-	.word	int_const2
-	.ascii	"King"
+	.word	int_const5
+	.ascii	"Queen"
 	.byte	0	
 	.align	2
 	.word	-1
@@ -55,8 +64,8 @@ str_const8:
 	.word	4
 	.word	6
 	.word	String_dispTab
-	.word	int_const3
-	.ascii	"Queen"
+	.word	int_const0
+	.ascii	"String"
 	.byte	0	
 	.align	2
 	.word	-1
@@ -65,16 +74,16 @@ str_const7:
 	.word	6
 	.word	String_dispTab
 	.word	int_const4
-	.ascii	"String"
+	.ascii	"Bool"
 	.byte	0	
 	.align	2
 	.word	-1
 str_const6:
 	.word	4
-	.word	6
+	.word	5
 	.word	String_dispTab
-	.word	int_const2
-	.ascii	"Bool"
+	.word	int_const6
+	.ascii	"Int"
 	.byte	0	
 	.align	2
 	.word	-1
@@ -82,44 +91,44 @@ str_const5:
 	.word	4
 	.word	5
 	.word	String_dispTab
-	.word	int_const5
-	.ascii	"Int"
+	.word	int_const7
+	.ascii	"IO"
 	.byte	0	
 	.align	2
 	.word	-1
 str_const4:
 	.word	4
-	.word	5
+	.word	6
 	.word	String_dispTab
-	.word	int_const6
-	.ascii	"IO"
+	.word	int_const0
+	.ascii	"Object"
 	.byte	0	
 	.align	2
 	.word	-1
 str_const3:
 	.word	4
-	.word	6
+	.word	8
 	.word	String_dispTab
-	.word	int_const4
-	.ascii	"Object"
+	.word	int_const8
+	.ascii	"<basic class>"
 	.byte	0	
 	.align	2
 	.word	-1
 str_const2:
 	.word	4
-	.word	8
+	.word	7
 	.word	String_dispTab
-	.word	int_const7
-	.ascii	"<basic class>"
+	.word	int_const9
+	.ascii	"Example!\n"
 	.byte	0	
 	.align	2
 	.word	-1
 str_const1:
 	.word	4
-	.word	7
+	.word	12
 	.word	String_dispTab
-	.word	int_const8
-	.ascii	"Example!\n"
+	.word	int_const10
+	.ascii	"work your mouth like a puppet"
 	.byte	0	
 	.align	2
 	.word	-1
@@ -127,70 +136,82 @@ str_const0:
 	.word	4
 	.word	7
 	.word	String_dispTab
-	.word	int_const9
+	.word	int_const11
 	.ascii	"example.cl"
 	.byte	0	
 	.align	2
 	.word	-1
-int_const9:
+int_const11:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	10
 	.word	-1
-int_const8:
+int_const10:
+	.word	2
+	.word	4
+	.word	Int_dispTab
+	.word	29
+	.word	-1
+int_const9:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	9
 	.word	-1
-int_const7:
+int_const8:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	13
 	.word	-1
-int_const6:
+int_const7:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	2
 	.word	-1
-int_const5:
+int_const6:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	3
 	.word	-1
-int_const4:
-	.word	2
-	.word	4
-	.word	Int_dispTab
-	.word	6
-	.word	-1
-int_const3:
+int_const5:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	5
 	.word	-1
-int_const2:
+int_const4:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	4
 	.word	-1
-int_const1:
+int_const3:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	1
 	.word	-1
-int_const0:
+int_const2:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	0
+	.word	-1
+int_const1:
+	.word	2
+	.word	4
+	.word	Int_dispTab
+	.word	7
+	.word	-1
+int_const0:
+	.word	2
+	.word	4
+	.word	Int_dispTab
+	.word	6
 	.word	-1
 bool_const0:
 	.word	3
@@ -230,15 +251,15 @@ String_protObj:
 	.word	4
 	.word	5
 	.word	String_dispTab
-	.word	int_const0
+	.word	int_const2
 	.word	0
 	.word	-1
 Queen_protObj:
 	.word	5
 	.word	7
 	.word	Queen_dispTab
-	.word	int_const0
-	.word	int_const0
+	.word	int_const2
+	.word	int_const2
 	.word	0
 	.word	bool_const0
 	.word	-1
@@ -246,20 +267,19 @@ King_protObj:
 	.word	6
 	.word	9
 	.word	King_dispTab
-	.word	int_const0
-	.word	int_const0
+	.word	int_const2
+	.word	int_const2
 	.word	0
 	.word	bool_const0
-	.word	str_const11
-	.word	str_const11
+	.word	str_const12
+	.word	str_const12
 	.word	-1
 Main_protObj:
 	.word	7
 	.word	4
 	.word	Main_dispTab
-	.word	int_const0
+	.word	int_const2
 class_nameTab:
-	.word	str_const3
 	.word	str_const4
 	.word	str_const5
 	.word	str_const6
@@ -267,6 +287,7 @@ class_nameTab:
 	.word	str_const8
 	.word	str_const9
 	.word	str_const10
+	.word	str_const11
 class_objTab:
 	.word	Object_protObj
 	.word	Object_init
@@ -344,3 +365,130 @@ heap_start:
 	.globl	String_init
 	.globl	Bool_init
 	.globl	Main.main
+Object_init:
+	addiu	$sp $sp -12
+	sw	$fp 12($sp)
+	sw	$s0 8($sp)
+	sw	$ra 4($sp)
+	addiu	$fp $sp 4
+	move	$s0 $a0
+	move	$a0 $s0
+	lw	$fp 12($sp)
+	lw	$s0 8($sp)
+	lw	$ra 4($sp)
+	addiu	$sp $sp 12
+	jr	$ra	
+IO_init:
+	addiu	$sp $sp -12
+	sw	$fp 12($sp)
+	sw	$s0 8($sp)
+	sw	$ra 4($sp)
+	addiu	$fp $sp 4
+	move	$s0 $a0
+	jal	Object_init
+	move	$a0 $s0
+	lw	$fp 12($sp)
+	lw	$s0 8($sp)
+	lw	$ra 4($sp)
+	addiu	$sp $sp 12
+	jr	$ra	
+Int_init:
+	addiu	$sp $sp -12
+	sw	$fp 12($sp)
+	sw	$s0 8($sp)
+	sw	$ra 4($sp)
+	addiu	$fp $sp 4
+	move	$s0 $a0
+	jal	Object_init
+	move	$a0 $s0
+	lw	$fp 12($sp)
+	lw	$s0 8($sp)
+	lw	$ra 4($sp)
+	addiu	$sp $sp 12
+	jr	$ra	
+Bool_init:
+	addiu	$sp $sp -12
+	sw	$fp 12($sp)
+	sw	$s0 8($sp)
+	sw	$ra 4($sp)
+	addiu	$fp $sp 4
+	move	$s0 $a0
+	jal	Object_init
+	move	$a0 $s0
+	lw	$fp 12($sp)
+	lw	$s0 8($sp)
+	lw	$ra 4($sp)
+	addiu	$sp $sp 12
+	jr	$ra	
+String_init:
+	addiu	$sp $sp -12
+	sw	$fp 12($sp)
+	sw	$s0 8($sp)
+	sw	$ra 4($sp)
+	addiu	$fp $sp 4
+	move	$s0 $a0
+	jal	Object_init
+	move	$a0 $s0
+	lw	$fp 12($sp)
+	lw	$s0 8($sp)
+	lw	$ra 4($sp)
+	addiu	$sp $sp 12
+	jr	$ra	
+Queen_init:
+	addiu	$sp $sp -12
+	sw	$fp 12($sp)
+	sw	$s0 8($sp)
+	sw	$ra 4($sp)
+	addiu	$fp $sp 4
+	move	$s0 $a0
+	jal	Object_init
+	move	$a0 $s0
+	lw	$fp 12($sp)
+	lw	$s0 8($sp)
+	lw	$ra 4($sp)
+	addiu	$sp $sp 12
+	jr	$ra	
+King_init:
+	addiu	$sp $sp -12
+	sw	$fp 12($sp)
+	sw	$s0 8($sp)
+	sw	$ra 4($sp)
+	addiu	$fp $sp 4
+	move	$s0 $a0
+	jal	Queen_init
+	move	$a0 $s0
+	lw	$fp 12($sp)
+	lw	$s0 8($sp)
+	lw	$ra 4($sp)
+	addiu	$sp $sp 12
+	jr	$ra	
+Main_init:
+	addiu	$sp $sp -12
+	sw	$fp 12($sp)
+	sw	$s0 8($sp)
+	sw	$ra 4($sp)
+	addiu	$fp $sp 4
+	move	$s0 $a0
+	jal	IO_init
+	move	$a0 $s0
+	lw	$fp 12($sp)
+	lw	$s0 8($sp)
+	lw	$ra 4($sp)
+	addiu	$sp $sp 12
+	jr	$ra	
+Object.abort:
+Object.type_name:
+Object.copy:
+IO.out_string:
+IO.out_int:
+IO.in_string:
+IO.in_int:
+String.length:
+String.concat:
+String.substr:
+Queen.attack:
+Queen.retreat:
+Queen.drink:
+King.screwup:
+King.retreat:
+Main.main:

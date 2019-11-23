@@ -563,6 +563,7 @@ class NoExpr : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
+  void CodeGen(CgenEnv &env); 
 
  protected:
   NoExpr(SourceLoc loc) : Expression(loc) {}
@@ -617,7 +618,7 @@ class IntLiteral : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
-  void CodeGen(CgenEnv &env); 
+  void CodeGen(CgenEnv &env);
 
  protected:
   const Int32Entry* value_;

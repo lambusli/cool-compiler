@@ -647,7 +647,7 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
 // Emit dispatch table
 void CgenKlassTable::CgenDispTable(std::ostream& os) const {
     for (auto node : nodes_) {
-        os << node->name() << "_dispTab" << LABEL;
+        os << node->name() << DISPTAB_SUFFIX << LABEL;
 
         for (auto meth_name : node->evector_meth_) {
             auto entry = node->etable_meth_[meth_name];
@@ -772,12 +772,12 @@ void epilogue_init(std::ostream &os) {
 // Emite all object initializers
 void CgenKlassTable::CgenObjInit(std::ostream &os) {
     for (auto node : nodes_) {
-        os << node->name() << "_init" << LABEL;
+        os << node->name() << CLASSINIT_SUFFIX << LABEL;
         prologue(os); // callee prologue
 
         // initialze parent object
         if (node->parent()->name() != No_class) {
-            os << "\tjal " << node->parent()->name() << "_init\n";
+            os << JAL << node->parent()->name() << CLASSINIT_SUFFIX << "\n";
         }
 
         // Create Cgen for a specific class
@@ -811,16 +811,14 @@ void CgenKlassTable::CgenMethBody(std::ostream &os) {
             Method *meth = (Method *)feature;
             os << node->name() << "." << meth->name() << LABEL;
 
-
-
-
         } // end for feature
     } // end for node
 } // end CgenKlassTable::CgenMethBody(std::ostream &os) const
 
+void NoExpr::CodeGen(CgenEnv &env) {}
 
 void IntLiteral::CodeGen(CgenEnv &env) {
-    env.os << "# I am an integer.\n";
+    env.os << "\t# I am an integer.\n";
 }
 
 }  // namespace cool
