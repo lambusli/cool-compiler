@@ -34,7 +34,7 @@ limitations under the License.
 */
 /**
  * @file
- * 
+ *
  * @brief Definitions for use when emitting assembly
  */
 ///////////////////////////////////////////////////////////////////////
@@ -103,15 +103,15 @@ typedef char const* Register;
  * @name Register names
  * @{
  */
-Register const ZERO = "$zero";		// Zero register 
-Register const ACC  = "$a0";		// Accumulator 
+Register const ZERO = "$zero";		// Zero register
+Register const ACC  = "$a0";		// Accumulator
 Register const A1   = "$a1";		// For arguments to prim functions
 Register const SELF = "$s0";		// Pointer to self (callee saves)
-Register const T1   = "$t1";		// Temporary 1 
-Register const T2   = "$t2";		// Temporary 2 
-Register const SP   = "$sp";		// Stack pointer 
-Register const FP   = "$fp";		// Frame pointer 
-Register const RA   = "$ra";		// Return address 
+Register const T1   = "$t1";		// Temporary 1
+Register const T2   = "$t2";		// Temporary 2
+Register const SP   = "$sp";		// Stack pointer
+Register const FP   = "$fp";		// Frame pointer
+Register const RA   = "$ra";		// Return address
 //@}
 
 
@@ -125,7 +125,7 @@ inline bool regEq(Register r1, Register r2) { return r1 == r2; }
 //
 // Opcodes
 //
-#define JALR  "\tjalr\t"  
+#define JALR  "\tjalr\t"
 #define JAL   "\tjal\t"                 
 #define RET   "\tjr\t$ra\t"
 
@@ -151,5 +151,3 @@ inline bool regEq(Register r1, Register r2) { return r1 == r2; }
 #define BLEQ     "\tble\t"
 #define BLT      "\tblt\t"
 #define BGT      "\tbgt\t"
-
-

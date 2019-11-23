@@ -189,6 +189,8 @@ class CgenKlassTable : public KlassTable<CgenNode> {
   void CgenDispTable(std::ostream& os) const;
 
   void CgenObjInit(std::ostream& os) const;
+
+  void CgenAll(std::ostream &os) const; 
 };
 
 
@@ -200,7 +202,7 @@ class CgenEnv {
 
     CgenEnv(CgenKlassTable *klass_table_arg,
             CgenNode *curr_cgen_node_arg,
-            std::ostream &os_env_arg); 
+            std::ostream &os_env_arg);
 };
 
 
