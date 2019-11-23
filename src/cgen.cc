@@ -542,8 +542,10 @@ void CgenKlassTable::CodeGen(std::ostream& os) {
   CgenGlobalText(os);
 
   // Add your code to emit:
-  // 1. Object initializers for each class
+  // 1. Object initializers for each class  (xxx.init())
+  CgenObjInit(os);
   // 2. Class methods
+  // dispatch is the most important
 
 }
 
@@ -573,6 +575,7 @@ void CgenKlassTable::CgenClassNameTable(std::ostream& os) const {
     } // end for
 } // end void CgenKlassTable::CgenClassNameTable(std::ostream& os) const
 
+
 // Emit class objtable
 void CgenKlassTable::CgenClassObjTable(std::ostream& os) const {
     os << CLASSOBJTAB << LABEL;
@@ -587,6 +590,7 @@ void CgenKlassTable::CgenClassObjTable(std::ostream& os) const {
         os << std::endl;
     } // end for
 } // end void CgenKlassTable::CgenClassObjTable(std::ostream& os) const
+
 
 // Emit Prototype object
 void CgenKlassTable::CgenProtobj(std::ostream& os) const {
@@ -611,16 +615,17 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
         os << std::endl;
 
         // Attributes, offset 12+
-        for (auto entry : node->etable_attr_) {
+        for (auto attr_name : node->evector_attr_) {
             os << WORD;
+            auto entry = node->etable_attr_[attr_name];
 
-            if (entry.second->decl_type_ == String) {
+            if (entry->decl_type_ == String) {
                 CgenRef(os, gStringTable.emplace(""));
             }
-            else if (entry.second->decl_type_ == Int) {
+            else if (entry->decl_type_ == Int) {
                 CgenRef(os, gIntTable.emplace(0));
             }
-            else if (entry.second->decl_type_ == Bool) {
+            else if (entry->decl_type_ == Bool) {
                 CgenRef(os, false);
             }
             else {
@@ -632,31 +637,38 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
     } // end for
 } // end void CgenKlassTable::CgenProtobj(std::ostream& os) const
 
+
 // Emit dispatch table
 void CgenKlassTable::CgenDispTable(std::ostream& os) const {
     for (auto node : nodes_) {
         os << node->name() << "_dispTab" << LABEL;
 
-        for (auto entry : node->etable_meth_) {
-            os << WORD << entry.second->class_name_ << "." << entry.first << std::endl;
-        } // end for
+        for (auto meth_name : node->evector_meth_) {
+            auto entry = node->etable_meth_[meth_name];
+            os << WORD << entry->class_name_ << "." << meth_name << std::endl;
+        }
+
     } // end for
 } // end void CgenKlassTable::CgenDispTable(std::ostream& os) const
+
 
 // Varbinding for all CgenNode
 void CgenKlassTable::allBinding() {
     doBinding(root(), NULL);
 }
 
+
 // Recursive do varbinding for each CgenNode
 void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
     // Starting from offset 12, we store attributes
     int attr_offset = 12;
 
-    // Inheritance: duplicate the etables from parent to node
+    // Inheritance: duplicate the etables and evectors from parent to node
     if (parent) {
         node->etable_attr_ = parent->etable_attr_;
-        node->etable_meth_ = parent->etable_meth_; 
+        node->evector_attr_ = parent->evector_attr_;
+        node->etable_meth_ = parent->etable_meth_;
+        node->evector_meth_ = parent->evector_meth_;
         attr_offset += 4 * node->etable_attr_.size();
     }
 
@@ -665,24 +677,32 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
         if (feature->attr())
         // operation if feature is attribute
         {
-            VarBinding *vb = new VarBinding();
-            vb->offset_ = attr_offset;
-            vb->class_name_ = node->name();
-            vb->var_name_ = feature->name();
-            vb->decl_type_ = feature->decl_type();
+            node->evector_attr_.push_back(feature->name());
+
+            AttrBinding *ab = new AttrBinding();
+            ab->offset_ = attr_offset;
+            ab->class_name_ = node->name();
+            ab->attr_name_ = feature->name();
+            ab->decl_type_ = feature->decl_type();
 
             attr_offset += 4;
-            node->etable_attr_[feature->name()] = vb;
+            node->etable_attr_[feature->name()] = ab;
 
         } else
         // operation if feature is method
         {
-            VarBinding *vb = new VarBinding();
-            vb->class_name_ = node->name();
-            vb->var_name_ = feature->name();
-            vb->decl_type_ = feature->decl_type();
+            // only insert meth_name into vector if the method 
+            // was not defined in a parent class
+            if (node->etable_meth_[feature->name()] == NULL) {
+                node->evector_meth_.push_back(feature->name());
+            }
 
-            node->etable_meth_[feature->name()] = vb;
+            MethBinding *mb = new MethBinding();
+            mb->class_name_ = node->name();
+            mb->meth_name_ = feature->name();
+            mb->decl_type_ = feature->decl_type();
+
+            node->etable_meth_[feature->name()] = mb;
         }
     } // end for
 
@@ -691,5 +711,8 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
         doBinding(child, node);
     }
 } // end void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent)
+
+
+void CgenKlassTable::CgenObjInit(std::ostream& os) const {}
 
 }  // namespace cool

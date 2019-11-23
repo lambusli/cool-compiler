@@ -5,10 +5,21 @@
 
 class Queen {
     step : Int;
+    palace : Int;
+    default : Object;
+    retired : Bool;
+
+    attack() : Int {0};
+    retreat() : Int {0};
+    drink() : Int {0};
 };
 
 class King inherits Queen {
-    oath : String; 
+    oath : String;
+    puppet : String;
+
+    screwup() : Int {0}; 
+    retreat() : Int {1};
 };
 
 class Main inherits IO {

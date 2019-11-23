@@ -73,13 +73,23 @@ void Cgen(Program* program, std::ostream& os);
 // Forward declarations
 class CgenKlassTable;
 
-class VarBinding {
+class AttrBinding {
   private:
     friend class CgenKlassTable;
     friend class CgenNode;
     Symbol *class_name_;
-    Symbol *var_name_;
+    Symbol *attr_name_;
     Symbol *decl_type_;
+    int offset_;
+};
+
+class MethBinding {
+  private:
+    friend class CgenKlassTable;
+    friend class CgenNode;
+    Symbol *class_name_;
+    Symbol *meth_name_;
+    Symbol *decl_type_; 
     int offset_;
 };
 
@@ -105,8 +115,10 @@ class CgenNode : public InheritanceNode<CgenNode> {
    */
   std::size_t tag_;
 
-  std::unordered_map<Symbol *, VarBinding *> etable_attr_;
-  std::unordered_map<Symbol *, VarBinding *> etable_meth_;
+  std::unordered_map<Symbol *, AttrBinding *> etable_attr_; // hash table for lookup
+  std::vector<Symbol *> evector_attr_; // vector for maintaining order
+  std::unordered_map<Symbol *, MethBinding *> etable_meth_; // hash table for lookup
+  std::vector<Symbol *> evector_meth_; // vector for maintaining order
 
 
   friend class CgenKlassTable;
@@ -174,7 +186,9 @@ class CgenKlassTable : public KlassTable<CgenNode> {
 
   void CgenProtobj(std::ostream& os) const;
 
-  void CgenDispTable(std::ostream& os) const; 
+  void CgenDispTable(std::ostream& os) const;
+
+  void CgenObjInit(std::ostream& os) const;
 };
 
 

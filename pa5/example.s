@@ -37,7 +37,7 @@ str_const10:
 	.word	4
 	.word	6
 	.word	String_dispTab
-	.word	int_const1
+	.word	int_const2
 	.ascii	"Main"
 	.byte	0	
 	.align	2
@@ -46,7 +46,7 @@ str_const9:
 	.word	4
 	.word	6
 	.word	String_dispTab
-	.word	int_const1
+	.word	int_const2
 	.ascii	"King"
 	.byte	0	
 	.align	2
@@ -55,7 +55,7 @@ str_const8:
 	.word	4
 	.word	6
 	.word	String_dispTab
-	.word	int_const2
+	.word	int_const3
 	.ascii	"Queen"
 	.byte	0	
 	.align	2
@@ -64,7 +64,7 @@ str_const7:
 	.word	4
 	.word	6
 	.word	String_dispTab
-	.word	int_const3
+	.word	int_const4
 	.ascii	"String"
 	.byte	0	
 	.align	2
@@ -73,7 +73,7 @@ str_const6:
 	.word	4
 	.word	6
 	.word	String_dispTab
-	.word	int_const1
+	.word	int_const2
 	.ascii	"Bool"
 	.byte	0	
 	.align	2
@@ -82,7 +82,7 @@ str_const5:
 	.word	4
 	.word	5
 	.word	String_dispTab
-	.word	int_const4
+	.word	int_const5
 	.ascii	"Int"
 	.byte	0	
 	.align	2
@@ -91,7 +91,7 @@ str_const4:
 	.word	4
 	.word	5
 	.word	String_dispTab
-	.word	int_const5
+	.word	int_const6
 	.ascii	"IO"
 	.byte	0	
 	.align	2
@@ -100,7 +100,7 @@ str_const3:
 	.word	4
 	.word	6
 	.word	String_dispTab
-	.word	int_const3
+	.word	int_const4
 	.ascii	"Object"
 	.byte	0	
 	.align	2
@@ -109,7 +109,7 @@ str_const2:
 	.word	4
 	.word	8
 	.word	String_dispTab
-	.word	int_const6
+	.word	int_const7
 	.ascii	"<basic class>"
 	.byte	0	
 	.align	2
@@ -118,7 +118,7 @@ str_const1:
 	.word	4
 	.word	7
 	.word	String_dispTab
-	.word	int_const7
+	.word	int_const8
 	.ascii	"Example!\n"
 	.byte	0	
 	.align	2
@@ -127,58 +127,64 @@ str_const0:
 	.word	4
 	.word	7
 	.word	String_dispTab
-	.word	int_const8
+	.word	int_const9
 	.ascii	"example.cl"
 	.byte	0	
 	.align	2
 	.word	-1
-int_const8:
+int_const9:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	10
 	.word	-1
-int_const7:
+int_const8:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	9
 	.word	-1
-int_const6:
+int_const7:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	13
 	.word	-1
-int_const5:
+int_const6:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	2
 	.word	-1
-int_const4:
+int_const5:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	3
 	.word	-1
-int_const3:
+int_const4:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	6
 	.word	-1
-int_const2:
+int_const3:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	5
 	.word	-1
-int_const1:
+int_const2:
 	.word	2
 	.word	4
 	.word	Int_dispTab
 	.word	4
+	.word	-1
+int_const1:
+	.word	2
+	.word	4
+	.word	Int_dispTab
+	.word	1
 	.word	-1
 int_const0:
 	.word	2
@@ -197,45 +203,61 @@ bool_const1:
 	.word	4
 	.word	Bool_dispTab
 	.word	1
+	.word	-1
 Object_protObj:
 	.word	0
-	.word	# I have no idea what is the size of this object
+	.word	3
 	.word	Object_dispTab
+	.word	-1
 IO_protObj:
 	.word	1
-	.word	# I have no idea what is the size of this object
+	.word	3
 	.word	IO_dispTab
+	.word	-1
 Int_protObj:
 	.word	2
-	.word	# I have no idea what is the size of this object
+	.word	4
 	.word	Int_dispTab
-	.word	I have no idea how to get attributes
+	.word	0
+	.word	-1
 Bool_protObj:
 	.word	3
-	.word	# I have no idea what is the size of this object
+	.word	4
 	.word	Bool_dispTab
-	.word	I have no idea how to get attributes
+	.word	0
+	.word	-1
 String_protObj:
 	.word	4
-	.word	# I have no idea what is the size of this object
+	.word	5
 	.word	String_dispTab
-	.word	I have no idea how to get attributes
-	.word	I have no idea how to get attributes
+	.word	int_const0
+	.word	0
+	.word	-1
 Queen_protObj:
 	.word	5
-	.word	# I have no idea what is the size of this object
+	.word	7
 	.word	Queen_dispTab
-	.word	I have no idea how to get attributes
+	.word	int_const0
+	.word	int_const0
+	.word	0
+	.word	bool_const0
+	.word	-1
 King_protObj:
 	.word	6
-	.word	# I have no idea what is the size of this object
+	.word	9
 	.word	King_dispTab
-	.word	I have no idea how to get attributes
+	.word	int_const0
+	.word	int_const0
+	.word	0
+	.word	bool_const0
+	.word	str_const11
+	.word	str_const11
+	.word	-1
 Main_protObj:
 	.word	7
-	.word	# I have no idea what is the size of this object
+	.word	4
 	.word	Main_dispTab
-	.word	I have no idea how to get attributes
+	.word	int_const0
 class_nameTab:
 	.word	str_const3
 	.word	str_const4
@@ -262,6 +284,57 @@ class_objTab:
 	.word	King_init
 	.word	Main_protObj
 	.word	Main_init
+Object_dispTab:
+	.word	Object.abort
+	.word	Object.type_name
+	.word	Object.copy
+IO_dispTab:
+	.word	Object.abort
+	.word	Object.type_name
+	.word	Object.copy
+	.word	IO.out_string
+	.word	IO.out_int
+	.word	IO.in_string
+	.word	IO.in_int
+Int_dispTab:
+	.word	Object.abort
+	.word	Object.type_name
+	.word	Object.copy
+Bool_dispTab:
+	.word	Object.abort
+	.word	Object.type_name
+	.word	Object.copy
+String_dispTab:
+	.word	Object.abort
+	.word	Object.type_name
+	.word	Object.copy
+	.word	String.length
+	.word	String.concat
+	.word	String.substr
+Queen_dispTab:
+	.word	Object.abort
+	.word	Object.type_name
+	.word	Object.copy
+	.word	Queen.attack
+	.word	Queen.retreat
+	.word	Queen.drink
+King_dispTab:
+	.word	Object.abort
+	.word	Object.type_name
+	.word	Object.copy
+	.word	Queen.attack
+	.word	King.retreat
+	.word	Queen.drink
+	.word	King.screwup
+Main_dispTab:
+	.word	Object.abort
+	.word	Object.type_name
+	.word	Object.copy
+	.word	IO.out_string
+	.word	IO.out_int
+	.word	IO.in_string
+	.word	IO.in_int
+	.word	Main.main
 	.globl	heap_start
 heap_start:
 	.word	0
