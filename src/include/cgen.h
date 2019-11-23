@@ -190,7 +190,8 @@ class CgenKlassTable : public KlassTable<CgenNode> {
 
   void CgenObjInit(std::ostream& os) const;
 
-  void CgenAll(std::ostream &os) const; 
+  void CgenAll(std::ostream &os);
+
 };
 
 

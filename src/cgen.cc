@@ -786,8 +786,22 @@ void CgenKlassTable::CgenObjInit(std::ostream &os) const {
 
 
 // Code generation for all class attributes and methods
-void CgenKlassTable::CgenAll(std::ostream &os) const {
+void CgenKlassTable::CgenAll(std::ostream &os) {
+    for (auto node : nodes_) {
+        for (auto feature : *node->klass()->features()) {
+            // Generate code only for method bodies
+            // Do nothing for an attribute
+            if (feature->attr()) {continue; }
 
-}
+            Method *meth = (Method *)feature;
+            os << node->name() << "." << meth->name() << LABEL;
+
+            // Create Cgen environment for a specific class
+            CgenEnv envnow(this, node, os);
+
+
+        } // end for feature
+    } // end for node
+} // end CgenKlassTable::CgenAll(std::ostream &os) const
 
 }  // namespace cool
