@@ -734,6 +734,54 @@ CgenEnv::CgenEnv(CgenKlassTable *klass_table_arg,
  * Code generation
  */
 
-void CgenKlassTable::CgenObjInit(std::ostream& os) const {}
+// Callee prologue
+void prologue(std::ostream &os) {
+    // move stack pointer 3 words down
+    os << "\taddiu $sp $sp -12\n";
+    // store the address of the old framepointer as the first record
+    os << "\tsw $fp 12($sp)\n";
+    // store the address of caller's self as the second record
+    os << "\tsw $s0 8($sp)\n";
+    // store the caller's return address as the third record
+    os << "\tsw $ra 4($sp)\n";
+    // create the new framepointer
+    os << "\taddiu $fp $sp 4\n";
+    // place callee's self in $s0
+    // callee's self is already in $a0 at some point
+    os << "\tmove $s0 $a0\n";
+} // end void prologue(std::ostream &os)
+
+
+// Callee epilogue for object initializer
+void epilogue_init(std::ostream &os) {
+    // Place callee's self in the accumulator
+    os << "\tmove $a0 $s0\n";
+    // Restore the old framepointer
+    os << "\tls $fp 12($sp)\n";
+    // Restore the caller's self
+    os << "\tlw $s0 8($sp)\n";
+    // Place the return address in $ra
+    os << "\tlw $ra 4($sp)\n";
+    // Pop stackframe
+    os << "\taddiu $sp $sp 12\n";
+    // Jump to the return address
+    os << "\tjr $ra\n";
+} // void epilogue(std::ostream &os)
+
+
+// Emite all object initializers
+void CgenKlassTable::CgenObjInit(std::ostream &os) const {
+    for (auto node : nodes_) {
+        os << node->name() << "_init" << LABEL;
+        prologue(os); // callee prologue
+
+        // initialze parent object
+        if (node->parent()->name() != No_class) {
+            os << "\tjal " << node->parent()->name() << "_init\n";
+        }
+
+        epilogue_init(os); // callee epilogue
+    } // end for
+} // end CgenKlassTable::CgenObjInit(std::ostream &os) const
 
 }  // namespace cool
