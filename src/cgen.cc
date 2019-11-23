@@ -545,7 +545,7 @@ void CgenKlassTable::CodeGen(std::ostream& os) {
   // 1. Object initializers for each class  (xxx.init())
   CgenObjInit(os);
   // 2. Class methods
-  CgenAll(os);
+  CgenMethBody(os);
 
 }
 
@@ -722,10 +722,10 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
 // Constructor of CgenEnv
 CgenEnv::CgenEnv(CgenKlassTable *klass_table_arg,
         CgenNode *curr_cgen_node_arg,
-        std::ostream &os_env_arg) :
+        std::ostream &os_arg) :
         klass_table(klass_table_arg),
         curr_cgen_node(curr_cgen_node_arg),
-        os_env(os_env_arg) {}
+        os(os_arg) {}
 
 
 
@@ -770,7 +770,7 @@ void epilogue_init(std::ostream &os) {
 
 
 // Emite all object initializers
-void CgenKlassTable::CgenObjInit(std::ostream &os) const {
+void CgenKlassTable::CgenObjInit(std::ostream &os) {
     for (auto node : nodes_) {
         os << node->name() << "_init" << LABEL;
         prologue(os); // callee prologue
@@ -780,14 +780,29 @@ void CgenKlassTable::CgenObjInit(std::ostream &os) const {
             os << "\tjal " << node->parent()->name() << "_init\n";
         }
 
+        // Create Cgen for a specific class
+        CgenEnv envnow(this, node, os);
+
+        // If an attribute is initialized, we need to store the value in the stackframe
+        for (auto feature : *node->klass()->features()) {
+            // Do nothing for a method
+            if (feature->method()) {continue; }
+
+            Attr *attr = (Attr *)feature;
+            attr->init()->CodeGen(envnow);
+        }
+
         epilogue_init(os); // callee epilogue
     } // end for
 } // end CgenKlassTable::CgenObjInit(std::ostream &os) const
 
 
 // Code generation for all class attributes and methods
-void CgenKlassTable::CgenAll(std::ostream &os) {
+void CgenKlassTable::CgenMethBody(std::ostream &os) {
     for (auto node : nodes_) {
+        // Create Cgen environment for a specific class
+        CgenEnv envnow(this, node, os);
+
         for (auto feature : *node->klass()->features()) {
             // Generate code only for method bodies
             // Do nothing for an attribute
@@ -796,12 +811,16 @@ void CgenKlassTable::CgenAll(std::ostream &os) {
             Method *meth = (Method *)feature;
             os << node->name() << "." << meth->name() << LABEL;
 
-            // Create Cgen environment for a specific class
-            CgenEnv envnow(this, node, os);
+
 
 
         } // end for feature
     } // end for node
-} // end CgenKlassTable::CgenAll(std::ostream &os) const
+} // end CgenKlassTable::CgenMethBody(std::ostream &os) const
+
+
+void IntLiteral::CodeGen(CgenEnv &env) {
+    env.os << "# I am an integer.\n";
+}
 
 }  // namespace cool

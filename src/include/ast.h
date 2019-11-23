@@ -80,8 +80,9 @@ limitations under the License.
 
 namespace cool {
 
-class SemantEnv;
 // Forward declare semantic analysis and code generation environments
+class SemantEnv;
+class CgenEnv;
 
 /**
  * @brief Abstract base class for all AST Nodes
@@ -101,6 +102,7 @@ public:
     */
     virtual void DumpTree(std::ostream& os, size_t level, bool with_types) const = 0;
     virtual void Typecheck(SemantEnv &env) {}
+    virtual void CodeGen(CgenEnv &env) {}
 
 protected:
     SourceLoc loc_ = 0;
@@ -350,7 +352,7 @@ class StaticDispatch : public Dispatch {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
-  void Typecheck(SemantEnv &env); 
+  void Typecheck(SemantEnv &env);
 
  protected:
   Symbol* dispatch_type_;
@@ -615,6 +617,7 @@ class IntLiteral : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
+  void CodeGen(CgenEnv &env); 
 
  protected:
   const Int32Entry* value_;
