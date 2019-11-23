@@ -564,6 +564,12 @@ void Cgen(Program* program, std::ostream& os) {
  *************************
  */
 
+/*
+ * Part I
+ * Emission of global tables
+ * Preparatory methods (varBinding, CgenEnv, ...)
+ */
+
 // Emit class nametable
 void CgenKlassTable::CgenClassNameTable(std::ostream& os) const {
     os << CLASSNAMETAB << LABEL;
@@ -691,7 +697,7 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
         } else
         // operation if feature is method
         {
-            // only insert meth_name into vector if the method 
+            // only insert meth_name into vector if the method
             // was not defined in a parent class
             if (node->etable_meth_[feature->name()] == NULL) {
                 node->evector_meth_.push_back(feature->name());
@@ -712,6 +718,21 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
     }
 } // end void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent)
 
+
+// Constructor of CgenEnv
+CgenEnv::CgenEnv(CgenKlassTable *klass_table_arg,
+        CgenNode *curr_cgen_node_arg,
+        std::ostream &os_env_arg) :
+        klass_table(klass_table_arg),
+        curr_cgen_node(curr_cgen_node_arg),
+        os_env(os_env_arg) {}
+
+
+
+/*
+ * Part II
+ * Code generation
+ */
 
 void CgenKlassTable::CgenObjInit(std::ostream& os) const {}
 

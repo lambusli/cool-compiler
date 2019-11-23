@@ -89,7 +89,7 @@ class MethBinding {
     friend class CgenNode;
     Symbol *class_name_;
     Symbol *meth_name_;
-    Symbol *decl_type_; 
+    Symbol *decl_type_;
     int offset_;
 };
 
@@ -189,6 +189,18 @@ class CgenKlassTable : public KlassTable<CgenNode> {
   void CgenDispTable(std::ostream& os) const;
 
   void CgenObjInit(std::ostream& os) const;
+};
+
+
+class CgenEnv {
+  public:
+    CgenKlassTable *klass_table;
+    CgenNode *curr_cgen_node;
+    std::ostream &os_env;
+
+    CgenEnv(CgenKlassTable *klass_table_arg,
+            CgenNode *curr_cgen_node_arg,
+            std::ostream &os_env_arg); 
 };
 
 
