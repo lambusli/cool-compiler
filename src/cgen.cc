@@ -246,6 +246,8 @@ namespace cool {
 
 bool gCgenDebug = false;
 
+int num_label = 0;
+
 // clang-format off
 extern Symbol
     *arg,
@@ -779,6 +781,21 @@ void epilogue_init(std::ostream &os) {
 } // void epilogue(std::ostream &os)
 
 
+// General epilogue
+void epilogue_general(std::ostream &os) {
+    // Restore the old framepointer
+    os << LW << FP << " 12(" << SP << ")\n";
+    // Restore the caller's self
+    os << LW << SELF << " 8(" << SP << ")\n";
+    // Place the return address in $ra
+    os << LW << RA << " 4(" << SP << ")\n";
+    // Pop stackframe
+    os << ADDIU << SP << " " << SP << " 12\n";
+    // Jump to the return address
+    os << RET << "\n";
+} // end void epilogue_general(std::ostream &os)
+
+
 
 
 /*
@@ -828,14 +845,81 @@ void CgenKlassTable::CgenMethBody(std::ostream &os) {
             Method *meth = (Method *)feature;
             os << node->name() << "." << meth->name() << LABEL;
 
+            // !!
+            // For now, skip codegen of formals
+
+            meth->body_->CodeGen(envnow);
+
         } // end for feature
     } // end for node
 } // end CgenKlassTable::CgenMethBody(std::ostream &os) const
 
 void NoExpr::CodeGen(CgenEnv &env) {}
 
+
+// !!
+// For now, only load the value of the int literal into accumulator
+// For now, defer the store-word operation
 void IntLiteral::CodeGen(CgenEnv &env) {
-    env.os << "\t# I am an integer.\n";
+    env.os << LA << ACC << " ";
+    CgenRef(env.os, gIntTable.emplace(value()));
+    env.os << std::endl;
 }
+
+
+// !!
+// For now, only load the value of the string literal into accumulator
+// For now, defer the store-word operation
+void StringLiteral::CodeGen(CgenEnv &env) {
+    env.os << LA << ACC << " ";
+    CgenRef(env.os, gStringTable.emplace(value()));
+    env.os << std::endl;
+}
+
+
+void Dispatch::CodeGen(CgenEnv &env) {
+    CgenNode *receiver_cgen_node;
+
+    // Evaluate each argument and push it into current stackframe
+    for (auto actual : *actuals_) {
+        actual->CodeGen(env);
+        env.os << SW << ACC << " 0(" << SP << ")\n";
+        env.os << ADDIU << SP << " " << SP << " -4\n";
+    }
+
+    // Evaluate the receiver object and load it into accumulator
+    if (receiver_->type() == SELF_TYPE) {
+        env.os << MOVE << ACC << " " << SELF << "\n";
+        receiver_cgen_node = env.curr_cgen_node;
+    } else {
+        // !!
+        // Need to work on the case where the receiver object is not self
+    }
+
+    // Check whether the receiver object is NULL, and then branch
+    env.os << BNE << ACC << " " << ZERO << " label" << num_label << "\n";
+
+    // Abort if receiver is NULL
+    env.os << LA << ACC << " ";
+    CgenRef(env.os, gStringTable.emplace("Segmentation fault")); // ?? Is this correct?
+    env.os << "\n";
+    env.os << LI << T1 << " " << env.curr_cgen_node->etable_attr_.size() + 2 << "\n";
+    env.os << JAL << "_dispatch_abort\n";
+
+    // Jump
+    env.os << "label" << num_label << LABEL;
+    num_label++; // ?? is the use of global variable correct?
+    // Load the dispatch pointer into $t1
+    env.os << LW << T1 << " 8(" << ACC << ")\n";
+    // Find the offset of the method and load into $t1
+    env.os << LW << T1 << " " << receiver_cgen_node->etable_meth_[name_]->offset_ << "(" << T1 << ")\n";
+    // execute dispatch
+    env.os << JALR << T1 << "\n";
+    epilogue_general(env.os);
+
+
+
+
+} // end void Dispatch::CodeGen(CgenEnv &env)
 
 }  // namespace cool

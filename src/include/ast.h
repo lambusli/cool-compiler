@@ -255,6 +255,7 @@ class Method : public Feature {
 
  protected:
   friend class Feature;
+  friend class CgenKlassTable; 
   Formals* formals_;
   Expression* body_;
 
@@ -334,6 +335,7 @@ class Dispatch : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
+  void CodeGen(CgenEnv &env);
 
  protected:
   Expression* receiver_;
@@ -563,7 +565,7 @@ class NoExpr : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
-  void CodeGen(CgenEnv &env); 
+  void CodeGen(CgenEnv &env);
 
  protected:
   NoExpr(SourceLoc loc) : Expression(loc) {}
@@ -589,6 +591,7 @@ class StringLiteral : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
+  void CodeGen(CgenEnv &env);
 
   friend std::ostream& operator<<(std::ostream& os, const StringLiteral* s) {
     return os << s->value();

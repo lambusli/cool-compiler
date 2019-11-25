@@ -77,6 +77,7 @@ class AttrBinding {
   private:
     friend class CgenKlassTable;
     friend class CgenNode;
+    friend class Dispatch; 
     Symbol *class_name_;
     Symbol *attr_name_;
     Symbol *decl_type_;
@@ -87,6 +88,7 @@ class MethBinding {
   private:
     friend class CgenKlassTable;
     friend class CgenNode;
+    friend class Dispatch;
     Symbol *class_name_;
     Symbol *meth_name_;
     Symbol *decl_type_;
@@ -122,6 +124,7 @@ class CgenNode : public InheritanceNode<CgenNode> {
 
 
   friend class CgenKlassTable;
+  friend class Dispatch;
 };
 
 /// Class table for use in code generation

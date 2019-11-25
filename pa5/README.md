@@ -7,7 +7,7 @@ Your directory should contain the following files:
 1. `CMakeLists.txt`: CMake file for building the code generator. You should not need to modify this file.
 1. `cgen-main.cc`: Executable for your code generator. You should not need to modify this file.
 1. `mycoolc`: A bash-script to connect your code generator to the reference components to facilitate testing.
-1. `example.cl`: This file should contain a test program of your own design. Test as many features of the code generator as you can. You can also use the integration test infrastructure in `test/integration`, or add more files to your project in this assignment directory. 
+1. `example.cl`: This file should contain a test program of your own design. Test as many features of the code generator as you can. You can also use the integration test infrastructure in `test/integration`, or add more files to your project in this assignment directory.
 1. `README.md`: This file. You will need to edit the README file with your write-up.
 
 Like PA4 you will also need to modify files in the `src` directory. Specifically (but not limited to):
@@ -35,7 +35,7 @@ The above will generation `example.s`. To run the corresponding assembly file wi
 ../bin/spim -- -file example.s
 ```
 
-*Note* the double dashes: The double dashes are required and separate the arguments to the script that runs `cool-spim` (the actual simulator executable) and the arguments to `cool-spim` itself. 
+*Note* the double dashes: The double dashes are required and separate the arguments to the script that runs `cool-spim` (the actual simulator executable) and the arguments to `cool-spim` itself.
 
 You can compare the output of your code generator to that of the reference implementation:
 

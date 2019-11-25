@@ -4,8 +4,8 @@
 *)
 
 class Queen {
-    step : Int <- 6 + 7;
-    palace : Int;
+    step : Int <- 6;
+    palace : Int <- 1;
     default : Object;
     retired : Bool;
 
