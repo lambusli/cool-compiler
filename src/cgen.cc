@@ -668,6 +668,8 @@ void CgenKlassTable::allBinding() {
 void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
     // Starting from offset 12, we store attributes
     int attr_offset = 12;
+    // Offset for methods in dispatch table
+    int meth_offset = 0;
 
     // Inheritance: duplicate the etables and evectors from parent to node
     if (parent) {
@@ -676,6 +678,7 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
         node->etable_meth_ = parent->etable_meth_;
         node->evector_meth_ = parent->evector_meth_;
         attr_offset += 4 * node->etable_attr_.size();
+        meth_offset += 4 * node->etable_meth_.size();
     }
 
     // traverse each feature of this CgenNode
@@ -697,17 +700,24 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
         } else
         // operation if feature is method
         {
-            // only insert meth_name into vector if the method
-            // was not defined in a parent class
-            if (node->etable_meth_[feature->name()] == NULL) {
-                node->evector_meth_.push_back(feature->name());
-            }
-
             MethBinding *mb = new MethBinding();
             mb->class_name_ = node->name();
             mb->meth_name_ = feature->name();
             mb->decl_type_ = feature->decl_type();
 
+            // only insert meth_name into vector and bind a new offset
+            // if the method was not defined in a parent class
+            if (node->etable_meth_[feature->name()] == NULL) {
+                node->evector_meth_.push_back(feature->name());
+                mb->offset_ = meth_offset;
+                meth_offset += 4;
+            }
+            // if a method is redefined, the offset does not change
+            else {
+                mb->offset_ = node->etable_meth_[feature->name()]->offset_;
+            }
+
+            // Bind
             node->etable_meth_[feature->name()] = mb;
         }
     } // end for
@@ -731,7 +741,7 @@ CgenEnv::CgenEnv(CgenKlassTable *klass_table_arg,
 
 /*
  * Part II
- * Code generation
+ * Helper functions of code generation
  */
 
 // Callee prologue
@@ -768,6 +778,13 @@ void epilogue_init(std::ostream &os) {
     os << RET << "\n";
 } // void epilogue(std::ostream &os)
 
+
+
+
+/*
+ * Part III
+ * Code generation
+ */
 
 // Emite all object initializers
 void CgenKlassTable::CgenObjInit(std::ostream &os) {
