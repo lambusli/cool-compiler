@@ -796,6 +796,22 @@ void epilogue_general(std::ostream &os) {
 } // end void epilogue_general(std::ostream &os)
 
 
+// Check whether a method of a class is already predefined
+bool method_is_predefined(Symbol *class_name, Symbol *method_name) {
+    if (class_name == Object && method_name == copy) {return true; }
+    if (class_name == Object && method_name == cool_abort) {return true; }
+    if (class_name == Object && method_name == type_name) {return true; }
+    if (class_name == IO && method_name == out_string) {return true; }
+    if (class_name == IO && method_name == out_int) {return true; }
+    if (class_name == IO && method_name == in_string) {return true; }
+    if (class_name == IO && method_name == in_int) {return true; }
+    if (class_name == String && method_name == length) {return true; }
+    if (class_name == String && method_name == concat) {return true; }
+    if (class_name == String && method_name == substr) {return true; }
+    return false;
+} // end bool method_is_predefined(Symbol *class_name, Symbol *method_name)
+
+
 
 
 /*
@@ -824,7 +840,7 @@ void CgenKlassTable::CgenObjInit(std::ostream &os) {
 
             Attr *attr = (Attr *)feature;
             // Do nothing if an attribute is not initialized
-            // os << "\t# " << attr->init()->type() << std::endl; 
+            // os << "\t# " << attr->init()->type() << std::endl;
             if (attr->init()->type() == No_type) {continue; }
 
             // Codegen for the initialized value
@@ -851,6 +867,10 @@ void CgenKlassTable::CgenMethBody(std::ostream &os) {
             if (feature->attr()) {continue; }
 
             Method *meth = (Method *)feature;
+
+            // Bypass all the internally defined methods
+            if (method_is_predefined(node->name(), meth->name())) {continue; }
+
             os << node->name() << "." << meth->name() << LABEL;
 
             // !!
