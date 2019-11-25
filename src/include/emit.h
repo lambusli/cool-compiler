@@ -126,7 +126,7 @@ inline bool regEq(Register r1, Register r2) { return r1 == r2; }
 // Opcodes
 //
 #define JALR  "\tjalr\t"
-#define JAL   "\tjal\t"                 
+#define JAL   "\tjal\t"
 #define RET   "\tjr\t$ra\t"
 
 #define SW    "\tsw\t"

@@ -932,7 +932,7 @@ void Dispatch::CodeGen(CgenEnv &env) {
     CgenRef(env.os, gStringTable.emplace("Segmentation fault")); // ?? Is this correct?
     env.os << "\n";
     env.os << LI << T1 << " " << env.curr_cgen_node->etable_attr_.size() + 2 << "\n";
-    env.os << JAL << "_dispatch_abort\n";
+    emit_dispatch_abort(env.os);
 
     // Jump
     env.os << "label" << num_label << LABEL;
