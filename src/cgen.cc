@@ -823,7 +823,15 @@ void CgenKlassTable::CgenObjInit(std::ostream &os) {
             if (feature->method()) {continue; }
 
             Attr *attr = (Attr *)feature;
+            // Do nothing if an attribute is not initialized
+            // os << "\t# " << attr->init()->type() << std::endl; 
+            if (attr->init()->type() == No_type) {continue; }
+
+            // Codegen for the initialized value
             attr->init()->CodeGen(envnow);
+            // Store the value at the correct offset
+            os << SW << ACC << " " << node->etable_attr_[feature->name()]->offset_
+               << "(" << SELF << ")\n";
         }
 
         epilogue_init(os); // callee epilogue
