@@ -706,25 +706,42 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
 
             MethBinding *mb = new MethBinding();
             mb->class_name_ = node->name();
-            mb->meth_name_ = feature->name();
-            mb->decl_type_ = feature->decl_type();
+            mb->meth_name_ = meth->name();
+            mb->decl_type_ = meth->decl_type();
             mb->num_arg_ = meth->formals()->size();
-
-            // std::cout << node->name() << "." << meth->name() << ": " << mb->num_arg_ << "\n";
 
             // only insert meth_name into vector and bind a new offset
             // if the method was not defined in a parent class
-            if (node->etable_meth_[feature->name()] == NULL) {
-                node->evector_meth_.push_back(feature->name());
+            if (node->etable_meth_[meth->name()] == NULL) {
+                node->evector_meth_.push_back(meth->name());
                 mb->offset_ = meth_offset;
                 meth_offset += 4;
             }
             // if a method is redefined, the offset does not change
             else {
-                mb->offset_ = node->etable_meth_[feature->name()]->offset_;
+                mb->offset_ = node->etable_meth_[meth->name()]->offset_;
             }
 
-            // Bind
+            // routine for ArgBinding
+            // Calculate the offset of each argument relative to framepointer
+            // offset of 1st arg: 8 + 4 * num_arg
+            // offset of 2nd arg: 8 + 4 * (num_arg - 1)
+            // ...
+            // offset of the last arg: 12
+            int arg_offset = 8 + 4 * meth->formals()->size();
+            for (auto formal: *meth->formals()) {
+                ArgBinding *ab = new ArgBinding();
+                ab->class_name_ = node->name();
+                ab->meth_name_ = meth->name();
+                ab->arg_name_ = formal->name();
+                ab->decl_type_ = formal->decl_type();
+                ab->offset_ = arg_offset;
+                arg_offset -= 4;
+
+                mb->arg_table_[formal->name()] = ab;
+            }
+
+            // Bind method to etable_meth_
             node->etable_meth_[feature->name()] = mb;
         }
     } // end for
@@ -889,9 +906,6 @@ void CgenKlassTable::CgenMethBody(std::ostream &os) {
 void NoExpr::CodeGen(CgenEnv &env) {}
 
 
-// !!
-// For now, only load the value of the int literal into accumulator
-// For now, defer the store-word operation
 void IntLiteral::CodeGen(CgenEnv &env) {
     env.os << LA << ACC << " ";
     CgenRef(env.os, gIntTable.emplace(value()));
@@ -899,9 +913,6 @@ void IntLiteral::CodeGen(CgenEnv &env) {
 }
 
 
-// !!
-// For now, only load the value of the string literal into accumulator
-// For now, defer the store-word operation
 void StringLiteral::CodeGen(CgenEnv &env) {
     env.os << LA << ACC << " ";
     CgenRef(env.os, gStringTable.emplace(value()));
@@ -912,7 +923,7 @@ void StringLiteral::CodeGen(CgenEnv &env) {
 void Dispatch::CodeGen(CgenEnv &env) {
     CgenNode *receiver_cgen_node;
 
-    prologue(env.os); 
+    prologue(env.os);
 
     // Evaluate each argument and push it into current stackframe
     for (auto actual : *actuals_) {

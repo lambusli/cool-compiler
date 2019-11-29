@@ -81,7 +81,19 @@ class AttrBinding {
     Symbol *class_name_;
     Symbol *attr_name_;
     Symbol *decl_type_;
-    int offset_;
+    int offset_;    // relative to self_object ($s0 register)
+};
+
+class ArgBinding {
+  private:
+    friend class CgenKlassTable;
+    friend class CgenNode;
+    friend class Dispatch;
+    Symbol *class_name_;
+    Symbol *meth_name_;
+    Symbol *arg_name_;
+    Symbol *decl_type_;
+    int offset_;    // relative to framepointer
 };
 
 class MethBinding {
@@ -92,8 +104,9 @@ class MethBinding {
     Symbol *class_name_;
     Symbol *meth_name_;
     Symbol *decl_type_;
-    int offset_;
-    int num_arg_; 
+    int offset_;    // relative to the dispatch table
+    int num_arg_;
+    std::unordered_map<Symbol *, ArgBinding *> arg_table_;
 };
 
 /**
