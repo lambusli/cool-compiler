@@ -9,7 +9,7 @@ class Queen {
     default : Object;
     retired : Bool;
 
-    attack() : Int {0};
+    attack(a:Int, b:String) : Int {0};
     retreat() : Int {0};
     drink() : Int {0};
 };

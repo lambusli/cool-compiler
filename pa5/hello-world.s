@@ -355,25 +355,21 @@ Main_init:
 	lw	$ra 4($sp)
 	addiu	$sp $sp 12
 	jr	$ra	
-Object.abort:
-Object.type_name:
-Object.copy:
-IO.out_string:
-IO.out_int:
-IO.in_string:
-IO.in_int:
-String.length:
-String.concat:
-String.substr:
 Main.main:
+	addiu	$sp $sp -12
+	sw	$fp 12($sp)
+	sw	$s0 8($sp)
+	sw	$ra 4($sp)
+	addiu	$fp $sp 4
+	move	$s0 $a0
 	la	$a0 str_const1
 	sw	$a0 0($sp)
 	addiu	$sp $sp -4
 	move	$a0 $s0
 	bne	$a0 $zero label0
-	la	$a0 str_const10
+	la	$a0 str_const0
 	li	$t1 2
-	jal	_dispatch_abort
+	jal _dispatch_abort
 label0:
 	lw	$t1 8($a0)
 	lw	$t1 12($t1)
