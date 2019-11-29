@@ -44,6 +44,11 @@ limitations under the License.
 #include <assert.h>
 #include <stdio.h>
 
+// Possible values for VarBinding::origin_
+#define ATTR 0    // the variable comes from attribute definition
+#define ARG 1     // the variable comes from method arguments
+#define LETTEMP 2 // the variable comes from "let" temporaries 
+
 /// Switch for optimizing code generator
 extern bool cgen_optimize;
 
@@ -73,29 +78,18 @@ void Cgen(Program* program, std::ostream& os);
 // Forward declarations
 class CgenKlassTable;
 
-class AttrBinding {
+class VarBinding {
   private:
     friend class CgenKlassTable;
     friend class CgenNode;
     friend class Dispatch;
     Symbol *class_name_;
-    Symbol *attr_name_;
+    Symbol *var_name_;
     Symbol *decl_type_;
+    int origin_;
     int offset_;    // relative to self_object ($s0 register)
 };
 
-class ArgBinding {
-  private:
-    friend class CgenKlassTable;
-    friend class CgenNode;
-    friend class Dispatch;
-    friend class Ref; 
-    Symbol *class_name_;
-    Symbol *meth_name_;
-    Symbol *arg_name_;
-    Symbol *decl_type_;
-    int offset_;    // relative to framepointer
-};
 
 class MethBinding {
   private:
@@ -108,7 +102,6 @@ class MethBinding {
     Symbol *decl_type_;
     int offset_;    // relative to the dispatch table
     int num_arg_;
-    std::unordered_map<Symbol *, ArgBinding *> arg_table_;
 };
 
 /**
@@ -133,7 +126,7 @@ class CgenNode : public InheritanceNode<CgenNode> {
    */
   std::size_t tag_;
 
-  std::unordered_map<Symbol *, AttrBinding *> etable_attr_; // hash table for lookup
+  ScopedTable<Symbol *, VarBinding *> etable_var_; // hash table for lookup
   std::vector<Symbol *> evector_attr_; // vector for maintaining order
   std::unordered_map<Symbol *, MethBinding *> etable_meth_; // hash table for lookup
   std::vector<Symbol *> evector_meth_; // vector for maintaining order
