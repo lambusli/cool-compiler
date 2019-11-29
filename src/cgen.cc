@@ -840,8 +840,7 @@ void CgenKlassTable::CgenObjInit(std::ostream &os) {
 
             Attr *attr = (Attr *)feature;
             // Do nothing if an attribute is not initialized
-            // os << "\t# " << attr->init()->type() << std::endl;
-            if (attr->init()->type() == No_type) {continue; }
+            if (!attr->init()->IsCode()) {continue; }
 
             // Codegen for the initialized value
             attr->init()->CodeGen(envnow);
@@ -928,10 +927,13 @@ void Dispatch::CodeGen(CgenEnv &env) {
     env.os << BNE << ACC << " " << ZERO << " label" << num_label << "\n";
 
     // Abort if receiver is NULL
+    // Load filename into ACC
     env.os << LA << ACC << " ";
-    CgenRef(env.os, gStringTable.emplace("Segmentation fault")); // ?? Is this correct?
+    CgenRef(env.os, gStringTable.lookup(env.curr_cgen_node->filename()->value()));
     env.os << "\n";
-    env.os << LI << T1 << " " << env.curr_cgen_node->etable_attr_.size() + 2 << "\n";
+    // Load line number into T1
+    env.os << LI << T1 << " " << loc() << "\n";
+    // Abort
     emit_dispatch_abort(env.os);
 
     // Jump

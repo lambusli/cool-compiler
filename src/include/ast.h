@@ -255,7 +255,7 @@ class Method : public Feature {
 
  protected:
   friend class Feature;
-  friend class CgenKlassTable; 
+  friend class CgenKlassTable;
   Formals* formals_;
   Expression* body_;
 
@@ -302,6 +302,8 @@ class Expression : public ASTNode {
 
 
   void DumpType(std::ostream& os, size_t level, bool with_types) const;
+
+  virtual bool IsCode() const { return true; }
 
  protected:
   Symbol* type_;
@@ -566,6 +568,8 @@ class NoExpr : public Expression {
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
   void CodeGen(CgenEnv &env);
+
+  bool IsCode() const { return false; }
 
  protected:
   NoExpr(SourceLoc loc) : Expression(loc) {}
