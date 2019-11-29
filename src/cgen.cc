@@ -702,10 +702,15 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
         } else
         // operation if feature is method
         {
+            Method *meth = (Method *)feature;
+
             MethBinding *mb = new MethBinding();
             mb->class_name_ = node->name();
             mb->meth_name_ = feature->name();
             mb->decl_type_ = feature->decl_type();
+            mb->num_arg_ = meth->formals()->size();
+
+            // std::cout << node->name() << "." << meth->name() << ": " << mb->num_arg_ << "\n";
 
             // only insert meth_name into vector and bind a new offset
             // if the method was not defined in a parent class
@@ -906,6 +911,8 @@ void StringLiteral::CodeGen(CgenEnv &env) {
 
 void Dispatch::CodeGen(CgenEnv &env) {
     CgenNode *receiver_cgen_node;
+
+    prologue(env.os); 
 
     // Evaluate each argument and push it into current stackframe
     for (auto actual : *actuals_) {

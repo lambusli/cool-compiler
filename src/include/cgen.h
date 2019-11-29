@@ -77,7 +77,7 @@ class AttrBinding {
   private:
     friend class CgenKlassTable;
     friend class CgenNode;
-    friend class Dispatch; 
+    friend class Dispatch;
     Symbol *class_name_;
     Symbol *attr_name_;
     Symbol *decl_type_;
@@ -93,6 +93,7 @@ class MethBinding {
     Symbol *meth_name_;
     Symbol *decl_type_;
     int offset_;
+    int num_arg_; 
 };
 
 /**
