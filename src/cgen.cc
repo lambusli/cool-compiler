@@ -756,9 +756,11 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
 // Constructor of CgenEnv
 CgenEnv::CgenEnv(CgenKlassTable *klass_table_arg,
         CgenNode *curr_cgen_node_arg,
+        Method *curr_meth_arg,
         std::ostream &os_arg) :
         klass_table(klass_table_arg),
         curr_cgen_node(curr_cgen_node_arg),
+        curr_meth(curr_meth_arg),
         os(os_arg) {}
 
 
@@ -804,15 +806,15 @@ void epilogue_init(std::ostream &os) {
 
 
 // General epilogue
-void epilogue_general(std::ostream &os) {
+void epilogue_general(std::ostream &os, int num_arg) {
     // Restore the old framepointer
     os << LW << FP << " 12(" << SP << ")\n";
     // Restore the caller's self
     os << LW << SELF << " 8(" << SP << ")\n";
     // Place the return address in $ra
     os << LW << RA << " 4(" << SP << ")\n";
-    // Pop stackframe
-    os << ADDIU << SP << " " << SP << " 12\n";
+    // Pop stackframe (both callee's save and callee's arguments)
+    os << ADDIU << SP << " " << SP << " " << 12 + 4 * num_arg << "\n";
     // Jump to the return address
     os << RET << "\n";
 } // end void epilogue_general(std::ostream &os)
@@ -853,7 +855,8 @@ void CgenKlassTable::CgenObjInit(std::ostream &os) {
         }
 
         // Create Cgen for a specific class
-        CgenEnv envnow(this, node, os);
+        // !! Pass NULL as the third argument
+        CgenEnv envnow(this, node, NULL, os);
 
         // If an attribute is initialized, we need to store the value in the stackframe
         for (auto feature : *node->klass()->features()) {
@@ -879,9 +882,6 @@ void CgenKlassTable::CgenObjInit(std::ostream &os) {
 // Code generation for all class attributes and methods
 void CgenKlassTable::CgenMethBody(std::ostream &os) {
     for (auto node : nodes_) {
-        // Create Cgen environment for a specific class
-        CgenEnv envnow(this, node, os);
-
         for (auto feature : *node->klass()->features()) {
             // Generate code only for method bodies
             // Do nothing for an attribute
@@ -892,12 +892,22 @@ void CgenKlassTable::CgenMethBody(std::ostream &os) {
             // Bypass all the internally defined methods
             if (method_is_predefined(node->name(), meth->name())) {continue; }
 
+            // Create Cgen environment for a specific class
+            CgenEnv envnow(this, node, meth, os);
+
+            // title label
             os << node->name() << "." << meth->name() << LABEL;
+
+            // Prologue
+            prologue(os);
 
             // !!
             // For now, skip codegen of formals
 
             meth->body_->CodeGen(envnow);
+
+            // epilogue
+            epilogue_general(os, node->etable_meth_[meth->name()]->num_arg_);
 
         } // end for feature
     } // end for node
@@ -922,8 +932,6 @@ void StringLiteral::CodeGen(CgenEnv &env) {
 
 void Dispatch::CodeGen(CgenEnv &env) {
     CgenNode *receiver_cgen_node;
-
-    prologue(env.os);
 
     // Evaluate each argument and push it into current stackframe
     for (auto actual : *actuals_) {
@@ -963,11 +971,27 @@ void Dispatch::CodeGen(CgenEnv &env) {
     env.os << LW << T1 << " " << receiver_cgen_node->etable_meth_[name_]->offset_ << "(" << T1 << ")\n";
     // execute dispatch
     env.os << JALR << T1 << "\n";
-    epilogue_general(env.os);
-
-
-
 
 } // end void Dispatch::CodeGen(CgenEnv &env)
+
+
+void Ref::CodeGen(CgenEnv &env) {
+    // !!
+    // Ass-umption: local variables references can only be found in ArgBinding
+    // More infrastructure is needed for let
+    int offset = env.curr_cgen_node
+                 ->etable_meth_[env.curr_meth->name()]
+                 ->arg_table_[name_]
+                 ->offset_;
+
+    env.os << LW << ACC << " " << offset << "(" << FP << ")\n";
+} // end void Ref::CodeGen(CgenEnv &env)
+
+
+void Block::CodeGen(CgenEnv &env) {
+    for (auto expr : *body_) {
+        expr->CodeGen(env);
+    }
+} // end void Block::CodeGen(CgenEnv &env)
 
 }  // namespace cool

@@ -407,6 +407,7 @@ class Block : public Expression {
  public:
   static Block* Create(Expressions* body, SourceLoc loc = 0);
   void Typecheck(SemantEnv &env);
+  void CodeGen(CgenEnv &env); 
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
@@ -552,6 +553,7 @@ class Ref : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
+  void CodeGen(CgenEnv &env);
 
  protected:
   Symbol* name_;

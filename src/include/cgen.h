@@ -89,6 +89,7 @@ class ArgBinding {
     friend class CgenKlassTable;
     friend class CgenNode;
     friend class Dispatch;
+    friend class Ref; 
     Symbol *class_name_;
     Symbol *meth_name_;
     Symbol *arg_name_;
@@ -101,6 +102,7 @@ class MethBinding {
     friend class CgenKlassTable;
     friend class CgenNode;
     friend class Dispatch;
+    friend class Ref;
     Symbol *class_name_;
     Symbol *meth_name_;
     Symbol *decl_type_;
@@ -139,6 +141,7 @@ class CgenNode : public InheritanceNode<CgenNode> {
 
   friend class CgenKlassTable;
   friend class Dispatch;
+  friend class Ref;
 };
 
 /// Class table for use in code generation
@@ -216,10 +219,12 @@ class CgenEnv {
   public:
     CgenKlassTable *klass_table;
     CgenNode *curr_cgen_node;
+    Method *curr_meth;
     std::ostream &os;
 
     CgenEnv(CgenKlassTable *klass_table_arg,
             CgenNode *curr_cgen_node_arg,
+            Method *curr_meth_arg,
             std::ostream &os_arg);
 };
 
