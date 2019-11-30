@@ -539,8 +539,6 @@ void CgenKlassTable::CodeGen(std::ostream& os) {
   // 3. Dispatch tables for each class
   CgenDispTable(os);
 
-
-
   CgenGlobalText(os);
 
   // Add your code to emit:
@@ -615,7 +613,7 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
 
         // Object size, offset 4
         // components: attributes, tag, dispatch pointer, garbage collector
-        os << WORD << node->etable_attr_.size() + 3 << std::endl;
+        os << WORD << node->evector_attr_.size() + 3 << std::endl;
 
         // Dispatch pointer, offset 8
         os << WORD;
@@ -625,7 +623,7 @@ void CgenKlassTable::CgenProtobj(std::ostream& os) const {
         // Attributes, offset 12+
         for (auto attr_name : node->evector_attr_) {
             os << WORD;
-            auto entry = node->etable_attr_[attr_name];
+            auto entry = node->etable_var_.Lookup(attr_name);
 
             if (entry->decl_type_ == String) {
                 CgenRef(os, gStringTable.emplace(""));
@@ -675,13 +673,15 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
 
     // Inheritance: duplicate the etables and evectors from parent to node
     if (parent) {
-        node->etable_attr_ = parent->etable_attr_;
+        node->etable_var_ = parent->etable_var_;
         node->evector_attr_ = parent->evector_attr_;
         node->etable_meth_ = parent->etable_meth_;
         node->evector_meth_ = parent->evector_meth_;
-        attr_offset += 4 * node->etable_attr_.size();
+        attr_offset += 4 * node->evector_attr_.size();
         meth_offset += 4 * node->etable_meth_.size();
     }
+
+    node->etable_var_.EnterScope();
 
     // traverse each feature of this CgenNode
     for (auto feature : *node->klass()->features()) {
@@ -690,14 +690,16 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
         {
             node->evector_attr_.push_back(feature->name());
 
-            AttrBinding *ab = new AttrBinding();
-            ab->offset_ = attr_offset;
-            ab->class_name_ = node->name();
-            ab->attr_name_ = feature->name();
-            ab->decl_type_ = feature->decl_type();
+            VarBinding *vb = new VarBinding();
+            vb->class_name_ = node->name();
+            vb->var_name_ = feature->name();
+            vb->decl_type_ = feature->decl_type();
+            vb->origin_ = ATTR;
+            vb->offset_ = attr_offset;
 
             attr_offset += 4;
-            node->etable_attr_[feature->name()] = ab;
+
+            node->etable_var_.AddToScope(feature->name(), vb);
 
         } else
         // operation if feature is method
@@ -720,25 +722,6 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
             // if a method is redefined, the offset does not change
             else {
                 mb->offset_ = node->etable_meth_[meth->name()]->offset_;
-            }
-
-            // routine for ArgBinding
-            // Calculate the offset of each argument relative to framepointer
-            // offset of 1st arg: 8 + 4 * num_arg
-            // offset of 2nd arg: 8 + 4 * (num_arg - 1)
-            // ...
-            // offset of the last arg: 12
-            int arg_offset = 8 + 4 * meth->formals()->size();
-            for (auto formal: *meth->formals()) {
-                ArgBinding *ab = new ArgBinding();
-                ab->class_name_ = node->name();
-                ab->meth_name_ = meth->name();
-                ab->arg_name_ = formal->name();
-                ab->decl_type_ = formal->decl_type();
-                ab->offset_ = arg_offset;
-                arg_offset -= 4;
-
-                mb->arg_table_[formal->name()] = ab;
             }
 
             // Bind method to etable_meth_
@@ -870,7 +853,7 @@ void CgenKlassTable::CgenObjInit(std::ostream &os) {
             // Codegen for the initialized value
             attr->init()->CodeGen(envnow);
             // Store the value at the correct offset
-            os << SW << ACC << " " << node->etable_attr_[feature->name()]->offset_
+            os << SW << ACC << " " << node->etable_var_.Lookup(feature->name())->offset_
                << "(" << SELF << ")\n";
         }
 
@@ -892,6 +875,27 @@ void CgenKlassTable::CgenMethBody(std::ostream &os) {
             // Bypass all the internally defined methods
             if (method_is_predefined(node->name(), meth->name())) {continue; }
 
+            // Enter a temporary scope for method arguments
+            node->etable_var_.EnterScope();
+
+            // Create a new VarBindings in the new scope for each method arg
+            // Calculate the offset of each argument relative to framepointer
+            // offset of 1st arg: 8 + 4 * num_arg
+            // offset of 2nd arg: 8 + 4 * (num_arg - 1)
+            // ...
+            // offset of the last arg: 12
+            int arg_offset = 8 + 4 * meth->formals()->size();
+            for (auto formal : *meth->formals()) {
+                VarBinding *vb = new VarBinding();
+                vb->class_name_ = node->name();
+                vb->var_name_ = formal->name();
+                vb->decl_type_ = formal->decl_type();
+                vb->origin_ = ARG;
+                vb->offset_ = arg_offset;
+                arg_offset -= 4;
+                node->etable_var_.AddToScope(formal->name(), vb);
+            }
+
             // Create Cgen environment for a specific class
             CgenEnv envnow(this, node, meth, os);
 
@@ -908,6 +912,9 @@ void CgenKlassTable::CgenMethBody(std::ostream &os) {
 
             // epilogue
             epilogue_general(os, node->etable_meth_[meth->name()]->num_arg_);
+
+            // Exit the temporary scope for method args
+            node->etable_var_.ExitScope();
 
         } // end for feature
     } // end for node
@@ -976,15 +983,20 @@ void Dispatch::CodeGen(CgenEnv &env) {
 
 
 void Ref::CodeGen(CgenEnv &env) {
-    // !!
-    // Ass-umption: local variables references can only be found in ArgBinding
-    // More infrastructure is needed for let
-    int offset = env.curr_cgen_node
-                 ->etable_meth_[env.curr_meth->name()]
-                 ->arg_table_[name_]
-                 ->offset_;
+    VarBinding *target = env.curr_cgen_node->etable_var_.Lookup(name_);
+    int origin  = target->origin_;
+    int offset = target->offset_;
 
-    env.os << LW << ACC << " " << offset << "(" << FP << ")\n";
+    switch (origin) {
+        case ATTR:
+            env.os << LW << ACC << " " << offset << "(" << SELF << ")\n";
+            break;
+        case ARG:
+            env.os << LW << ACC << " " << offset << "(" << FP << ")\n";
+            break;
+        default:
+            break;
+    }
 } // end void Ref::CodeGen(CgenEnv &env)
 
 

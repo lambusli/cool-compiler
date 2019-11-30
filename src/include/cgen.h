@@ -47,7 +47,7 @@ limitations under the License.
 // Possible values for VarBinding::origin_
 #define ATTR 0    // the variable comes from attribute definition
 #define ARG 1     // the variable comes from method arguments
-#define LETTEMP 2 // the variable comes from "let" temporaries 
+#define LETTEMP 2 // the variable comes from "let" temporaries
 
 /// Switch for optimizing code generator
 extern bool cgen_optimize;
@@ -83,11 +83,19 @@ class VarBinding {
     friend class CgenKlassTable;
     friend class CgenNode;
     friend class Dispatch;
+    friend class Ref; 
     Symbol *class_name_;
     Symbol *var_name_;
     Symbol *decl_type_;
-    int origin_;
-    int offset_;    // relative to self_object ($s0 register)
+
+    // origin_ specifies whether the variable is an attribute, a method argument,
+    // or a let temporary.
+    int origin_;    // {ATTR, ARG, LETTEMP}
+
+    // If origin_ == ATTR, then the offset is relative to the self object.
+    // If origin_ == ARG, then the offset is relative to the framepointer (fp).
+    // If origin_ == LETTEMP, then the offset is relative to XXX?
+    int offset_;
 };
 
 
@@ -100,8 +108,8 @@ class MethBinding {
     Symbol *class_name_;
     Symbol *meth_name_;
     Symbol *decl_type_;
-    int offset_;    // relative to the dispatch table
     int num_arg_;
+    int offset_;    // relative to the dispatch table
 };
 
 /**
