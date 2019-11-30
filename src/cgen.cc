@@ -739,11 +739,9 @@ void CgenKlassTable::doBinding(CgenNode *node, CgenNode *parent) {
 // Constructor of CgenEnv
 CgenEnv::CgenEnv(CgenKlassTable *klass_table_arg,
         CgenNode *curr_cgen_node_arg,
-        Method *curr_meth_arg,
         std::ostream &os_arg) :
         klass_table(klass_table_arg),
         curr_cgen_node(curr_cgen_node_arg),
-        curr_meth(curr_meth_arg),
         os(os_arg) {}
 
 
@@ -839,7 +837,7 @@ void CgenKlassTable::CgenObjInit(std::ostream &os) {
 
         // Create Cgen for a specific class
         // !! Pass NULL as the third argument
-        CgenEnv envnow(this, node, NULL, os);
+        CgenEnv envnow(this, node, os);
 
         // If an attribute is initialized, we need to store the value in the stackframe
         for (auto feature : *node->klass()->features()) {
@@ -897,7 +895,7 @@ void CgenKlassTable::CgenMethBody(std::ostream &os) {
             }
 
             // Create Cgen environment for a specific class
-            CgenEnv envnow(this, node, meth, os);
+            CgenEnv envnow(this, node, os);
 
             // title label
             os << node->name() << "." << meth->name() << LABEL;
