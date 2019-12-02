@@ -537,6 +537,7 @@ class BinaryOperator : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
+  void CodeGen(CgenEnv &env); 
 
  protected:
   BinaryKind kind_;
@@ -647,7 +648,7 @@ class BoolLiteral : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
-  void CodeGen(CgenEnv &env); 
+  void CodeGen(CgenEnv &env);
 
  protected:
   const bool value_;

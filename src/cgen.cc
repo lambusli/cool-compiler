@@ -1041,4 +1041,40 @@ void Assign::CodeGen(CgenEnv &env) {
     }
 } // end void Assign::CodeGen(CgenEnv &env)
 
+
+void BinaryOperator::CodeGen(CgenEnv &env) {
+    lhs_->CodeGen(env);
+    rhs_->CodeGen(env);
+
+    switch (kind_) {
+        // Plus
+        case BO_Add:
+            break;
+
+        // minus
+        case BO_Sub:
+            break;
+
+        // multiply
+        case BO_Mul:
+            break;
+
+        // divide
+        case BO_Div:
+            break;
+
+        // less than
+        case BO_LT:
+            break;
+
+        // less or equal to
+        case BO_LE:
+            break;
+
+        // equal to
+        case BO_EQ:
+            break;
+    } // end switch 
+} // end void BinaryOperator::CodeGen(CgenEnv &env)
+
 }  // namespace cool
