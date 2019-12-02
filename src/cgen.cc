@@ -931,6 +931,13 @@ void StringLiteral::CodeGen(CgenEnv &env) {
 }
 
 
+void BoolLiteral::CodeGen(CgenEnv &env) {
+    env.os << LA << ACC << " ";
+    CgenRef(env.os, value());
+    env.os << std::endl;
+}
+
+
 void Dispatch::CodeGen(CgenEnv &env) {
     CgenNode *receiver_cgen_node;
 
@@ -1030,7 +1037,7 @@ void Assign::CodeGen(CgenEnv &env) {
             env.os << SW << ACC << " " << offset << "(" << FP << ")\n";
             break;
         default:
-            break; 
+            break;
     }
 } // end void Assign::CodeGen(CgenEnv &env)
 
