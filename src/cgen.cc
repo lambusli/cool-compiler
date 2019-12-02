@@ -836,7 +836,6 @@ void CgenKlassTable::CgenObjInit(std::ostream &os) {
         }
 
         // Create Cgen for a specific class
-        // !! Pass NULL as the third argument
         CgenEnv envnow(this, node, os);
 
         // If an attribute is initialized, we need to store the value in the stackframe
@@ -903,9 +902,6 @@ void CgenKlassTable::CgenMethBody(std::ostream &os) {
             // Prologue
             prologue(os);
 
-            // !!
-            // For now, skip codegen of formals
-
             meth->body_->CodeGen(envnow);
 
             // epilogue
@@ -951,7 +947,7 @@ void Dispatch::CodeGen(CgenEnv &env) {
         receiver_cgen_node = env.curr_cgen_node;
     } else {
         receiver_->CodeGen(env);
-        receiver_cgen_node = env.klass_table->ClassFind(receiver_->type()); 
+        receiver_cgen_node = env.klass_table->ClassFind(receiver_->type());
     }
 
     // Check whether the receiver object is NULL, and then branch
@@ -969,7 +965,7 @@ void Dispatch::CodeGen(CgenEnv &env) {
 
     // Jump
     env.os << "label" << num_label << LABEL;
-    num_label++; // ?? is the use of global variable correct?
+    num_label++; 
     // Load the dispatch pointer into $t1
     env.os << LW << T1 << " 8(" << ACC << ")\n";
     // Find the offset of the method and load into $t1
@@ -1003,5 +999,19 @@ void Block::CodeGen(CgenEnv &env) {
         expr->CodeGen(env);
     }
 } // end void Block::CodeGen(CgenEnv &env)
+
+
+void Knew::CodeGen(CgenEnv &env) {
+    if (name_ == SELF_TYPE) {
+        // !! Need to work on codegen for SELF_TYPE
+    } else {
+        // Load the prototype object into accumulator
+        env.os << LA << ACC << " " << name_ << PROTOBJ_SUFFIX << "\n";
+        // Copy Object
+        env.os << JAL << "Object.copy\n";
+        // Init itself
+        env.os << JAL << name_ << CLASSINIT_SUFFIX << "\n";
+    }
+} // end void Knew::CodeGen(CgenEnv &env)
 
 }  // namespace cool
