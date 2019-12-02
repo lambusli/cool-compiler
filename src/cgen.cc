@@ -965,7 +965,7 @@ void Dispatch::CodeGen(CgenEnv &env) {
 
     // Jump
     env.os << "label" << num_label << LABEL;
-    num_label++; 
+    num_label++;
     // Load the dispatch pointer into $t1
     env.os << LW << T1 << " 8(" << ACC << ")\n";
     // Find the offset of the method and load into $t1
@@ -1013,5 +1013,25 @@ void Knew::CodeGen(CgenEnv &env) {
         env.os << JAL << name_ << CLASSINIT_SUFFIX << "\n";
     }
 } // end void Knew::CodeGen(CgenEnv &env)
+
+
+void Assign::CodeGen(CgenEnv &env) {
+    value_->CodeGen(env);
+
+    VarBinding *target = env.curr_cgen_node->etable_var_.Lookup(name_);
+    int origin  = target->origin_;
+    int offset = target->offset_;
+
+    switch (origin) {
+        case ATTR:
+            env.os << SW << ACC << " " << offset << "(" << SELF << ")\n";
+            break;
+        case ARG:
+            env.os << SW << ACC << " " << offset << "(" << FP << ")\n";
+            break;
+        default:
+            break; 
+    }
+} // end void Assign::CodeGen(CgenEnv &env)
 
 }  // namespace cool
