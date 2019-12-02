@@ -950,8 +950,8 @@ void Dispatch::CodeGen(CgenEnv &env) {
         env.os << MOVE << ACC << " " << SELF << "\n";
         receiver_cgen_node = env.curr_cgen_node;
     } else {
-        // !!
-        // Need to work on the case where the receiver object is not self
+        receiver_->CodeGen(env);
+        receiver_cgen_node = env.klass_table->ClassFind(receiver_->type()); 
     }
 
     // Check whether the receiver object is NULL, and then branch
