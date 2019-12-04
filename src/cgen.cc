@@ -1052,12 +1052,29 @@ void Assign::CodeGen(CgenEnv &env) {
 
 
 void BinaryOperator::CodeGen(CgenEnv &env) {
+    // eval lhs
     lhs_->CodeGen(env);
+    // store the result of lhs temporarily on the stack
+    env.os << SW << ACC << " 0(" << SP << ")\n";
+    env.os << ADDIU << SP << " " << SP << " -4\n";
+    // eval rhs
     rhs_->CodeGen(env);
+    // Make a copy object that will store the new calculated result
+    env.os << JAL << "Object.copy\n";
+    // Load the reference of lhs into $t1
+    env.os << LW << T1 << " 4(" << SP << ")\n";
+    // Load the actual value of lhs into $t1. The value is at offset 12
+    env.os << LW << T1 << " 12(" << T1 << ")\n";
+    // Load the actual value of rhs into $t2.
+    env.os << LW << T2 << " 12(" << ACC << ")\n";
 
     switch (kind_) {
         // Plus
         case BO_Add:
+            // perform addition
+            env.os << ADD << T1 << " " << T1 << " " << T2 << "\n";
+            // store the new result in the copied object, at offset 12
+            env.os << SW << T1 << " 12(" << ACC << ")\n"; 
             break;
 
         // minus
@@ -1084,6 +1101,9 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
         case BO_EQ:
             break;
     } // end switch
+
+    // Pop the lhs result off the stack
+    env.os << ADDIU << SP << " " << SP << " 4\n";
 } // end void BinaryOperator::CodeGen(CgenEnv &env)
 
 
@@ -1126,7 +1146,7 @@ void Loop::CodeGen(CgenEnv &env) {
     // To the next iteration
     env.os << BRANCH << " label" << loop_label << "\n";
     // Conclude with a merge label
-    env.os << "label" << merge_label << LABEL; 
+    env.os << "label" << merge_label << LABEL;
 } // end void Loop::CodeGen(CgenEnv &env)
 
 }  // namespace cool
