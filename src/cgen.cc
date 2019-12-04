@@ -819,6 +819,7 @@ bool method_is_predefined(Symbol *class_name, Symbol *method_name) {
 
 
 
+
 /*
  * Part III
  * Code generation
@@ -984,20 +985,28 @@ void Dispatch::CodeGen(CgenEnv &env) {
 
 
 void Ref::CodeGen(CgenEnv &env) {
-    VarBinding *target = env.curr_cgen_node->etable_var_.Lookup(name_);
-    int origin  = target->origin_;
-    int offset = target->offset_;
-
-    switch (origin) {
-        case ATTR:
-            env.os << LW << ACC << " " << offset << "(" << SELF << ")\n";
-            break;
-        case ARG:
-            env.os << LW << ACC << " " << offset << "(" << FP << ")\n";
-            break;
-        default:
-            break;
+    // if ID is the "self" key word
+    if (name_ == self) {
+        env.os << MOVE << ACC << " " << SELF << "\n";
     }
+    // if ID is anything else
+    else {
+        VarBinding *target = env.curr_cgen_node->etable_var_.Lookup(name_);
+        int origin  = target->origin_;
+        int offset = target->offset_;
+
+        switch (origin) {
+            case ATTR:
+                env.os << LW << ACC << " " << offset << "(" << SELF << ")\n";
+                break;
+            case ARG:
+                env.os << LW << ACC << " " << offset << "(" << FP << ")\n";
+                break;
+            default:
+                break;
+        } // end switch
+    } // end else
+
 } // end void Ref::CodeGen(CgenEnv &env)
 
 
@@ -1074,7 +1083,7 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
         // equal to
         case BO_EQ:
             break;
-    } // end switch 
+    } // end switch
 } // end void BinaryOperator::CodeGen(CgenEnv &env)
 
 }  // namespace cool
