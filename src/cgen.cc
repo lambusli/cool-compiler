@@ -1086,4 +1086,26 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
     } // end switch
 } // end void BinaryOperator::CodeGen(CgenEnv &env)
 
+
+void Cond::CodeGen(CgenEnv &env) {
+    pred_->CodeGen(env);
+    // Load the value of the evaluated boolean (at offset 12)
+    env.os << LW << T1 << " 12(" << ACC << ")\n";
+    // If false, jump to a false label
+    int false_label = num_label;
+    env.os << BEQZ << T1 << " label" << false_label << "\n";
+    num_label++;
+    // CodeGen for true
+    then_branch_->CodeGen(env);
+    // Merge into master flow
+    int merge_label = num_label;
+    env.os << BRANCH << " label" << merge_label << "\n";
+    num_label++;
+    // CodeGen for flase
+    env.os << "label" << false_label << LABEL;
+    else_branch_->CodeGen(env);
+    // Conclude with a merge label
+    env.os << "label" << merge_label << LABEL;
+} // void Cond::CodeGen(CgenEnv &env)
+
 }  // namespace cool
