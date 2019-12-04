@@ -949,12 +949,12 @@ void Dispatch::CodeGen(CgenEnv &env) {
         env.os << ADDIU << SP << " " << SP << " -4\n";
     }
 
+    receiver_->CodeGen(env);
+
     // Evaluate the receiver object and load it into accumulator
     if (receiver_->type() == SELF_TYPE) {
-        env.os << MOVE << ACC << " " << SELF << "\n";
         receiver_cgen_node = env.curr_cgen_node;
     } else {
-        receiver_->CodeGen(env);
         receiver_cgen_node = env.klass_table->ClassFind(receiver_->type());
     }
 
@@ -1019,7 +1019,44 @@ void Block::CodeGen(CgenEnv &env) {
 
 void Knew::CodeGen(CgenEnv &env) {
     if (name_ == SELF_TYPE) {
-        // !! Need to work on codegen for SELF_TYPE
+        // la $t1 class_objTab
+        // lw $t2 0($s0)    # first word of self (which is the tag?)
+        // sll $t2 $t2 3    # Shift the tag by 3 bits. Why?
+        // addu $t1 $t1 $t2 # find protobj
+        // move $s1 $t1 # Most of the time, anything of reference compiler $s1 can be pushed onto stack
+        // lw $a0 0($t1)
+        // jal Object.copy
+        // lw $t1 4($s1)  # address of the initializer
+        // jalr $t1
+
+        // Load the pointer to Object Table into $t1
+        env.os << LA << T1 << " " << CLASSOBJTAB << "\n";
+        // Load the tag of the class (referred to by self) into $t2
+        // Tag is at offset 0 of prototype object
+        env.os << LW << T2 << " 0(" << SELF << ")\n";
+        // In class Object Table, the offset of a prototype object pointer
+        // = 8 * tag_number
+        // Increament $t1 by this number, so that $t1 points to the prototype object we want
+        env.os << SLL << T2 << " " << T2 << " 3\n";
+        env.os << ADD << T1 << " " << T1 << " " << T2 << "\n";
+        // Push the address of prototype object we want temporarily onto Stack
+        env.os << SW << T1 << " 0(" << SP << ")\n";
+        env.os << ADDIU << SP << " " << SP << " -4\n";
+        // Load the tag value of the prototype object into ACC (at offset 0)
+        // Prepare for copying and creating new object
+        env.os << LW << ACC << " 0(" << T1 << ")\n";
+        // Copy and create new object
+        env.os << JAL << "Object.copy\n";
+        // Load the pointer to the prototype object into $t1
+        env.os << LW << T1 << " 4(" << SP << ")\n";
+        // Load the pointer to object initializer (offset 4) into t1
+        // !! I don't buy this
+        env.os << LW << T1 << " 4(" << T1 << ")\n";
+        // Jump to init
+        env.os << JALR << T1 << "\n";
+
+        // Pop the temporary from the stack
+        env.os << ADDIU << SP << " " << SP << " 4\n";
     } else {
         // Load the prototype object into accumulator
         env.os << LA << ACC << " " << name_ << PROTOBJ_SUFFIX << "\n";
