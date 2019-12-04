@@ -376,7 +376,7 @@ class Cond : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
-  void CodeGen(CgenEnv &env); 
+  void CodeGen(CgenEnv &env);
 
  protected:
   Expression* pred_;
@@ -395,6 +395,7 @@ class Loop : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
+  void CodeGen(CgenEnv &env); 
 
  protected:
   Expression* pred_;

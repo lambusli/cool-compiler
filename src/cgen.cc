@@ -1106,6 +1106,27 @@ void Cond::CodeGen(CgenEnv &env) {
     else_branch_->CodeGen(env);
     // Conclude with a merge label
     env.os << "label" << merge_label << LABEL;
-} // void Cond::CodeGen(CgenEnv &env)
+} // end void Cond::CodeGen(CgenEnv &env)
+
+
+void Loop::CodeGen(CgenEnv &env) {
+    int loop_label = num_label;
+    num_label++;
+    env.os << "label" << loop_label << LABEL;
+    // evaluate predicate
+    pred_->CodeGen(env);
+    // Load the value of the evaluated boolean (at offset 12)
+    env.os << LW << T1 << " 12(" << ACC << ")\n";
+    // If false quit loop
+    int merge_label = num_label;
+    num_label++;
+    env.os << BEQZ << T1 << " label" << merge_label << "\n";
+    // Loop body
+    body_->CodeGen(env);
+    // To the next iteration
+    env.os << BRANCH << " label" << loop_label << "\n";
+    // Conclude with a merge label
+    env.os << "label" << merge_label << LABEL; 
+} // end void Loop::CodeGen(CgenEnv &env)
 
 }  // namespace cool
