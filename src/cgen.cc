@@ -1052,6 +1052,7 @@ void Assign::CodeGen(CgenEnv &env) {
 
 
 void BinaryOperator::CodeGen(CgenEnv &env) {
+    int merge_label;
     // eval lhs
     lhs_->CodeGen(env);
     // store the result of lhs temporarily on the stack
@@ -1103,10 +1104,38 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
 
         // less than
         case BO_LT:
+            // Assume true
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, true);
+            env.os << "\n";
+            // If really true, jump away
+            merge_label = num_label;
+            num_label++;
+            env.os << BLT << T1 << " " << T2 << " label" << merge_label << "\n";
+            // Set the boolean to be false
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, false);
+            env.os << "\n";
+            // Conclude with the merging label
+            env.os << "label" << merge_label << LABEL;
             break;
 
         // less or equal to
         case BO_LE:
+            // Assume true
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, true);
+            env.os << "\n";
+            // If really true, jump away
+            merge_label = num_label;
+            num_label++;
+            env.os << BLEQ << T1 << " " << T2 << " label" << merge_label << "\n";
+            // Set the boolean to be false
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, false);
+            env.os << "\n";
+            // Conclude with the merging label
+            env.os << "label" << merge_label << LABEL;
             break;
 
         // equal to
