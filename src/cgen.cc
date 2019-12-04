@@ -1074,19 +1074,31 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
             // perform addition
             env.os << ADD << T1 << " " << T1 << " " << T2 << "\n";
             // store the new result in the copied object, at offset 12
-            env.os << SW << T1 << " 12(" << ACC << ")\n"; 
+            env.os << SW << T1 << " 12(" << ACC << ")\n";
             break;
 
         // minus
         case BO_Sub:
+            // perform subtraction
+            env.os << SUB << T1 << " " << T1 << " " << T2 << "\n";
+            // store the new result in the copied object, at offset 12
+            env.os << SW << T1 << " 12(" << ACC << ")\n";
             break;
 
         // multiply
         case BO_Mul:
+            // perform multiplication
+            env.os << MUL << T1 << " " << T1 << " " << T2 << "\n";
+            // store the new result in the copied object, at offset 12
+            env.os << SW << T1 << " 12(" << ACC << ")\n";
             break;
 
         // divide
         case BO_Div:
+            // perform division
+            env.os << DIV << T1 << " " << T1 << " " << T2 << "\n";
+            // store the new result in the copied object, at offset 12
+            env.os << SW << T1 << " 12(" << ACC << ")\n";
             break;
 
         // less than
