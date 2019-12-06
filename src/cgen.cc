@@ -1323,7 +1323,29 @@ void Let::CodeGen(CgenEnv &env) {
     curr_etable.AddToScope(name_, vb);
 
     // Store the initialized value at the correct address
+    // If no initialization, then store the default value of each type
+    if (!init_->IsCode()) {
+        if (decl_type_ == Int) {
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, gIntTable.lookup(0));
+            env.os << "\n";
+        }
+        else if (decl_type_ == String) {
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, gStringTable.lookup(""));
+            env.os << "\n";
+        }
+        else if (decl_type_ == Bool) {
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, false);
+            env.os << "\n";
+        }
+        else {
+            env.os << LI << ACC << " 0\n";
+        }
+    }
     env.os << SW << ACC << " " << vb->offset_ << "(" << FP << ")\n";
+
 
     // evaluate body
     body_->CodeGen(env);
