@@ -1213,7 +1213,27 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
 
         // equal to
         case BO_EQ:
-            break;
+            // Load the reference of lhs into $t1
+            env.os << LW << T1 << " 4(" << SP << ")\n";
+            // Load the reference of rhs into $t2
+            env.os << MOVE << T2 << " " << ACC << "\n";
+            // Load the reference of "true" into $a0
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, true);
+            env.os << "\n";
+            // jump if the pointers to lhs and rhs are equal
+            merge_label = num_label;
+            num_label++;
+            env.os << BEQ << T1 << " " << T2 << " label" << merge_label << "\n";
+            // Load the reference of "false" into $a1
+            env.os << LA << A1 << " ";
+            CgenRef(env.os, false);
+            env.os << "\n";
+            // Jump to equality test
+            // There is some magic going on in equality_test
+            emit_equality_test(env.os);
+            // Conclude with the merge label
+            env.os << "label" << merge_label << LABEL;
     } // end switch
 
     // Pop the lhs result off the stack
