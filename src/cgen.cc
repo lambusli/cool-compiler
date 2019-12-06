@@ -247,6 +247,7 @@ namespace cool {
 bool gCgenDebug = false;
 
 int num_label = 0;
+int num_temp = 0;  // number of temporals in a method body
 
 // clang-format off
 extern Symbol
@@ -817,6 +818,29 @@ bool method_is_predefined(Symbol *class_name, Symbol *method_name) {
 } // end bool method_is_predefined(Symbol *class_name, Symbol *method_name)
 
 
+// Count temporals of a method body
+void Method::CountTemporal(int &num_temp, int &max_temp) {
+    body_->CountTemporal(num_temp, max_temp);
+}
+
+
+// Count temporals of a block
+void Block::CountTemporal(int &num_temp, int &max_temp) {
+    for (auto expr : *body_) {
+        expr->CountTemporal(num_temp, max_temp);
+    }
+}
+
+
+// Count temporals of a LET AST node
+void Let::CountTemporal(int &num_temp, int &max_temp) {
+    num_temp++;
+    if (num_temp > max_temp) {max_temp = num_temp; }
+    body_->CountTemporal(num_temp, max_temp);
+    num_temp--;
+}
+
+
 
 
 
@@ -873,16 +897,20 @@ void CgenKlassTable::CgenMethBody(std::ostream &os) {
             // Bypass all the internally defined methods
             if (method_is_predefined(node->name(), meth->name())) {continue; }
 
+            // Count number of words we need to store temporals
+            int max_temp = 0;
+            meth->CountTemporal(num_temp, max_temp);
+
             // Enter a temporary scope for method arguments
             node->etable_var_.EnterScope();
 
             // Create a new VarBindings in the new scope for each method arg
             // Calculate the offset of each argument relative to framepointer
-            // offset of 1st arg: 8 + 4 * num_arg
-            // offset of 2nd arg: 8 + 4 * (num_arg - 1)
+            // offset of 1st arg: 8 + 4 * num_arg + 4 * max_temp
+            // offset of 2nd arg: 8 + 4 * (num_arg - 1) + 4 * max_temp
             // ...
-            // offset of the last arg: 12
-            int arg_offset = 8 + 4 * meth->formals()->size();
+            // offset of the last arg: 12 + 4 * max_temp
+            int arg_offset = 8 + 4 * meth->formals()->size() + 4 * max_temp;
             for (auto formal : *meth->formals()) {
                 VarBinding *vb = new VarBinding();
                 vb->class_name_ = node->name();
@@ -1019,16 +1047,6 @@ void Block::CodeGen(CgenEnv &env) {
 
 void Knew::CodeGen(CgenEnv &env) {
     if (name_ == SELF_TYPE) {
-        // la $t1 class_objTab
-        // lw $t2 0($s0)    # first word of self (which is the tag?)
-        // sll $t2 $t2 3    # Shift the tag by 3 bits. Why?
-        // addu $t1 $t1 $t2 # find protobj
-        // move $s1 $t1 # Most of the time, anything of reference compiler $s1 can be pushed onto stack
-        // lw $a0 0($t1)
-        // jal Object.copy
-        // lw $t1 4($s1)  # address of the initializer
-        // jalr $t1
-
         // Load the pointer to Object Table into $t1
         env.os << LA << T1 << " " << CLASSOBJTAB << "\n";
         // Load the tag of the class (referred to by self) into $t2

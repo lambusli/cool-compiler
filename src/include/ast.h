@@ -103,6 +103,7 @@ public:
     virtual void DumpTree(std::ostream& os, size_t level, bool with_types) const = 0;
     virtual void Typecheck(SemantEnv &env) {}
     virtual void CodeGen(CgenEnv &env) {}
+    virtual void CountTemporal(int &num_temp, int &max_temp) {}
 
 protected:
     SourceLoc loc_ = 0;
@@ -252,6 +253,7 @@ class Method : public Feature {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
   friend class Feature;
@@ -395,7 +397,7 @@ class Loop : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
-  void CodeGen(CgenEnv &env); 
+  void CodeGen(CgenEnv &env);
 
  protected:
   Expression* pred_;
@@ -414,6 +416,7 @@ class Block : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void CountTemporal(int &num_temp, int &max_temp); 
 
  protected:
   Expressions* body_;
@@ -430,6 +433,7 @@ class Let : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
+  void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
   Symbol* name_;
