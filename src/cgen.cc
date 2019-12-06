@@ -1097,18 +1097,18 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
     env.os << ADDIU << SP << " " << SP << " -4\n";
     // eval rhs
     rhs_->CodeGen(env);
-    // Make a copy object that will store the new calculated result
-    env.os << JAL << "Object.copy\n";
-    // Load the reference of lhs into $t1
-    env.os << LW << T1 << " 4(" << SP << ")\n";
-    // Load the actual value of lhs into $t1. The value is at offset 12
-    env.os << LW << T1 << " 12(" << T1 << ")\n";
-    // Load the actual value of rhs into $t2.
-    env.os << LW << T2 << " 12(" << ACC << ")\n";
 
     switch (kind_) {
         // Plus
         case BO_Add:
+            // Make a copy object that will store the new calculated result
+            env.os << JAL << "Object.copy\n";
+            // Load the reference of lhs into $t1
+            env.os << LW << T1 << " 4(" << SP << ")\n";
+            // Load the actual value of lhs into $t1. The value is at offset 12
+            env.os << LW << T1 << " 12(" << T1 << ")\n";
+            // Load the actual value of rhs into $t2.
+            env.os << LW << T2 << " 12(" << ACC << ")\n";
             // perform addition
             env.os << ADD << T1 << " " << T1 << " " << T2 << "\n";
             // store the new result in the copied object, at offset 12
@@ -1117,6 +1117,14 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
 
         // minus
         case BO_Sub:
+            // Make a copy object that will store the new calculated result
+            env.os << JAL << "Object.copy\n";
+            // Load the reference of lhs into $t1
+            env.os << LW << T1 << " 4(" << SP << ")\n";
+            // Load the actual value of lhs into $t1. The value is at offset 12
+            env.os << LW << T1 << " 12(" << T1 << ")\n";
+            // Load the actual value of rhs into $t2.
+            env.os << LW << T2 << " 12(" << ACC << ")\n";
             // perform subtraction
             env.os << SUB << T1 << " " << T1 << " " << T2 << "\n";
             // store the new result in the copied object, at offset 12
@@ -1125,6 +1133,14 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
 
         // multiply
         case BO_Mul:
+            // Make a copy object that will store the new calculated result
+            env.os << JAL << "Object.copy\n";
+            // Load the reference of lhs into $t1
+            env.os << LW << T1 << " 4(" << SP << ")\n";
+            // Load the actual value of lhs into $t1. The value is at offset 12
+            env.os << LW << T1 << " 12(" << T1 << ")\n";
+            // Load the actual value of rhs into $t2.
+            env.os << LW << T2 << " 12(" << ACC << ")\n";
             // perform multiplication
             env.os << MUL << T1 << " " << T1 << " " << T2 << "\n";
             // store the new result in the copied object, at offset 12
@@ -1133,6 +1149,14 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
 
         // divide
         case BO_Div:
+            // Make a copy object that will store the new calculated result
+            env.os << JAL << "Object.copy\n";
+            // Load the reference of lhs into $t1
+            env.os << LW << T1 << " 4(" << SP << ")\n";
+            // Load the actual value of lhs into $t1. The value is at offset 12
+            env.os << LW << T1 << " 12(" << T1 << ")\n";
+            // Load the actual value of rhs into $t2.
+            env.os << LW << T2 << " 12(" << ACC << ")\n";
             // perform division
             env.os << DIV << T1 << " " << T1 << " " << T2 << "\n";
             // store the new result in the copied object, at offset 12
@@ -1141,6 +1165,12 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
 
         // less than
         case BO_LT:
+            // Load the reference of lhs into $t1
+            env.os << LW << T1 << " 4(" << SP << ")\n";
+            // Load the actual value of lhs into $t1. The value is at offset 12
+            env.os << LW << T1 << " 12(" << T1 << ")\n";
+            // Load the actual value of rhs into $t2.
+            env.os << LW << T2 << " 12(" << ACC << ")\n";
             // Assume true
             env.os << LA << ACC << " ";
             CgenRef(env.os, true);
@@ -1159,6 +1189,12 @@ void BinaryOperator::CodeGen(CgenEnv &env) {
 
         // less or equal to
         case BO_LE:
+            // Load the reference of lhs into $t1
+            env.os << LW << T1 << " 4(" << SP << ")\n";
+            // Load the actual value of lhs into $t1. The value is at offset 12
+            env.os << LW << T1 << " 12(" << T1 << ")\n";
+            // Load the actual value of rhs into $t2.
+            env.os << LW << T2 << " 12(" << ACC << ")\n";
             // Assume true
             env.os << LA << ACC << " ";
             CgenRef(env.os, true);
