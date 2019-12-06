@@ -416,7 +416,7 @@ class Block : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
-  void CountTemporal(int &num_temp, int &max_temp); 
+  void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
   Expressions* body_;
@@ -433,6 +433,7 @@ class Let : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
+  void CodeGen(CgenEnv &env); 
   void CountTemporal(int &num_temp, int &max_temp);
 
  protected:

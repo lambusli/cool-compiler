@@ -85,6 +85,7 @@ class VarBinding {
     friend class Dispatch;
     friend class Ref;
     friend class Assign;
+    friend class Let;
     Symbol *class_name_;
     Symbol *var_name_;
     Symbol *decl_type_;
@@ -144,7 +145,8 @@ class CgenNode : public InheritanceNode<CgenNode> {
   friend class CgenKlassTable;
   friend class Dispatch;
   friend class Ref;
-  friend class Assign; 
+  friend class Assign;
+  friend class Let; 
 };
 
 /// Class table for use in code generation

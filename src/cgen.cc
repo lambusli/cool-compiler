@@ -753,9 +753,9 @@ CgenEnv::CgenEnv(CgenKlassTable *klass_table_arg,
  */
 
 // Callee prologue
-void prologue(std::ostream &os) {
+void prologue(std::ostream &os, int max_temp) {
     // move stack pointer 3 words down
-    os << ADDIU << SP << " " << SP << " -12\n";
+    os << ADDIU << SP << " " << SP << " " << (-12 - 4 * max_temp) << "\n";
     // store the address of the old framepointer as the first record
     os << SW << FP << " 12(" << SP << ")\n" ;
     // store the address of caller's self as the second record
@@ -788,7 +788,7 @@ void epilogue_init(std::ostream &os) {
 
 
 // General epilogue
-void epilogue_general(std::ostream &os, int num_arg) {
+void epilogue_general(std::ostream &os, int num_arg, int max_temp) {
     // Restore the old framepointer
     os << LW << FP << " 12(" << SP << ")\n";
     // Restore the caller's self
@@ -796,7 +796,7 @@ void epilogue_general(std::ostream &os, int num_arg) {
     // Place the return address in $ra
     os << LW << RA << " 4(" << SP << ")\n";
     // Pop stackframe (both callee's save and callee's arguments)
-    os << ADDIU << SP << " " << SP << " " << 12 + 4 * num_arg << "\n";
+    os << ADDIU << SP << " " << SP << " " << 12 + 4 * num_arg + 4 * max_temp << "\n";
     // Jump to the return address
     os << RET << "\n";
 } // end void epilogue_general(std::ostream &os)
@@ -853,7 +853,7 @@ void Let::CountTemporal(int &num_temp, int &max_temp) {
 void CgenKlassTable::CgenObjInit(std::ostream &os) {
     for (auto node : nodes_) {
         os << node->name() << CLASSINIT_SUFFIX << LABEL;
-        prologue(os); // callee prologue
+        prologue(os, 0); // callee prologue
 
         // initialze parent object
         if (node->parent()->name() != No_class) {
@@ -929,12 +929,12 @@ void CgenKlassTable::CgenMethBody(std::ostream &os) {
             os << node->name() << "." << meth->name() << LABEL;
 
             // Prologue
-            prologue(os);
+            prologue(os, max_temp);
 
             meth->body_->CodeGen(envnow);
 
             // epilogue
-            epilogue_general(os, node->etable_meth_[meth->name()]->num_arg_);
+            epilogue_general(os, node->etable_meth_[meth->name()]->num_arg_, max_temp);
 
             // Exit the temporary scope for method args
             node->etable_var_.ExitScope();
@@ -1300,5 +1300,37 @@ void Loop::CodeGen(CgenEnv &env) {
     // Conclude with a merge label
     env.os << "label" << merge_label << LABEL;
 } // end void Loop::CodeGen(CgenEnv &env)
+
+
+void Let::CodeGen(CgenEnv &env) {
+    // evaluate initializer
+    init_->CodeGen(env);
+
+    // Enter scope
+    ScopedTable<Symbol *, VarBinding *> &curr_etable = env.curr_cgen_node->etable_var_;
+    curr_etable.EnterScope();
+
+    // Create VarBinding for the temporal
+    // offset is relative to fp
+    // offset of the i-th temporal = 8 + 4 * i
+    VarBinding *vb = new VarBinding();
+    vb->class_name_ = env.curr_cgen_node->name();
+    vb->var_name_ = name_;
+    vb->decl_type_ = decl_type_;
+    vb->origin_ = ARG;
+    vb->offset_ = 8 + 4 * num_temp;
+    num_temp++;
+    curr_etable.AddToScope(name_, vb);
+
+    // Store the initialized value at the correct address
+    env.os << SW << ACC << " " << vb->offset_ << "(" << FP << ")\n";
+
+    // evaluate body
+    body_->CodeGen(env);
+
+    // Exit scope
+    curr_etable.ExitScope();
+    num_temp--;
+} // void Let::CodeGen(SemantEnv &env)
 
 }  // namespace cool
