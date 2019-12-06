@@ -1309,17 +1309,17 @@ void Let::CodeGen(CgenEnv &env) {
     // Enter scope
     ScopedTable<Symbol *, VarBinding *> &curr_etable = env.curr_cgen_node->etable_var_;
     curr_etable.EnterScope();
+    num_temp++;
 
     // Create VarBinding for the temporal
     // offset is relative to fp
-    // offset of the i-th temporal = 8 + 4 * i
+    // offset of the i-th temporal = 8 + 4 * i (i starts from 1)
     VarBinding *vb = new VarBinding();
     vb->class_name_ = env.curr_cgen_node->name();
     vb->var_name_ = name_;
     vb->decl_type_ = decl_type_;
     vb->origin_ = ARG;
     vb->offset_ = 8 + 4 * num_temp;
-    num_temp++;
     curr_etable.AddToScope(name_, vb);
 
     // Store the initialized value at the correct address
