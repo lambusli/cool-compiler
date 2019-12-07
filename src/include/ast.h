@@ -456,6 +456,7 @@ class Kase : public Expression {
   void Typecheck(SemantEnv &env);
   void CodeGen(CgenEnv &env);
   void SortBranches(CgenEnv &env);
+  void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
   Expression* input_;
@@ -477,6 +478,7 @@ class KaseBranch : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
   friend class Kase;

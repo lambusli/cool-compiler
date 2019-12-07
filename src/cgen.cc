@@ -841,6 +841,21 @@ void Let::CountTemporal(int &num_temp, int &max_temp) {
 }
 
 
+void Kase::CountTemporal(int &num_temp, int &max_temp) {
+    for (auto branch : *cases_) {
+        branch->CountTemporal(num_temp, max_temp);
+    }
+}
+
+
+void KaseBranch::CountTemporal(int &num_temp, int &max_temp) {
+    num_temp++;
+    if (num_temp > max_temp) {max_temp = num_temp; }
+    body_->CountTemporal(num_temp, max_temp);
+    num_temp--;
+}
+
+
 // Sort kasebranches by topological order of each type
 void Kase::SortBranches(CgenEnv &env) {
     env.klass_table->SortSearch(this, env.klass_table->root_);
@@ -1379,9 +1394,7 @@ void Let::CodeGen(CgenEnv &env) {
 
 void Kase::CodeGen(CgenEnv &env) {
     SortBranches(env);
-    for (auto branch : sorted_cases_) {
-        std::cout << branch->name_ << " " << branch->decl_type_ << std::endl;
-    }
+    input_->CodeGen(env);
 }
 
 }  // namespace cool
