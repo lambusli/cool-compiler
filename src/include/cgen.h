@@ -86,6 +86,7 @@ class VarBinding {
     friend class Ref;
     friend class Assign;
     friend class Let;
+    friend class KaseBranch; 
     Symbol *class_name_;
     Symbol *var_name_;
     Symbol *decl_type_;

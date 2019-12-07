@@ -1393,9 +1393,12 @@ void Let::CodeGen(CgenEnv &env) {
 
 
 void Kase::CodeGen(CgenEnv &env) {
+    // Sort branches by topological order
     SortBranches(env);
+    // CodeGen for input
     input_->CodeGen(env);
 
+    // The first branch label
     int merge_label;
     // handle case match on void
     merge_label = num_label;
@@ -1409,9 +1412,59 @@ void Kase::CodeGen(CgenEnv &env) {
     env.os << LI << T1 << " " << loc() << "\n";
     // Abort
     emit_case_abort2(env.os);
-    // label after abort
-    env.os << "label" << merge_label << LABEL; 
 
-}
+    // the label after all branches are done with
+    int master_label = num_label;
+    num_label++;
+
+    // Deal with each branch
+    for (auto branch : sorted_cases_) {
+        env.os << "label" << merge_label << LABEL;
+        // Load the tag number of input object into $t2
+        env.os << LW << T2 << " 0(" << ACC << ")\n";
+        // Find the tag number of the current branch type
+        int branch_tag = env.klass_table->TagFind(branch->decl_type_);
+        // If the input tage does not match this branch, jump to the next branch
+        merge_label = num_label;
+        num_label++;
+        env.os << BNE << T2 << " " << branch_tag << " label" << merge_label << "\n";
+        // CodeGen for each branch
+        branch->CodeGen(env);
+        // Jump out of branch
+        env.os << BRANCH << "label" << master_label << "\n";
+    } // end for
+
+    // Case abort: no match
+    env.os << "label" << merge_label << LABEL;
+    emit_case_abort(env.os);
+    // Conclude with the master label
+    env.os << "label" << master_label << LABEL;
+} // end void Kase::CodeGen(CgenEnv &env)
+
+
+void KaseBranch::CodeGen(CgenEnv &env) {
+    // Enter scope
+    ScopedTable<Symbol *, VarBinding *> &curr_etable = env.curr_cgen_node->etable_var_;
+    curr_etable.EnterScope();
+    num_temp++;
+
+    // Create VarBinding for the temporal
+    // offset is relative to fp
+    // offset of the i-th temporal = 8 + 4 * i (i starts from 1)
+    VarBinding *vb = new VarBinding();
+    vb->class_name_ = env.curr_cgen_node->name();
+    vb->var_name_ = name_;
+    vb->decl_type_ = decl_type_;
+    vb->origin_ = ARG;
+    vb->offset_ = 8 + 4 * num_temp;
+    curr_etable.AddToScope(name_, vb);
+
+    // CodeGen for branch body
+    body_->CodeGen(env);
+
+    // Exit scope
+    curr_etable.ExitScope();
+    num_temp--;
+} // end void KaseBranch::CodeGen(CgenEnv &env)
 
 }  // namespace cool
