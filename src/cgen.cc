@@ -435,16 +435,33 @@ CgenKlassTable::CgenKlassTable(Klasses* klasses) {
     // Add your code to:
     // 1. Build inheritance graph
     // 2. Initialize the node tags and other information you need
-    int val = 0;
     for (auto node : nodes_) {
         CgenNode *parent_node = ClassFind(node->parent_name());
         node->parent_ = parent_node;
         parent_node->children_.push_back(node);
-        node->tag_ = val;
-        val++;
         gStringTable.emplace(node->name()->value());
     } // end for
+
+    AssignAllTags();
 } // end CgenKlassTable constructor
+
+
+// Assign tags for all CgenNodes
+void CgenKlassTable::AssignAllTags() {
+    int val = 0;
+    AssignTag(root_, val);
+}
+
+
+// Assign tag for a CgenNode recursively
+void CgenKlassTable::AssignTag(CgenNode *node, int &val) {
+    node->tag_ = val;
+    val++;
+    for (auto child : node->children_) {
+        AssignTag(child, val);
+    }
+    node->next_sib_tag_ = val;
+}
 
 
 void CgenKlassTable::CgenGlobalData(std::ostream& os) const {
@@ -579,6 +596,7 @@ void CgenKlassTable::CgenClassNameTable(std::ostream& os) const {
         os << WORD;
         CgenRef(os, gStringTable.lookup(node->name()));
         os << std::endl;
+        std::cout << node->name() << " " << node->tag_ << " " << node->next_sib_tag_ << "\n";
     } // end for
 } // end void CgenKlassTable::CgenClassNameTable(std::ostream& os) const
 
@@ -602,12 +620,6 @@ void CgenKlassTable::CgenClassObjTable(std::ostream& os) const {
 // Emit Prototype object
 void CgenKlassTable::CgenProtobj(std::ostream& os) const {
     for (auto node : nodes_) {
-        // Pointer to the parent, offset -8
-        os << WORD;
-        if (node->name() == Object) {os << "0"; }
-        else {emit_protobj_ref(node->parent()->name(), os); }
-        os << std::endl;
-
         // Garbage collector tag, offset = -4
         os << WORD << -1 << std::endl;
 
@@ -1422,18 +1434,12 @@ void Kase::CodeGen(CgenEnv &env) {
     // the label after all branches are done with
     int master_label = num_label;
     num_label++;
-    // the label for executing a branch after comparing tags
-    int exe_label;
 
     // Deal with each branch
     for (auto branch : sorted_cases_) {
         env.os << "label" << merge_label << LABEL;
         // Load the tag number of input object into $t2
         env.os << LW << T2 << " 0(" << ACC << ")\n";
-
-        //
-
-
         // Find the tag number of the current branch type
         int branch_tag = env.klass_table->TagFind(branch->decl_type_);
         // If the input tage does not match this branch, jump to the next branch

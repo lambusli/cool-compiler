@@ -86,7 +86,7 @@ class VarBinding {
     friend class Ref;
     friend class Assign;
     friend class Let;
-    friend class KaseBranch; 
+    friend class KaseBranch;
     Symbol *class_name_;
     Symbol *var_name_;
     Symbol *decl_type_;
@@ -136,6 +136,7 @@ class CgenNode : public InheritanceNode<CgenNode> {
    * no specific ordering requirement.
    */
   std::size_t tag_;
+  std::size_t next_sib_tag_; 
 
   ScopedTable<Symbol *, VarBinding *> etable_var_; // hash table for lookup
   std::vector<Symbol *> evector_attr_; // vector for maintaining order
@@ -176,6 +177,8 @@ class CgenKlassTable : public KlassTable<CgenNode> {
    * @param os std::ostream to write generated code to
    */
   void CodeGen(std::ostream& os);
+  void AssignAllTags();
+  void AssignTag(CgenNode *node, int &val);
 
   // methods related to varBinding
   void allBinding();
