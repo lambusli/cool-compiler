@@ -602,6 +602,12 @@ void CgenKlassTable::CgenClassObjTable(std::ostream& os) const {
 // Emit Prototype object
 void CgenKlassTable::CgenProtobj(std::ostream& os) const {
     for (auto node : nodes_) {
+        // Pointer to the parent, offset -8
+        os << WORD;
+        if (node->name() == Object) {os << "0"; }
+        else {emit_protobj_ref(node->parent()->name(), os); }
+        os << std::endl;
+
         // Garbage collector tag, offset = -4
         os << WORD << -1 << std::endl;
 
@@ -1416,12 +1422,18 @@ void Kase::CodeGen(CgenEnv &env) {
     // the label after all branches are done with
     int master_label = num_label;
     num_label++;
+    // the label for executing a branch after comparing tags
+    int exe_label;
 
     // Deal with each branch
     for (auto branch : sorted_cases_) {
         env.os << "label" << merge_label << LABEL;
         // Load the tag number of input object into $t2
         env.os << LW << T2 << " 0(" << ACC << ")\n";
+
+        //
+
+
         // Find the tag number of the current branch type
         int branch_tag = env.klass_table->TagFind(branch->decl_type_);
         // If the input tage does not match this branch, jump to the next branch
