@@ -146,7 +146,9 @@ class CgenNode : public InheritanceNode<CgenNode> {
   friend class Dispatch;
   friend class Ref;
   friend class Assign;
-  friend class Let; 
+  friend class Let;
+  friend class Kase;
+  friend class KaseBranch;
 };
 
 /// Class table for use in code generation
@@ -177,6 +179,9 @@ class CgenKlassTable : public KlassTable<CgenNode> {
   // methods related to varBinding
   void allBinding();
   void doBinding(CgenNode *node, CgenNode *parent);
+
+  // helper method for sorting kasebranches
+  void SortSearch(Kase *caseexpr, CgenNode *node);
 
  private:
 
@@ -216,6 +221,9 @@ class CgenKlassTable : public KlassTable<CgenNode> {
   void CgenObjInit(std::ostream& os);
 
   void CgenMethBody(std::ostream &os);
+
+  friend class Kase;
+  friend class KaseBranch;
 
 };
 

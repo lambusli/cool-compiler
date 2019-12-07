@@ -433,7 +433,7 @@ class Let : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
-  void CodeGen(CgenEnv &env); 
+  void CodeGen(CgenEnv &env);
   void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
@@ -454,13 +454,18 @@ class Kase : public Expression {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
+  void CodeGen(CgenEnv &env);
+  void SortBranches(CgenEnv &env);
 
  protected:
   Expression* input_;
   KaseBranches* cases_;
+  std::vector<KaseBranch*> sorted_cases_;
 
   Kase(Expression* input, KaseBranches* cases, SourceLoc loc)
       : Expression(loc), input_(input), cases_(cases) {}
+
+  friend class CgenKlassTable;
 };
 
 /// AST node Cool single case branch
@@ -475,6 +480,7 @@ class KaseBranch : public Expression {
 
  protected:
   friend class Kase;
+  friend class CgenKlassTable;
   Symbol* name_;
   Symbol* decl_type_;
   Expression* body_;
@@ -497,6 +503,8 @@ class Knew : public Expression {
   Symbol* name_;
 
   Knew(Symbol* name, SourceLoc loc) : Expression(loc), name_(name) {}
+
+  friend class CgenKlassTable;
 };
 
 /// AST node for Cool unary operator

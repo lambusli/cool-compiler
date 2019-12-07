@@ -841,6 +841,28 @@ void Let::CountTemporal(int &num_temp, int &max_temp) {
 }
 
 
+// Sort kasebranches by topological order of each type
+void Kase::SortBranches(CgenEnv &env) {
+    env.klass_table->SortSearch(this, env.klass_table->root_);
+}
+
+
+// Depth first search of inheritance graph that helps sort kasebranches
+void CgenKlassTable::SortSearch(Kase *caseexpr, CgenNode *node) {
+    // Traver all the children
+    for (auto child : node->children_) {
+        SortSearch(caseexpr, child);
+    }
+    // Check whether find node->name() exists in a branch
+    // If yes, append that branch to caseexpr->sorted_cases_
+    for (auto branch : *caseexpr->cases_) {
+        if (node->name() == branch->decl_type_) {
+            caseexpr->sorted_cases_.push_back(branch);
+        }
+    }
+}
+
+
 
 
 
@@ -1346,7 +1368,6 @@ void Let::CodeGen(CgenEnv &env) {
     }
     env.os << SW << ACC << " " << vb->offset_ << "(" << FP << ")\n";
 
-
     // evaluate body
     body_->CodeGen(env);
 
@@ -1354,5 +1375,13 @@ void Let::CodeGen(CgenEnv &env) {
     curr_etable.ExitScope();
     num_temp--;
 } // void Let::CodeGen(SemantEnv &env)
+
+
+void Kase::CodeGen(CgenEnv &env) {
+    SortBranches(env);
+    for (auto branch : sorted_cases_) {
+        std::cout << branch->name_ << " " << branch->decl_type_ << std::endl;
+    }
+}
 
 }  // namespace cool
