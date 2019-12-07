@@ -589,32 +589,50 @@ void Cgen(Program* program, std::ostream& os) {
  */
 
 // Emit class nametable
-void CgenKlassTable::CgenClassNameTable(std::ostream& os) const {
+void CgenKlassTable::CgenClassNameTable(std::ostream& os) {
     os << CLASSNAMETAB << LABEL;
-
-    for (auto node : nodes_) {
-        os << WORD;
-        CgenRef(os, gStringTable.lookup(node->name()));
-        os << std::endl;
-        std::cout << node->name() << " " << node->tag_ << " " << node->next_sib_tag_ << "\n";
-    } // end for
+    ClassNameTable_all(os);
 } // end void CgenKlassTable::CgenClassNameTable(std::ostream& os) const
 
 
+void CgenKlassTable::ClassNameTable_all(std::ostream& os) {
+    ClassNameTable_node(root_, os);
+}
+
+
+void CgenKlassTable::ClassNameTable_node(CgenNode *node, std::ostream &os) {
+    os << WORD;
+    CgenRef(os, gStringTable.lookup(node->name()));
+    os << std::endl;
+    for (auto child : node->children_) {
+        ClassNameTable_node(child, os);
+    }
+}
+
+
 // Emit class objtable
-void CgenKlassTable::CgenClassObjTable(std::ostream& os) const {
+void CgenKlassTable::CgenClassObjTable(std::ostream& os) {
     os << CLASSOBJTAB << LABEL;
-
-    for (auto node : nodes_) {
-        os << WORD;
-        emit_protobj_ref(node->name(), os);
-        os << std::endl;
-
-        os << WORD;
-        emit_init_ref(node->name(), os);
-        os << std::endl;
-    } // end for
+    ClassObjTable_all(os);
 } // end void CgenKlassTable::CgenClassObjTable(std::ostream& os) const
+
+
+void CgenKlassTable::ClassObjTable_all(std::ostream& os) {
+    ClassObjTable_node(root_, os);
+}
+
+
+void CgenKlassTable::ClassObjTable_node(CgenNode *node, std::ostream &os) {
+    os << WORD;
+    emit_protobj_ref(node->name(), os);
+    os << std::endl;
+    os << WORD;
+    emit_init_ref(node->name(), os);
+    os << std::endl;
+    for (auto child : node->children_) {
+        ClassObjTable_node(child, os);
+    }
+}
 
 
 // Emit Prototype object

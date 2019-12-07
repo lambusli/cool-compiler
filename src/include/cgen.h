@@ -136,7 +136,7 @@ class CgenNode : public InheritanceNode<CgenNode> {
    * no specific ordering requirement.
    */
   std::size_t tag_;
-  std::size_t next_sib_tag_; 
+  std::size_t next_sib_tag_;
 
   ScopedTable<Symbol *, VarBinding *> etable_var_; // hash table for lookup
   std::vector<Symbol *> evector_attr_; // vector for maintaining order
@@ -179,6 +179,10 @@ class CgenKlassTable : public KlassTable<CgenNode> {
   void CodeGen(std::ostream& os);
   void AssignAllTags();
   void AssignTag(CgenNode *node, int &val);
+  void ClassNameTable_all(std::ostream& os);
+  void ClassNameTable_node(CgenNode *node, std::ostream &os);
+  void ClassObjTable_all(std::ostream &os);
+  void ClassObjTable_node(CgenNode *node, std::ostream &os); 
 
   // methods related to varBinding
   void allBinding();
@@ -214,9 +218,9 @@ class CgenKlassTable : public KlassTable<CgenNode> {
    */
   void CgenGlobalText(std::ostream& os) const;
 
-  void CgenClassNameTable(std::ostream& os) const;
+  void CgenClassNameTable(std::ostream& os);
 
-  void CgenClassObjTable(std::ostream& os) const;
+  void CgenClassObjTable(std::ostream& os);
 
   void CgenProtobj(std::ostream& os) const;
 
