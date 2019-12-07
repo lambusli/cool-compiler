@@ -1395,6 +1395,23 @@ void Let::CodeGen(CgenEnv &env) {
 void Kase::CodeGen(CgenEnv &env) {
     SortBranches(env);
     input_->CodeGen(env);
+
+    int merge_label;
+    // handle case match on void
+    merge_label = num_label;
+    num_label++;
+    env.os << BNE << ACC << " " << ZERO << " label" << merge_label << "\n";
+    // Load filename into ACC
+    env.os << LA << ACC << " ";
+    CgenRef(env.os, gStringTable.lookup(env.curr_cgen_node->filename()->value()));
+    env.os << "\n";
+    // Load line number into T1
+    env.os << LI << T1 << " " << loc() << "\n";
+    // Abort
+    emit_case_abort2(env.os);
+    // label after abort
+    env.os << "label" << merge_label << LABEL; 
+
 }
 
 }  // namespace cool
