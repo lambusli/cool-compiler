@@ -1085,6 +1085,46 @@ void Dispatch::CodeGen(CgenEnv &env) {
 } // end void Dispatch::CodeGen(CgenEnv &env)
 
 
+void StaticDispatch::CodeGen(CgenEnv &env) {
+    CgenNode *dispatch_cgen_node;
+
+    // Evaluate each argument and push it into current stackframe
+    for (auto actual : *actuals_) {
+        actual->CodeGen(env);
+        env.os << SW << ACC << " 0(" << SP << ")\n";
+        env.os << ADDIU << SP << " " << SP << " -4\n";
+    }
+
+    // Evaluate the receiver object and load it into accumulator
+    receiver_->CodeGen(env);
+
+    dispatch_cgen_node = env.klass_table->ClassFind(dispatch_type_);
+
+    // Check whether the receiver object is NULL, and then branch
+    env.os << BNE << ACC << " " << ZERO << " label" << num_label << "\n";
+
+    // Abort if receiver is NULL
+    // Load filename into ACC
+    env.os << LA << ACC << " ";
+    CgenRef(env.os, gStringTable.lookup(env.curr_cgen_node->filename()->value()));
+    env.os << "\n";
+    // Load line number into T1
+    env.os << LI << T1 << " " << loc() << "\n";
+    // Abort
+    emit_dispatch_abort(env.os);
+
+    // Jump
+    env.os << "label" << num_label << LABEL;
+    num_label++;
+    // Load the dispatch pointer into $t1
+    env.os << LA << T1 << " " << dispatch_type_ << DISPTAB_SUFFIX << "\n";
+    // Find the offset of the method and load into $t1
+    env.os << LW << T1 << " " << dispatch_cgen_node->etable_meth_[name_]->offset_ << "(" << T1 << ")\n";
+    // execute dispatch
+    env.os << JALR << T1 << "\n";
+}
+
+
 void Ref::CodeGen(CgenEnv &env) {
     // if ID is the "self" key word
     if (name_ == self) {

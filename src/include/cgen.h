@@ -83,6 +83,7 @@ class VarBinding {
     friend class CgenKlassTable;
     friend class CgenNode;
     friend class Dispatch;
+    friend class StaticDispatch;
     friend class Ref;
     friend class Assign;
     friend class Let;
@@ -107,6 +108,7 @@ class MethBinding {
     friend class CgenKlassTable;
     friend class CgenNode;
     friend class Dispatch;
+    friend class StaticDispatch;
     friend class Ref;
     Symbol *class_name_;
     Symbol *meth_name_;
@@ -146,6 +148,7 @@ class CgenNode : public InheritanceNode<CgenNode> {
 
   friend class CgenKlassTable;
   friend class Dispatch;
+  friend class StaticDispatch; 
   friend class Ref;
   friend class Assign;
   friend class Let;
@@ -172,7 +175,7 @@ class CgenKlassTable : public KlassTable<CgenNode> {
   std::size_t NextSibTagFind(Symbol *name) const {
       auto node = ClassFind(name);
       assert(node);
-      return node->next_sib_tag_; 
+      return node->next_sib_tag_;
   }
 
   /**
