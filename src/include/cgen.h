@@ -169,6 +169,12 @@ class CgenKlassTable : public KlassTable<CgenNode> {
     return node->tag_;
   }
 
+  std::size_t NextSibTagFind(Symbol *name) const {
+      auto node = ClassFind(name);
+      assert(node);
+      return node->next_sib_tag_; 
+  }
+
   /**
    * @brief Generate code for entire Cool program as represented by this KlassTable.
    *
@@ -182,7 +188,7 @@ class CgenKlassTable : public KlassTable<CgenNode> {
   void ClassNameTable_all(std::ostream& os);
   void ClassNameTable_node(CgenNode *node, std::ostream &os);
   void ClassObjTable_all(std::ostream &os);
-  void ClassObjTable_node(CgenNode *node, std::ostream &os); 
+  void ClassObjTable_node(CgenNode *node, std::ostream &os);
 
   // methods related to varBinding
   void allBinding();

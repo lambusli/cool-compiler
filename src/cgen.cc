@@ -1459,11 +1459,13 @@ void Kase::CodeGen(CgenEnv &env) {
         // Load the tag number of input object into $t2
         env.os << LW << T2 << " 0(" << ACC << ")\n";
         // Find the tag number of the current branch type
-        int branch_tag = env.klass_table->TagFind(branch->decl_type_);
-        // If the input tage does not match this branch, jump to the next branch
+        int lower_bound = env.klass_table->TagFind(branch->decl_type_);
+        int upper_bound = env.klass_table->NextSibTagFind(branch->decl_type_);
+        // If the input tag does not fall between the bound, jump to the next branch
         merge_label = num_label;
         num_label++;
-        env.os << BNE << T2 << " " << branch_tag << " label" << merge_label << "\n";
+        env.os << BLT << T2 << " " << lower_bound << " label" << merge_label << "\n";
+        env.os << BGT << T2 << " " << upper_bound - 1 << " label" << merge_label << "\n";
         // CodeGen for each branch
         branch->CodeGen(env);
         // Jump out of branch
