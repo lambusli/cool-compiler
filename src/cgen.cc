@@ -1179,6 +1179,42 @@ void Assign::CodeGen(CgenEnv &env) {
 } // end void Assign::CodeGen(CgenEnv &env)
 
 
+void UnaryOperator::CodeGen(CgenEnv &env) {
+    int merge_label;
+    input_->CodeGen(env);
+
+    switch (kind_) {
+        case UO_Neg:
+            break;
+
+        case UO_Not:
+            break;
+
+        case UO_IsVoid:
+            merge_label = num_label;
+            num_label++;
+            // move result to $t1
+            env.os << MOVE << T1 << " " << ACC << "\n";
+            // Assume true
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, true);
+            env.os << "\n";
+            // Check void
+            env.os << BEQZ << T1 << " label" << merge_label << "\n";
+            // Set to false
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, false);
+            env.os << "\n";
+            // Conclude with label
+            env.os << "label" << merge_label << LABEL;
+            break;
+
+        default:
+            break;
+    } // end switch
+} // end UnaryOperator::CodeGen(CgenEnv &env)
+
+
 void BinaryOperator::CodeGen(CgenEnv &env) {
     int merge_label;
     // eval lhs

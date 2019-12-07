@@ -525,6 +525,7 @@ class UnaryOperator : public Expression {
 
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
+  void CodeGen(CgenEnv &env); 
   void Typecheck(SemantEnv &env);
 
  protected:
