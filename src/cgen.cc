@@ -1185,9 +1185,33 @@ void UnaryOperator::CodeGen(CgenEnv &env) {
 
     switch (kind_) {
         case UO_Neg:
+            // copy object
+            env.os << JAL << "Object.copy\n";
+            // load actual value in $t1
+            env.os << LW << T1 << " 12(" << ACC << ")\n";
+            // negate $t1
+            env.os << NEG << T1 << " " << T1 << "\n";
+            // store the new $t1 as the actual value
+            env.os << SW << T1 << " 12(" << ACC << ")\n";
             break;
 
         case UO_Not:
+            merge_label = num_label;
+            num_label++;
+            // load actual value in $t1
+            env.os << LW << T1 << " 12(" << ACC << ")\n";
+            // Assume true
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, true);
+            env.os << "\n";
+            // check the actual value
+            env.os << BEQZ << T1 << " label" << merge_label << "\n";
+            // Set to false
+            env.os << LA << ACC << " ";
+            CgenRef(env.os, false);
+            env.os << "\n";
+            // Conclude with label
+            env.os << "label" << merge_label << LABEL;
             break;
 
         case UO_IsVoid:
