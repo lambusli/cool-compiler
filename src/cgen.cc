@@ -868,6 +868,20 @@ void Block::CountTemporal(int &num_temp, int &max_temp) {
 }
 
 
+// Count temporals for if
+void Cond::CountTemporal(int &num_temp, int &max_temp) {
+    pred_->CountTemporal(num_temp, max_temp);
+    then_branch_->CountTemporal(num_temp, max_temp);
+    else_branch_->CountTemporal(num_temp, max_temp);
+}
+
+
+void Loop::CountTemporal(int &num_temp, int &max_temp) {
+    pred_->CountTemporal(num_temp, max_temp);
+    body_->CountTemporal(num_temp, max_temp);
+}
+
+
 // Count temporals of a LET AST node
 void Let::CountTemporal(int &num_temp, int &max_temp) {
     num_temp++;
@@ -889,6 +903,30 @@ void KaseBranch::CountTemporal(int &num_temp, int &max_temp) {
     if (num_temp > max_temp) {max_temp = num_temp; }
     body_->CountTemporal(num_temp, max_temp);
     num_temp--;
+}
+
+
+void Assign::CountTemporal(int &num_temp, int &max_temp) {
+    value_->CountTemporal(num_temp, max_temp);
+}
+
+
+void Dispatch::CountTemporal(int &num_temp, int &max_temp) {
+    receiver_->CountTemporal(num_temp, max_temp);
+    for (auto actual : *actuals_) {
+        actual->CountTemporal(num_temp, max_temp);
+    }
+}
+
+
+void UnaryOperator::CountTemporal(int &num_temp, int &max_temp) {
+    input_->CountTemporal(num_temp, max_temp);
+}
+
+
+void BinaryOperator::CountTemporal(int &num_temp, int &max_temp) {
+    lhs_->CountTemporal(num_temp, max_temp);
+    rhs_->CountTemporal(num_temp, max_temp);
 }
 
 

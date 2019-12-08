@@ -322,6 +322,7 @@ class Assign : public Expression {
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
   void CodeGen(CgenEnv &env);
+  void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
   Symbol* name_;
@@ -341,6 +342,7 @@ class Dispatch : public Expression {
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
   void CodeGen(CgenEnv &env);
+  void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
   Expression* receiver_;
@@ -360,7 +362,7 @@ class StaticDispatch : public Dispatch {
 
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
-  void CodeGen(CgenEnv &env); 
+  void CodeGen(CgenEnv &env);
 
  protected:
   Symbol* dispatch_type_;
@@ -380,6 +382,7 @@ class Cond : public Expression {
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
   void CodeGen(CgenEnv &env);
+  void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
   Expression* pred_;
@@ -399,6 +402,7 @@ class Loop : public Expression {
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
   void CodeGen(CgenEnv &env);
+  void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
   Expression* pred_;
@@ -528,6 +532,7 @@ class UnaryOperator : public Expression {
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void CodeGen(CgenEnv &env);
   void Typecheck(SemantEnv &env);
+  void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
   UnaryKind kind_;
@@ -558,6 +563,7 @@ class BinaryOperator : public Expression {
   void DumpTree(std::ostream& os, size_t level, bool with_types) const override;
   void Typecheck(SemantEnv &env);
   void CodeGen(CgenEnv &env);
+  void CountTemporal(int &num_temp, int &max_temp);
 
  protected:
   BinaryKind kind_;

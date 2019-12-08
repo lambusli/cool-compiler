@@ -66,34 +66,48 @@ Instructions for turning in the assignment will be posted on the course site. Ma
 ## Write-up
 Since code generation is a big project, it is impossible to address every single aspect of my design choices. I will do my best to touch on the essential ones.
 
-1. General strategy for code generation
+#### General strategy for code generation
 As stated by the assignment description, we generate code for global constants, global tables, init method for each class, and each method body. The first three lay the ground work for code generation of method bodies.
 For each method body, we recursively traverse the AST and generate code for each AST node. For each CodeGen method, we always make sure that:
 -- The computed result is of that code generation is stored in $a0.
--- Stackpointer (sp) remains unchanged in at the end of CodeGen. 
+-- Stackpointer (sp) remains unchanged in at the end of CodeGen.
 
-1. Structure of activation records
+#### Structure of activation records
 =========================
+
 |                       |
+
 |  Method arguments     |
+
 |                       |
+
 =========================
+
 |                       |
+
 |  Let & case temporals |
+
 |                       |
+
 =========================
+
 | Previous framepointer |   <-- fp + 8
+
 =========================
+
 | Previous self pointer |   <-- fp + 4
+
 =========================
+
 | return address        |   <-- fp + 0
+
 =========================
 
 When we dispatch a method, the caller is responsible for pushing all the method arguments. The callee prologue is responsible for pushing let & case temporals and callee saves. The callee epilogue is responsible for popping all the activation records (as shown in figure above), restoring the previous framepointer and self pointer, and jumping to the return address to resume the instructions.
 
 How do we make sure that we set aside enough but minimum space for let & case temporals? Before the code generation for a method body, we pre-traverse the AST of that method body and recursively count what is the maximum number of 4-byte words we need at any given point. See the method `CountTemporal(int &num_temp, int &max_temp)` defined in multiple AST classes.
 
-1. Tag of cool-classes and order of cool-classes
+#### Tag of cool-classes and order of cool-classes
 We depth-first traverse the inheritance graph of cool-classes to and assign each cool-class a tag so that:
 -- all children's tag are greater than the parent's tag.
 -- all children's tag are less than the parent's next sibling's tag.
@@ -102,7 +116,7 @@ These two properties allow us to efficiently compare the hierarchy of two classe
 In ClassNameTable and ClassObjectTable, all entries are sorted by the tags of classes. In this way we can treat the tag as an offset to access certain data of cool-classes.
 However, Prototype objects, Dispatch tables, and `X_init` methods are not sorted by tag. Their orders are arbitrary.
 
-1. Environment and Store
+#### Environment and Store
 In the operational semantics we use, Environment is the mapping from a symbol to a location, and Store is the mapping from a location to a value. Store is easy to implement: given an address we can obtain the value stored at that address. To keep track of the Environment, we use the following variables:
 ```
 ScopedTable<Symbol *, VarBinding *> CgenNode::etable_var_;
@@ -121,5 +135,5 @@ The most important information contained in a "VarBinding" is the memory offset 
 
 `CgenNode::etable_meth_` contains mapping from a method name to its "MethBinding" info. The most important information contained by a "MethBinding" is the offset of the method pointer relative to the start of Dispatch Table. A method in the Dispatch Table of an inherited class, either redefined or not, should have the same offset as in the Dispatch Table of the parent class. To maintain this order and consistency, we use a helper vector `CgenNode::evector_meth_`.
 
-1. Testing
+#### Testing
 For all the test files, see pa5/Small_tests
