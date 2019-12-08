@@ -46,8 +46,7 @@ limitations under the License.
 
 // Possible values for VarBinding::origin_
 #define ATTR 0    // the variable comes from attribute definition
-#define ARG 1     // the variable comes from method arguments
-#define LETTEMP 2 // the variable comes from "let" temporaries
+#define ARG 1     // the variable comes from method arguments, let & case temporals
 
 /// Switch for optimizing code generator
 extern bool cgen_optimize;
@@ -148,7 +147,7 @@ class CgenNode : public InheritanceNode<CgenNode> {
 
   friend class CgenKlassTable;
   friend class Dispatch;
-  friend class StaticDispatch; 
+  friend class StaticDispatch;
   friend class Ref;
   friend class Assign;
   friend class Let;

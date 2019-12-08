@@ -66,6 +66,12 @@ Instructions for turning in the assignment will be posted on the course site. Ma
 ## Write-up
 Since code generation is a big project, it is impossible to address every single aspect of my design choices. I will do my best to touch on the essential ones.
 
+1. General strategy for code generation
+As stated by the assignment description, we generate code for global constants, global tables, init method for each class, and each method body. The first three lay the ground work for code generation of method bodies.
+For each method body, we recursively traverse the AST and generate code for each AST node. For each CodeGen method, we always make sure that:
+-- The computed result is of that code generation is stored in $a0.
+-- Stackpointer (sp) remains unchanged in at the end of CodeGen. 
+
 1. Structure of activation records
 =========================
 |                       |
@@ -97,3 +103,23 @@ In ClassNameTable and ClassObjectTable, all entries are sorted by the tags of cl
 However, Prototype objects, Dispatch tables, and `X_init` methods are not sorted by tag. Their orders are arbitrary.
 
 1. Environment and Store
+In the operational semantics we use, Environment is the mapping from a symbol to a location, and Store is the mapping from a location to a value. Store is easy to implement: given an address we can obtain the value stored at that address. To keep track of the Environment, we use the following variables:
+```
+ScopedTable<Symbol *, VarBinding *> CgenNode::etable_var_;
+std::vector<Symbol *> CgenNode::evector_attr_;
+std::unordered_map<Symbol *, MethBinding *> CgenNode::etable_meth_;
+std::vector<Symbol *> CgenNode::evector_meth_;
+```
+
+`CgenNode::etable_var_` contains three types of mappings:
+-- from an attribute name to its "VarBinding" info
+-- from a let temporal to its "VarBinding" info
+-- from a case temporal to its "VarBinding" info
+The most important information contained in a "VarBinding" is the memory offset of that variable. An attribute's offset is relative to the self pointer, usually stored in $s0. The offset of a let/case temporal is relative to the framepointer, usually stored in $fp. In this way we can keep track of the mapping from the variable name to the location that stores the variable.
+
+`CgenNode::evector_attr_` is a helper vector that maintains the order of attributes. Since in each class inherited attributes must have the same offset as in parent class, and since scoped table or unordered map cannot maintain the order of symbols, we choose to use a vector to maintain the order and keep the offsets of attributes consistent.
+
+`CgenNode::etable_meth_` contains mapping from a method name to its "MethBinding" info. The most important information contained by a "MethBinding" is the offset of the method pointer relative to the start of Dispatch Table. A method in the Dispatch Table of an inherited class, either redefined or not, should have the same offset as in the Dispatch Table of the parent class. To maintain this order and consistency, we use a helper vector `CgenNode::evector_meth_`.
+
+1. Testing
+For all the test files, see pa5/Small_tests
