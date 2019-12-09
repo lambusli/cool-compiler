@@ -1593,6 +1593,28 @@ void Kase::CodeGen(CgenEnv &env) {
 
     // Deal with each branch
     for (auto branch : sorted_cases_) {
+        /* Branch prologue */
+        // Enter scope
+        ScopedTable<Symbol *, VarBinding *> &curr_etable = env.curr_cgen_node->etable_var_;
+        curr_etable.EnterScope();
+        num_temp++;
+
+        // Create VarBinding for the temporal
+        // offset is relative to fp
+        // offset of the i-th temporal = 8 + 4 * i (i starts from 1)
+        VarBinding *vb = new VarBinding();
+        vb->class_name_ = env.curr_cgen_node->name();
+        vb->var_name_ = branch->name_;
+        vb->decl_type_ = branch->decl_type_;
+        vb->origin_ = ARG;
+        vb->offset_ = 8 + 4 * num_temp;
+        curr_etable.AddToScope(branch->name_, vb);
+
+        // Store the input object as a temporal
+        env.os << SW << ACC << " " << vb->offset_ << "(" << FP << ")\n";
+
+
+        /* Branch body */
         env.os << "label" << merge_label << LABEL;
         // Load the tag number of input object into $t2
         env.os << LW << T2 << " 0(" << ACC << ")\n";
@@ -1605,9 +1627,15 @@ void Kase::CodeGen(CgenEnv &env) {
         env.os << BLT << T2 << " " << lower_bound << " label" << merge_label << "\n";
         env.os << BGT << T2 << " " << upper_bound - 1 << " label" << merge_label << "\n";
         // CodeGen for each branch
-        branch->CodeGen(env);
+        branch->body_->CodeGen(env);
         // Jump out of branch
         env.os << BRANCH << "label" << master_label << "\n";
+
+
+        /* Branch epilogue */
+        // Exit scope
+        curr_etable.ExitScope();
+        num_temp--;
     } // end for
 
     // Case abort: no match
@@ -1617,30 +1645,5 @@ void Kase::CodeGen(CgenEnv &env) {
     env.os << "label" << master_label << LABEL;
 } // end void Kase::CodeGen(CgenEnv &env)
 
-
-void KaseBranch::CodeGen(CgenEnv &env) {
-    // Enter scope
-    ScopedTable<Symbol *, VarBinding *> &curr_etable = env.curr_cgen_node->etable_var_;
-    curr_etable.EnterScope();
-    num_temp++;
-
-    // Create VarBinding for the temporal
-    // offset is relative to fp
-    // offset of the i-th temporal = 8 + 4 * i (i starts from 1)
-    VarBinding *vb = new VarBinding();
-    vb->class_name_ = env.curr_cgen_node->name();
-    vb->var_name_ = name_;
-    vb->decl_type_ = decl_type_;
-    vb->origin_ = ARG;
-    vb->offset_ = 8 + 4 * num_temp;
-    curr_etable.AddToScope(name_, vb);
-
-    // CodeGen for branch body
-    body_->CodeGen(env);
-
-    // Exit scope
-    curr_etable.ExitScope();
-    num_temp--;
-} // end void KaseBranch::CodeGen(CgenEnv &env)
 
 }  // namespace cool
