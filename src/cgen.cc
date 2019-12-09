@@ -1591,6 +1591,7 @@ void Kase::CodeGen(CgenEnv &env) {
     int master_label = num_label;
     num_label++;
 
+    int i = 0;
     // Deal with each branch
     for (auto branch : sorted_cases_) {
         /* Branch prologue */
@@ -1610,12 +1611,12 @@ void Kase::CodeGen(CgenEnv &env) {
         vb->offset_ = 8 + 4 * num_temp;
         curr_etable.AddToScope(branch->name_, vb);
 
-        // Store the input object as a temporal
-        env.os << SW << ACC << " " << vb->offset_ << "(" << FP << ")\n";
 
 
         /* Branch body */
         env.os << "label" << merge_label << LABEL;
+        // Store the input object as a temporal
+        env.os << SW << ACC << " " << vb->offset_ << "(" << FP << ")\n";
         // Load the tag number of input object into $t2
         env.os << LW << T2 << " 0(" << ACC << ")\n";
         // Find the tag number of the current branch type
@@ -1636,6 +1637,7 @@ void Kase::CodeGen(CgenEnv &env) {
         // Exit scope
         curr_etable.ExitScope();
         num_temp--;
+        i++;
     } // end for
 
     // Case abort: no match
