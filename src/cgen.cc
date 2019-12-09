@@ -787,6 +787,27 @@ CgenEnv::CgenEnv(CgenKlassTable *klass_table_arg,
  * Part II
  * Helper functions of code generation
  */
+// Prologue before the codegen for attribute init
+// Keep a similar structure that allows to store temporals
+void prologue_weird(std::ostream &os, int max_temp) {
+    // move stack pointer 3 words down
+    os << ADDIU << SP << " " << SP << " " << (-12 - 4 * max_temp) << "\n";
+    // store the address of the old framepointer as the first record
+    os << SW << FP << " 12(" << SP << ")\n" ;
+    // create the new framepointer
+    os << ADDIU << FP << " " << SP << " 4\n";
+}
+
+
+// Epilogue after the codegen for attribute init
+// Keep a similar structure that allows to store temporals
+void epilogue_weird(std::ostream &os, int max_temp) {
+    // Restore the old framepointer
+    os << LW << FP << " 12(" << SP << ")\n";
+    // Pop stackframe (both callee's save and callee's arguments)
+    os << ADDIU << SP << " " << SP << " " << 12 + 4 * max_temp << "\n";
+}
+
 
 // Callee prologue
 void prologue(std::ostream &os, int max_temp) {
@@ -983,8 +1004,15 @@ void CgenKlassTable::CgenObjInit(std::ostream &os) {
             // Do nothing if an attribute is not initialized
             if (!attr->init()->IsCode()) {continue; }
 
+            // Count how many temporals we need for attribute init
+            int num_temp = 0, max_temp = 0;
+            attr->init()->CountTemporal(num_temp, max_temp);
+            // Fake prologue that leaves space for temporals
+            prologue_weird(os, max_temp);
             // Codegen for the initialized value
             attr->init()->CodeGen(envnow);
+            // Fake epilogue that restores the stack 
+            epilogue_weird(os, max_temp);
             // Store the value at the correct offset
             os << SW << ACC << " " << node->etable_var_.Lookup(feature->name())->offset_
                << "(" << SELF << ")\n";
